@@ -1,39 +1,43 @@
 .background {
-    min-height: 100vh;
-    background: linear-gradient(to bottom right, #000FFF, #000000);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #000FFF, #000000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-group{
+  padding: 10px;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
 }
 
 .form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
 }
 
 .login-header {
-    color: white;
+  color: white;
 }
 
 .login-form {
-    width: 300px;
-    margin-top: 10px;
+  width: 300px;
+  margin-top: 10px;
 }
 
 .btn-primary {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .text-danger {
-    color: red;
-    margin-top: 10px;
+  color: red;
+  margin-top: 10px;
 }
