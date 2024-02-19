@@ -1,15 +1,14 @@
 import './App.css'
 import {Route, Routes} from 'react-router-dom';
-import LoginForm from "./components/LoginForm";
+import Login from "./components/Login";
 
 function App(){
     return (
-        <>
-            <Routes>
-                <Route path="/" element={<LoginForm/>}/>
-                <Route path="/login" element={<LoginForm/>}/>
-            </Routes>
-        </>
+    <>
+        <Routes>
+            <Route path="/login" element={<Login/>}/>
+        </Routes>
+    </>
     )
 }
 
