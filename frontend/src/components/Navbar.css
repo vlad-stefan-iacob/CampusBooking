@@ -1,7 +1,3 @@
-.active {
-    background-color: #1d4ed8;
-}
-
 nav {
     display: flex;
     justify-content: space-between;
@@ -42,7 +38,12 @@ nav ul li div {
 }
 
 nav ul li a:not(.active):hover,
-nav ul li div:hover {
+nav ul li .profil-trigger.active:hover .dropdown-menu {
+    background-color: #172554;
+}
+
+nav ul li.profil-trigger.active a,
+nav ul li.profil-trigger.active div {
     background-color: #172554;
 }
 
@@ -72,16 +73,16 @@ nav ul .profil-trigger .dropdown-menu {
     display: none;
     position: absolute;
     top: 100%;
-    right: 0;
+    left: -77px;
     background-color: #0f172a;
     border-radius: 0.5rem;
 }
 
-nav ul .profil-trigger:hover .dropdown-menu {
+nav ul .profil-trigger.active .dropdown-menu {
     display: flex;
     flex-direction: column;
 }
 
 nav ul .profil-trigger .dropdown-menu a {
-    margin: 0 0.2rem;
+    padding: 0 0 5px 0;
 }

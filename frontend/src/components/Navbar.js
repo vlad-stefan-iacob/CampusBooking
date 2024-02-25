@@ -1,9 +1,15 @@
+// Update your Navbar component
+
 import React, { useState } from "react";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
 
 export const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleProfilClick = () => {
+        setMenuOpen(!menuOpen);
+    };
 
     return (
         <nav>
@@ -22,10 +28,12 @@ export const Navbar = () => {
                 <li>
                     <Link to="/services">Services</Link>
                 </li>
-                <li className="profil-trigger">
-                    <div>Profil</div>
+                <li className={`profil-trigger ${menuOpen ? 'active' : ''}`} onClick={handleProfilClick}>
+                    <div>Profil <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-down-circle" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+                    </svg></div>
                     <div className="dropdown-menu">
-                        <Link to="/edit-profile">Edit Profile</Link>
+                        <Link to="/edit-profile">Editare profil</Link>
                         <Link to="/logout">Logout</Link>
                     </div>
                 </li>
