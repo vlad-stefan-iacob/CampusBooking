@@ -1,5 +1,18 @@
-.background {
+.background-login {
     min-height: 100vh;
+    background: linear-gradient(to bottom right, #000FFF, #000000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.background-home {
+    min-height: 93.4vh;
+    background: linear-gradient(to bottom right, #000FFF, #000000);
+}
+
+.background {
+    min-height: 93.4vh;
     background: linear-gradient(to bottom right, #000FFF, #000000);
     display: flex;
     align-items: center;
@@ -30,10 +43,15 @@
 }
 
 .btn-primary {
-    margin-top: 10px;
+    margin-left: 121px;
+}
+
+.btn-secondary {
+    margin: 1rem 1rem;
 }
 
 .text-danger {
     color: red;
     margin-top: 10px;
 }
+

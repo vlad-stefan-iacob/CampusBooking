@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import classNames from 'classnames';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { request } from '../helpers/axios_helper';
+import {request} from '../helpers/axios_helper';
+import {useNavigate} from 'react-router-dom';
+import {Navbar} from "./Navbar";
 
 function RegisterForm() {
     const [firstname, setFirstname] = useState("");
@@ -10,6 +12,7 @@ function RegisterForm() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const onChangeHandler = (event) => {
         let name = event.target.name;
@@ -31,20 +34,20 @@ function RegisterForm() {
         // Basic form validation
         let validationErrors = {};
         if (!firstname.trim()) {
-            validationErrors.firstname = 'First Name is required';
+            validationErrors.firstname = 'Camp obligatoriu';
         }
         if (!lastname.trim()) {
-            validationErrors.lastname = 'Last Name is required';
+            validationErrors.lastname = 'Camp obligatoriu';
         }
         if (!email.trim()) {
-            validationErrors.email = 'Email is required';
+            validationErrors.email = 'Camp obligatoriu';
         } else if (!/\S+@\S+\.\S+/.test(email)) {
-            validationErrors.email = 'Invalid email format';
+            validationErrors.email = 'Format invalid';
         }
         if (!password.trim()) {
-            validationErrors.password = 'Password is required';
+            validationErrors.password = 'Camp obligatoriu';
         } else if (password.length < 6) {
-            validationErrors.password = 'Password must be at least 6 characters';
+            validationErrors.password = 'Parola trebuie sa fie de cel putin 6 caractere';
         }
 
         if (Object.keys(validationErrors).length === 0) {
@@ -62,19 +65,19 @@ function RegisterForm() {
                 );
 
                 // Handle successful registration (if needed)
-                console.log("Registration successful:", response.data);
+                console.log("Inregistrare cu succes:", response.data);
                 setRegistrationSuccess(true);
                 setErrors({});
             } catch (error) {
                 // Handle registration errors, e.g., duplicate email, network issues, etc.
-                console.error("Registration error:", error);
+                console.error("Inregistrare eronata:", error);
                 setRegistrationSuccess(false);
 
                 if (error.response && error.response.data) {
                     // Handle specific registration errors from the backend
-                    setErrors({ general: error.response.data.message });
+                    setErrors({general: error.response.data.message});
                 } else {
-                    setErrors({ general: 'Registration failed. Please try again.' });
+                    setErrors({general: 'Inregistrare esuata. Va rugam reincercati.'});
                 }
             }
         } else {
@@ -84,72 +87,88 @@ function RegisterForm() {
         }
     };
 
+    const onBack = () => {
+        navigate('/home');
+    };
+
     return (
-        <div className="background">
-            <div className="container form-container">
-                <h2 className="login-header">Register</h2>
-                <form onSubmit={onRegister} className="login-form">
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="firstName">First Name</label>
-                        <input
-                            type="text"
-                            id="firstName"
-                            name="firstName"
-                            className={classNames("form-control", { "is-invalid": errors.firstname })}
-                            value={firstname}
-                            onChange={onChangeHandler}
-                        />
-                        {errors.firstname && <span className="text-danger">{errors.firstname}</span>}
-                    </div>
+        <div className="RegisterForm">
+            <Navbar/>
+            <div className="background">
+                <div className="container form-container">
+                    <h2 className="login-header">Inregistrare utilizatori</h2>
+                    <form onSubmit={onRegister} className="login-form">
+                        <div className="form-group">
+                            <label className="text-white" htmlFor="lastName">Nume *</label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                className={classNames("form-control", {"is-invalid": errors.lastname})}
+                                value={lastname}
+                                onChange={onChangeHandler}
+                            />
+                            {errors.lastname && <span className="text-danger">{errors.lastname}</span>}
+                        </div>
 
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="lastName">Last Name</label>
-                        <input
-                            type="text"
-                            id="lastName"
-                            name="lastName"
-                            className={classNames("form-control", { "is-invalid": errors.lastname })}
-                            value={lastname}
-                            onChange={onChangeHandler}
-                        />
-                        {errors.lastname && <span className="text-danger">{errors.lastname}</span>}
-                    </div>
+                        <div className="form-group">
+                            <label className="text-white" htmlFor="firstName">Prenume *</label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                className={classNames("form-control", {"is-invalid": errors.firstname})}
+                                value={firstname}
+                                onChange={onChangeHandler}
+                            />
+                            {errors.firstname && <span className="text-danger">{errors.firstname}</span>}
+                        </div>
 
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className={classNames("form-control", { "is-invalid": errors.email })}
-                            value={email}
-                            onChange={onChangeHandler}
-                        />
-                        {errors.email && <span className="text-danger">{errors.email}</span>}
-                    </div>
+                        <div className="form-group">
+                            <label className="text-white" htmlFor="email">Email *</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                className={classNames("form-control", {"is-invalid": errors.email})}
+                                value={email}
+                                onChange={onChangeHandler}
+                            />
+                            {errors.email && <span className="text-danger">{errors.email}</span>}
+                        </div>
 
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            className={classNames("form-control", { "is-invalid": errors.password })}
-                            value={password}
-                            onChange={onChangeHandler}
-                        />
-                        {errors.password && <span className="text-danger">{errors.password}</span>}
-                    </div>
+                        <div className="form-group">
+                            <label className="text-white" htmlFor="password">Parola *</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                className={classNames("form-control", {"is-invalid": errors.password})}
+                                value={password}
+                                onChange={onChangeHandler}
+                            />
+                            {errors.password && <span className="text-danger">{errors.password}</span>}
+                        </div>
 
-                    {registrationSuccess && (
-                        <div className="alert alert-success">Registration successful!</div>
-                    )}
+                        {registrationSuccess && (
+                            <div className="alert alert-success">Inregistrare cu succes!</div>
+                        )}
 
-                    {errors.general && <div className="alert alert-danger">{errors.general}</div>}
-                    <button type="submit" className="btn btn-primary">Register</button>
-                </form>
+                        {errors.general && <div className="alert alert-danger">{errors.general}</div>}
+
+                        <div className="button-container">
+                            <button type="submit" className="btn btn-success">
+                                Inregistrare
+                            </button>
+                            <button type="button" className="btn btn-primary" onClick={onBack}>
+                                Inapoi
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
+
     );
 }
 

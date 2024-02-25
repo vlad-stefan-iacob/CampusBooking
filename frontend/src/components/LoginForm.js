@@ -3,12 +3,13 @@ import classNames from 'classnames';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { request, setAuthHeader } from '../helpers/axios_helper';
 import { useNavigate } from 'react-router-dom';
+import {useAuth} from "./AuthContext";
 
 function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
-    const [redirectToHome, setRedirectToHome] = useState(false);
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const onChangeHandler = (event) => {
@@ -27,14 +28,14 @@ function LoginForm() {
         // Basic form validation
         let validationErrors = {};
         if (!email.trim()) {
-            validationErrors.email = 'Email is required';
+            validationErrors.email = 'Camp obligatoriu';
         } else if (!/\S+@\S+\.\S+/.test(email)) {
-            validationErrors.email = 'Invalid email format';
+            validationErrors.email = 'Format invalid';
         }
         if (!password.trim()) {
-            validationErrors.password = 'Password is required';
+            validationErrors.password = 'Camp obligatoriu';
         } else if (password.length < 6) {
-            validationErrors.password = 'Password must be at least 6 characters';
+            validationErrors.password = 'Parola trebuie sa fie de cel putin 6 caractere';
         }
 
         if (Object.keys(validationErrors).length === 0) {
@@ -53,16 +54,17 @@ function LoginForm() {
                 if (response.data && response.data.token) {
                     setAuthHeader(response.data.token);
                     setErrors({});
-                    setRedirectToHome(true); // Set redirectToHome to true
+                    login(response.data.token);
+                    console.log("Autentificare reusita");
 
                     // Pass the user email to the Home component
-                    navigate('/home', { state: { userEmail: email } });
+                    navigate('/home');
                 }
             } catch (error) {
                 // Handle other errors, e.g., network issues
                 setAuthHeader(null);
-                setErrors({ general: 'Invalid credentials' });
-                console.log("Invalid credentials");
+                setErrors({ general: 'Email sau parola incorecta' });
+                console.log("Email sau parola incorecta");
             }
         } else {
             // If there are validation errors, update the state to display the errors
@@ -70,18 +72,13 @@ function LoginForm() {
         }
     };
 
-    // If redirectToHome is true, navigate to the home page
-    if (redirectToHome) {
-        // navigate('/home'); // Remove this line, as it's now handled inside onLogin
-    }
-
     return (
-        <div className="background">
+        <div className="background-login">
             <div className="container form-container">
-                <h2 className="login-header">Login</h2>
+                <h2 className="login-header">Autentificare</h2>
                 <form onSubmit={onLogin} className="login-form">
                     <div className="form-group">
-                        <label className="text-white" htmlFor="loginName">Email</label>
+                        <label className="text-white" htmlFor="loginName">Email *</label>
                         <input type="email" id="loginName" name="email"
                                className={classNames("form-control", { "is-invalid": errors.email })}
                                value={email}
@@ -90,7 +87,7 @@ function LoginForm() {
                     </div>
 
                     <div className="form-group">
-                        <label className="text-white" htmlFor="loginPassword">Password</label>
+                        <label className="text-white" htmlFor="loginPassword">Parola *</label>
                         <input type="password" id="loginPassword" name="password"
                                className={classNames("form-control", { "is-invalid": errors.password })}
                                value={password} onChange={onChangeHandler} />
@@ -98,7 +95,7 @@ function LoginForm() {
                     </div>
 
                     {errors.general && <div className="alert alert-danger">{errors.general}</div>}
-                    <button type="submit" className="btn btn-primary">Sign in</button>
+                    <button type="submit" className="btn btn-success">Autentificare</button>
                 </form>
             </div>
         </div>
