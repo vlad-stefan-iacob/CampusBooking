@@ -1,7 +1,5 @@
-// Update your Navbar component
-
 import React, { useState } from "react";
-import "./Navbar.css";
+import "../style/Navbar.css";
 import { Link } from "react-router-dom";
 
 export const Navbar = () => {

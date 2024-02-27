@@ -55,3 +55,8 @@
     margin-top: 10px;
 }
 
+.card-body{
+    justify-content: center;
+    align-content: center;
+}
+
