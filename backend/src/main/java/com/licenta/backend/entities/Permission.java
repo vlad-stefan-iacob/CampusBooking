@@ -13,7 +13,17 @@ public enum Permission {
     STUDENT_READ("student:read"),
     STUDENT_UPDATE("student:update"),
     STUDENT_CREATE("student:create"),
-    STUDENT_DELETE("student:delete")
+    STUDENT_DELETE("student:delete"),
+
+    PROFESOR_READ("profesor:read"),
+    PROFESOR_UPDATE("profesor:update"),
+    PROFESOR_CREATE("profesor:create"),
+    PROFESOR_DELETE("profesor:delete"),
+
+    ASISTENT_READ("asistent:read"),
+    ASISTENT_UPDATE("asistent:update"),
+    ASISTENT_CREATE("asistent:create"),
+    ASISTENT_DELETE("asistent:delete")
     ;
 
     @Getter

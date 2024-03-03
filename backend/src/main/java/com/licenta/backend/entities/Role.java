@@ -23,7 +23,15 @@ public enum Role {
                     STUDENT_READ,
                     STUDENT_UPDATE,
                     STUDENT_DELETE,
-                    STUDENT_CREATE
+                    STUDENT_CREATE,
+                    PROFESOR_READ,
+                    PROFESOR_UPDATE,
+                    PROFESOR_DELETE,
+                    PROFESOR_CREATE,
+                    ASISTENT_READ,
+                    ASISTENT_UPDATE,
+                    ASISTENT_DELETE,
+                    ASISTENT_CREATE
             )
     ),
     STUDENT(
@@ -32,6 +40,22 @@ public enum Role {
                     STUDENT_UPDATE,
                     STUDENT_DELETE,
                     STUDENT_CREATE
+            )
+    ),
+    PROFESOR(
+            Set.of(
+                    PROFESOR_READ,
+                    PROFESOR_UPDATE,
+                    PROFESOR_DELETE,
+                    PROFESOR_CREATE
+            )
+    ),
+    ASISTENT(
+            Set.of(
+                    ASISTENT_READ,
+                    ASISTENT_UPDATE,
+                    ASISTENT_DELETE,
+                    ASISTENT_CREATE
             )
     )
 

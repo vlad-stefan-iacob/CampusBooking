@@ -25,8 +25,8 @@ public class BackendApplication {
 			var admin = RegisterRequest.builder()
 					.firstname("Admin")
 					.lastname("Admin")
-					.email("admin@mail.com")
-					.password("password")
+					.email("admin@admin.com")
+					.password("pass123")
 					.role(ADMIN)
 					.build();
 			System.out.println("Admin token: " + service.register(admin).getToken());
