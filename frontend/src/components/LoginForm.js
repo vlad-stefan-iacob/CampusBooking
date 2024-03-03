@@ -56,8 +56,10 @@ function LoginForm() {
                     setErrors({});
                     login(response.data.token);
                     console.log("Autentificare reusita");
-
-                    // Pass the user email to the Home component
+                    localStorage.setItem('user', JSON.stringify({
+                        firstName: response.data.firstName,
+                        lastName: response.data.lastName,
+                        role: response.data.role }));
                     navigate('/home');
                 }
             } catch (error) {

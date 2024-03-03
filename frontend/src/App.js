@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import RegisterForm from "./components/RegisterForm";
 import {AuthProvider} from "./components/AuthContext";
 import Logout from "./components/Logout";
+import Profile from "./components/Profile";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/home" element={<Home/>}/>
                 <Route path="/register" element={<RegisterForm/>}/>
                 <Route path="/logout" element={<Logout/>}/>
+                <Route path="/edit-profile" element={<Profile/>}/>
             </Routes>
         </AuthProvider>
 
