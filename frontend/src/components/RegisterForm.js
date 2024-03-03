@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import classNames from 'classnames';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {request} from '../helpers/axios_helper';
+import {getAuthToken, request} from '../helpers/axios_helper';
 import {useNavigate} from 'react-router-dom';
 import {Navbar} from "./Navbar";
 
@@ -12,6 +12,10 @@ function RegisterForm() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const [role, setRole] = useState("");
+    const dropdownOptions = ["ADMIN", "STUDENT", "PROFESOR", "ASISTENT"];
+
+
     const navigate = useNavigate();
 
     const onChangeHandler = (event) => {
@@ -53,14 +57,24 @@ function RegisterForm() {
         if (Object.keys(validationErrors).length === 0) {
             // If no validation errors, proceed with the registration request
             try {
+                const token = getAuthToken();
+                console.log(role);
+                console.log(token);
                 const response = await request(
                     "POST",
-                    "/api/v1/auth/register",
+                    "/api/v1/admin/register",
                     {
                         firstname: firstname,
                         lastname: lastname,
                         email: email,
-                        password: password
+                        password: password,
+                        role: role
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
                     }
                 );
 
@@ -149,6 +163,24 @@ function RegisterForm() {
                             />
                             {errors.password && <span className="text-danger">{errors.password}</span>}
                         </div>
+
+                        <div className="form-group">
+                            <label className="text-white" htmlFor="dropdown">Rol *</label>
+                            <select
+                                id="dropdown"
+                                name="dropdown"
+                                className={classNames("form-control", {"is-invalid": !role})}
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                            >
+                                <option value="" disabled>-optiuni-</option>
+                                {dropdownOptions.map((option, index) => (
+                                    <option key={index} value={option}>{option}</option>
+                                ))}
+                            </select>
+                            {!role && <span className="text-danger">Alege un rol</span>}
+                        </div>
+
 
                         {registrationSuccess && (
                             <div className="alert alert-success">Inregistrare cu succes!</div>
