@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import static com.licenta.backend.entities.Role.ADMIN;
-import static com.licenta.backend.entities.Role.STUDENT;
 
 @SpringBootApplication
 public class BackendApplication {

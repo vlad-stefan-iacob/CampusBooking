@@ -35,7 +35,7 @@ export const Navbar = () => {
                     </svg></div>
                     <div className="dropdown-menu">
                         <Link to="/edit-profile">Vizualizare profil</Link>
-                        <Link to="/logout">Logout</Link>
+                        <Link to="/logout">Deconectare</Link>
                     </div>
                 </li>
             </ul>

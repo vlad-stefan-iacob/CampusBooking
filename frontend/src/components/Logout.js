@@ -44,7 +44,7 @@ const Logout = () => {
             <div className="card">
                 <div className="card-body">
                     <label className="text-black" style={{fontWeight: "bold", fontSize:"25px"}} htmlFor="logout-message">
-                        Esti sigur ca vrei sa te deloghezi?
+                        Esti sigur ca vrei sa te deconectezi?
                     </label>
                     <div className="button-container">
                         <button type="button" className="btn btn-primary" onClick={handleLogout}>
