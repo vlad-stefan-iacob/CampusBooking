@@ -1,6 +1,7 @@
 package com.licenta.backend.services;
 
 import com.licenta.backend.entities.Room;
+import com.licenta.backend.exceptions.RoomNotFoundException;
 import com.licenta.backend.repositories.RoomRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,6 +30,18 @@ public class RoomService {
 
     public Room insertRoom(Room room){
         return roomRepository.save(room);
+    }
+
+    public Room updateRoom(Integer roomId, Room updatedRoom){
+        Optional<Room> existingRoom = roomRepository.findById(roomId);
+        if (existingRoom.isPresent()){
+            Room room = existingRoom.get();
+            room.setName(updatedRoom.getName());
+            room.setLocation(updatedRoom.getLocation());
+            return roomRepository.save(room);
+        } else {
+            throw new RoomNotFoundException("Room with ID: " + roomId + " not found!");
+        }
     }
     public void deleteRoom(Integer roomId){
         roomRepository.deleteById(roomId);
