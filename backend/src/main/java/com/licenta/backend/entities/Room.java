@@ -19,4 +19,7 @@ public class Room {
     @Column(unique = true)
     private String name;
     private String location;
+    private Integer capacity;
+    private String type;
+    private String details;
 }

@@ -38,6 +38,9 @@ public class RoomService {
             Room room = existingRoom.get();
             room.setName(updatedRoom.getName());
             room.setLocation(updatedRoom.getLocation());
+            room.setType(updatedRoom.getType());
+            room.setCapacity(updatedRoom.getCapacity());
+            room.setDetails(updatedRoom.getDetails());
             return roomRepository.save(room);
         } else {
             throw new RoomNotFoundException("Room with ID: " + roomId + " not found!");
