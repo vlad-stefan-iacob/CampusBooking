@@ -42,7 +42,7 @@ function Rooms() {
 
     const updateRoom = (room) => {
         setSelectedRoom(room);
-        setUpdatedRoom({name: room.name, location: room.location});
+        setUpdatedRoom({name: room.name, location: room.location, capacity: room.capacity, type: room.type, details: room.details});
         setShowUpdateModal(true);
     };
 
@@ -50,8 +50,8 @@ function Rooms() {
         setShowAddModal(false);
         setShowDeleteModal(false);
         setShowUpdateModal(false);
-        setNewRoom({name: "", location: ""}); // Clear form fields on modal close
-        setUpdatedRoom({name: "", location: ""}); // Clear form fields on modal close
+        setNewRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
+        setUpdatedRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
     };
 
     const handleInputChange = (e) => {
@@ -182,24 +182,28 @@ function Rooms() {
                         </button>
                     )}
                 </h2>
-                <div className="table-responsive">
-                    <table className="table table-bordered">
-                        <thead className="thead-light">
-                        <tr>
-                            <th scope="col">Nume</th>
-                            <th scope="col">Locatie</th>
-                            {role === "ADMIN" && (
+                {role === "ADMIN" ? (
+                    <div className="table-responsive">
+                        <table className="table table-bordered">
+                            <thead className="thead-light">
+                            <tr>
+                                <th scope="col">Nume</th>
+                                <th scope="col">Locatie</th>
+                                <th scope="col">Capacitate</th>
+                                <th scope="col">Tip</th>
+                                <th scope="col">Detalii</th>
                                 <th scope="col">Actiuni</th>
-                            )}
-                            {/* Add more header columns as needed */}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {rooms.map(room => (
-                            <tr key={room.id}>
-                                <td className="text-white">{room.name}</td>
-                                <td className="text-white">{room.location}</td>
-                                {role === "ADMIN" && (
+                                {/* Add more header columns as needed */}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {rooms.map(room => (
+                                <tr key={room.id}>
+                                    <td className="text-white">{room.name}</td>
+                                    <td className="text-white">{room.location}</td>
+                                    <td className="text-white">{room.capacity}</td>
+                                    <td className="text-white">{room.type}</td>
+                                    <td className="text-white">{room.details}</td>
                                     <td className="text-white">
                                         <button type="button" className="btn btn-danger"
                                                 onClick={() => deleteRoom(room)}>
@@ -211,13 +215,31 @@ function Rooms() {
                                             Actualizeaza sala
                                         </button>
                                     </td>
-                                )}
-                                {/* Add more columns based on the data structure */}
-                            </tr>
+                                    {/* Add more columns based on the data structure */}
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="row">
+                        {rooms.map(room => (
+                            <div key={room.id} className="col-md-3 mb-3">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <h5 className="card-title">Sala: {room.name}</h5>
+                                        <p className="card-text">Locatie: {room.location}</p>
+                                        <p className="card-text">Capacitate: {room.capacity}</p>
+                                        <p className="card-text">Tip: {room.type}</p>
+                                        <p className="card-text">Detalii: {room.details}</p>
+                                        {/* Add more fields as needed */}
+                                    </div>
+                                    {/* Add more card styling as needed */}
+                                </div>
+                            </div>
                         ))}
-                        </tbody>
-                    </table>
-                </div>
+                    </div>
+                )}
             </div>
 
             <div className={`modal ${showAddModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
@@ -253,6 +275,42 @@ function Rooms() {
                                         id="location"
                                         name="location"
                                         value={newRoom.location}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="capacity">Capacitate:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="capacity"
+                                        name="capacity"
+                                        value={newRoom.capacity}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="type">Tip:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="type"
+                                        name="type"
+                                        value={newRoom.type}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="details">Detalii:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="details"
+                                        name="details"
+                                        value={newRoom.details}
                                         onChange={handleInputChange}
                                         required
                                     />
@@ -324,6 +382,42 @@ function Rooms() {
                                         id="updateLocation"
                                         name="location"
                                         value={updatedRoom.location}
+                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="capacity">Capacitate:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="updatedCapacity"
+                                        name="capacity"
+                                        value={updatedRoom.capacity}
+                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="type">Tip:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="updatedType"
+                                        name="type"
+                                        value={updatedRoom.type}
+                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="details">Detalii:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="updatedDetails"
+                                        name="details"
+                                        value={updatedRoom.details}
                                         onChange={(e) => handleInputChange(e, setUpdatedRoom)}
                                         required
                                     />
