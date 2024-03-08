@@ -8,9 +8,23 @@ function Rooms() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
-    const [newRoom, setNewRoom] = useState({name: "", location: ""});
+    const [newRoom, setNewRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
     const [selectedRoom, setSelectedRoom] = useState(null);
-    const [updatedRoom, setUpdatedRoom] = useState({name: "", location: ""});
+    const [updatedRoom, setUpdatedRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
+    const [newRoomValidations, setNewRoomValidations] = useState({
+        name: true,
+        location: true,
+        capacity: true,
+        type: true,
+        details: true,
+    });
+    const [updatedRoomValidations, setUpdatedRoomValidations] = useState({
+        name: true,
+        location: true,
+        capacity: true,
+        type: true,
+        details: true,
+    });
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const {role} = storedUser || {};
 
@@ -30,7 +44,6 @@ function Rooms() {
             .catch(error => console.error("Error fetching data:", error));
     }, []); // Empty dependency array ensures the effect runs only once on component mount
 
-
     const addRooms = () => {
         setShowAddModal(true);
     };
@@ -42,7 +55,13 @@ function Rooms() {
 
     const updateRoom = (room) => {
         setSelectedRoom(room);
-        setUpdatedRoom({name: room.name, location: room.location, capacity: room.capacity, type: room.type, details: room.details});
+        setUpdatedRoom({
+            name: room.name,
+            location: room.location,
+            capacity: room.capacity,
+            type: room.type,
+            details: room.details
+        });
         setShowUpdateModal(true);
     };
 
@@ -52,18 +71,90 @@ function Rooms() {
         setShowUpdateModal(false);
         setNewRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
         setUpdatedRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
+        setNewRoomValidations({
+            name: true,
+            location: true,
+            capacity: true,
+            type: true,
+            details: true,
+        });
+        setUpdatedRoomValidations({
+            name: true,
+            location: true,
+            capacity: true,
+            type: true,
+            details: true,
+        });
     };
 
-    const handleInputChange = (e) => {
+    const handleDuplicateName = async (name) => {
+        try {
+            const token = getAuthToken();
+            const response = await fetch(`http://localhost:8080/api/v1/rooms/check-duplicate-name/${name}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+
+            const result = await response.json(); // Parse the JSON response
+
+            const isDuplicate = result.isDuplicate;
+            setNewRoomValidations((prev) => ({...prev, name: !isDuplicate}));
+            return isDuplicate;
+        } catch (error) {
+            console.error("Error checking duplicate name:", error);
+            return false;
+        }
+    };
+
+
+    const handleInputChange = (e, isUpdatedRoom = false) => {
         const {name, value} = e.target;
-        setNewRoom({...newRoom, [name]: value});
-        setUpdatedRoom({...updatedRoom, [name]: value});
+
+        // Basic validation for empty fields
+        const isEmpty = value.trim() === "";
+        const isInteger = name === "capacity" ? /^\d+$/.test(value) : true;
+
+        // Update the state and validation status based on the field
+        if (isUpdatedRoom) {
+            setUpdatedRoom((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+            setUpdatedRoomValidations((prevValidations) => ({
+                ...prevValidations,
+                [name]: !isEmpty && isInteger,
+            }));
+        } else {
+            setNewRoom((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+            setNewRoomValidations((prevValidations) => ({
+                ...prevValidations,
+                [name]: !isEmpty && isInteger,
+            }));
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Check if all fields are filled and capacity is an integer
+        const isFormValid = Object.values(newRoomValidations).every(Boolean);
+        if (!isFormValid) {
+            console.error("Form contains errors. Please check your input.");
+            return;
+        }
+
         try {
+            const isDuplicateName = await handleDuplicateName(newRoom.name);
+            if (isDuplicateName) {
+                setNewRoomValidations((prev) => ({...prev, name: false}));
+                return;
+            }
             // Make a POST request to the backend endpoint
             const token = getAuthToken();
             const response = await fetch("http://localhost:8080/api/v1/rooms/add-room", {
@@ -207,12 +298,12 @@ function Rooms() {
                                     <td className="text-white">
                                         <button type="button" className="btn btn-danger"
                                                 onClick={() => deleteRoom(room)}>
-                                            Sterge sala
+                                            Stergere
                                         </button>
 
-                                        <button type="button" className="btn btn-warning ml-2"
+                                        <button type="button" className="btn btn-warning ml-lg-2"
                                                 onClick={() => updateRoom(room)}>
-                                            Actualizeaza sala
+                                            Actualizare
                                         </button>
                                     </td>
                                     {/* Add more columns based on the data structure */}
@@ -244,7 +335,7 @@ function Rooms() {
 
             <div className={`modal ${showAddModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
                  style={{display: showAddModal ? 'block' : 'none'}}>
-                <div className="modal-dialog" role="document">
+                <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Adauga sali</h5>
@@ -255,67 +346,113 @@ function Rooms() {
                         </div>
                         <div className="modal-body">
                             <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label htmlFor="name">Nume:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="name"
-                                        name="name"
-                                        value={newRoom.name}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
+                                <div className="row">
+                                    {/* First Column */}
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="name">Nume *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${(!newRoomValidations.name && 'is-invalid') || (newRoomValidations.name && 'is-valid')}`}
+                                                id="name"
+                                                name="name"
+                                                value={newRoom.name}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            {!newRoomValidations.name && (
+                                                <div className="invalid-feedback">
+                                                    {newRoom.name.trim() === '' ? 'Numele este obligatoriu.' : 'Numele trebuie să fie unic.'}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="location">Locatie *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${newRoomValidations.location ? '' : 'is-invalid'}`}
+                                                id="location"
+                                                name="location"
+                                                value={newRoom.location}
+                                                onChange={(e) => handleInputChange(e)}
+                                                required
+                                            />
+                                            {!newRoomValidations.location && (
+                                                <div className="invalid-feedback">
+                                                    Locatia este obligatorie.
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="capacity">Capacitate *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${newRoomValidations.capacity ? '' : 'is-invalid'}`}
+                                                id="capacity"
+                                                name="capacity"
+                                                value={newRoom.capacity}
+                                                onChange={(e) => handleInputChange(e)}
+                                                required
+                                            />
+                                            {!newRoomValidations.capacity && (
+                                                <div className="invalid-feedback">
+                                                    Capacitatea trebuie să fie un numar intreg.
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="type">Tip *</label>
+                                            <select
+                                                className={`form-control ${newRoomValidations.type ? '' : 'is-invalid'}`}
+                                                id="type"
+                                                name="type"
+                                                value={newRoom.type}
+                                                onChange={(e) => handleInputChange(e)}
+                                                required
+                                            >
+                                                <option value="" disabled>Selectează tipul</option>
+                                                <option value="AMFITEATRU">AMFITEATRU</option>
+                                                <option value="SALA LECTURA">SALA LECTURA</option>
+                                                <option value="LABORATOR">LABORATOR</option>
+                                                {/* Add more options as needed */}
+                                            </select>
+                                            {!newRoomValidations.type && (
+                                                <div className="invalid-feedback">
+                                                    Tipul este obligatoriu.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Second Column */}
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="details">Detalii *</label>
+                                            <textarea
+                                                className={`form-control ${newRoomValidations.details ? '' : 'is-invalid'}`}
+                                                id="details"
+                                                name="details"
+                                                value={newRoom.details}
+                                                onChange={(e) => handleInputChange(e)}
+                                                required
+                                                rows="4"  // Set the number of rows as needed
+                                            />
+                                            {!newRoomValidations.details && (
+                                                <div className="invalid-feedback">
+                                                    Detaliile sunt obligatorii.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="location">Locatie:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="location"
-                                        name="location"
-                                        value={newRoom.location}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="capacity">Capacitate:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="capacity"
-                                        name="capacity"
-                                        value={newRoom.capacity}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="type">Tip:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="type"
-                                        name="type"
-                                        value={newRoom.type}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="details">Detalii:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="details"
-                                        name="details"
-                                        value={newRoom.details}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-primary">Adauga</button>
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={!Object.values(newRoomValidations).every((isValid) => isValid)}
+                                >
+                                    Adauga
+                                </button>
                             </form>
                         </div>
                         <div className="modal-footer">
@@ -351,7 +488,7 @@ function Rooms() {
             {/* Update Room Modal */}
             <div className={`modal ${showUpdateModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
                  style={{display: showUpdateModal ? 'block' : 'none'}}>
-                <div className="modal-dialog" role="document">
+                <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Actualizeaza sala</h5>
@@ -362,66 +499,104 @@ function Rooms() {
                         </div>
                         <div className="modal-body">
                             <form onSubmit={handleUpdate}>
-                                <div className="form-group">
-                                    <label htmlFor="updateName">Nume:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="updateName"
-                                        name="name"
-                                        value={updatedRoom.name}
-                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
-                                        required
-                                    />
+                                <div className="row">
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="updateName">Nume *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${updatedRoomValidations.name ? '' : 'is-invalid'}`}
+                                                id="updateName"
+                                                name="name"
+                                                value={updatedRoom.name}
+                                                onChange={(e) => handleInputChange(e, true)}
+                                                required
+                                            />
+                                            {!updatedRoomValidations.name && (
+                                                <div className="invalid-feedback">
+                                                    Numele este obligatoriu.
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="updateLocation">Locatie *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${updatedRoomValidations.location ? '' : 'is-invalid'}`}
+                                                id="updateLocation"
+                                                name="location"
+                                                value={updatedRoom.location}
+                                                onChange={(e) => handleInputChange(e, true)}
+                                                required
+                                            />
+                                            {!updatedRoomValidations.location && (
+                                                <div className="invalid-feedback">
+                                                    Locatia este obligatorie.
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="updatedCapacity">Capacitate *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${updatedRoomValidations.capacity ? '' : 'is-invalid'}`}
+                                                id="updatedCapacity"
+                                                name="capacity"
+                                                value={updatedRoom.capacity}
+                                                onChange={(e) => handleInputChange(e, true)}
+                                                required
+                                            />
+                                            {!updatedRoomValidations.capacity && (
+                                                <div className="invalid-feedback">
+                                                    Capacitatea trebuie să fie un număr întreg.
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="type">Tip *</label>
+                                            <select
+                                                className={`form-control ${newRoomValidations.type ? '' : 'is-invalid'}`}
+                                                id="type"
+                                                name="type"
+                                                value={updatedRoom.type}
+                                                onChange={(e) => handleInputChange(e, setUpdatedRoom)}
+                                                required
+                                            >
+                                                <option value="" disabled>Selectează tipul</option>
+                                                <option value="AMFITEATRU">AMFITEATRU</option>
+                                                <option value="SALA LECTURA">SALA LECTURA</option>
+                                                <option value="LABORATOR">LABORATOR</option>
+                                                {/* Add more options as needed */}
+                                            </select>
+                                            {!newRoomValidations.type && (
+                                                <div className="invalid-feedback">
+                                                    Tipul este obligatoriu.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {/* Second Column */}
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="details">Detalii *</label>
+                                            <textarea
+                                                className={`form-control ${updatedRoomValidations.details ? '' : 'is-invalid'}`}
+                                                id="updatedDetails"
+                                                name="details"
+                                                value={updatedRoom.details}
+                                                onChange={(e) => handleInputChange(e)}
+                                                required
+                                                rows="4"  // Set the number of rows as needed
+                                            />
+                                            {!updatedRoomValidations.details && (
+                                                <div className="invalid-feedback">
+                                                    Detaliile sunt obligatorii.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="updateLocation">Locatie:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="updateLocation"
-                                        name="location"
-                                        value={updatedRoom.location}
-                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="capacity">Capacitate:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="updatedCapacity"
-                                        name="capacity"
-                                        value={updatedRoom.capacity}
-                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="type">Tip:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="updatedType"
-                                        name="type"
-                                        value={updatedRoom.type}
-                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="details">Detalii:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="updatedDetails"
-                                        name="details"
-                                        value={updatedRoom.details}
-                                        onChange={(e) => handleInputChange(e, setUpdatedRoom)}
-                                        required
-                                    />
-                                </div>
+
                                 <button type="submit" className="btn btn-primary">Actualizeaza</button>
                             </form>
                         </div>
