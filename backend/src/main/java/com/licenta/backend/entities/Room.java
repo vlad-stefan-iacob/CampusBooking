@@ -21,5 +21,6 @@ public class Room {
     private String location;
     private Integer capacity;
     private String type;
+    @Column(length = 10000)
     private String details;
 }
