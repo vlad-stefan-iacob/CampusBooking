@@ -2,15 +2,21 @@ import React, {useState, useEffect} from "react";
 import {Navbar} from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getAuthToken} from "../helpers/axios_helper";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function Rooms() {
     const [rooms, setRooms] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedRoomDetails, setSelectedRoomDetails] = useState(null);
     const [newRoom, setNewRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [updatedRoom, setUpdatedRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
+    const [selectedTab, setSelectedTab] = useState('SALA LECTURA');
+    const filteredRoomsSelectedTab = rooms.filter((room) => room.type === selectedTab);
+    const [expandedRooms, setExpandedRooms] = useState([]);
     const [newRoomValidations, setNewRoomValidations] = useState({
         name: true,
         location: true,
@@ -141,7 +147,6 @@ function Rooms() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         // Check if all fields are filled and capacity is an integer
         const isFormValid = Object.values(newRoomValidations).every(Boolean);
         if (!isFormValid) {
@@ -190,7 +195,8 @@ function Rooms() {
         }
     };
 
-    const handleUpdate = async () => {
+    const handleUpdate = async (e) => {
+        e.preventDefault();
         try {
             // Make a PUT request to the backend endpoint
             const token = getAuthToken();
@@ -261,6 +267,29 @@ function Rooms() {
         }
     };
 
+    const toggleExpand = (roomId) => {
+        if (expandedRooms.includes(roomId)) {
+            setExpandedRooms(expandedRooms.filter((id) => id !== roomId));
+        } else {
+            setExpandedRooms([...expandedRooms, roomId]);
+        }
+    };
+
+    const filteredRooms = rooms.filter((room) => {
+        if (role === 'ADMIN') {
+            // Admin can see all types of rooms
+            return true;
+        } else if (role === 'STUDENT') {
+            return room.type === 'SALA LECTURA';
+        } else if (role === 'PROFESOR') {
+            return room.type === 'AMFITEATRU';
+        } else if (role === 'ASISTENT')
+            return room.type === 'LABORATOR';
+
+        return false;
+    });
+
+
     return (
         <div className="Rooms">
             <Navbar/>
@@ -273,59 +302,157 @@ function Rooms() {
                         </button>
                     )}
                 </h2>
+                <h5 className="text-white mb-4"><i className="bi bi-info-square"></i> Salile afisate sunt cele ce pot fi
+                    rezervate de utilizatori cu rolul de {role}.</h5>
                 {role === "ADMIN" ? (
-                    <div className="table-responsive">
-                        <table className="table table-bordered">
-                            <thead className="thead-light">
-                            <tr>
-                                <th scope="col">Nume</th>
-                                <th scope="col">Locatie</th>
-                                <th scope="col">Capacitate</th>
-                                <th scope="col">Tip</th>
-                                <th scope="col">Detalii</th>
-                                <th scope="col">Actiuni</th>
-                                {/* Add more header columns as needed */}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {rooms.map(room => (
-                                <tr key={room.id}>
-                                    <td className="text-white">{room.name}</td>
-                                    <td className="text-white">{room.location}</td>
-                                    <td className="text-white">{room.capacity}</td>
-                                    <td className="text-white">{room.type}</td>
-                                    <td className="text-white">{room.details}</td>
-                                    <td className="text-white">
-                                        <button type="button" className="btn btn-danger"
-                                                onClick={() => deleteRoom(room)}>
-                                            Stergere
-                                        </button>
-
-                                        <button type="button" className="btn btn-warning ml-lg-2"
-                                                onClick={() => updateRoom(room)}>
-                                            Actualizare
-                                        </button>
-                                    </td>
-                                    {/* Add more columns based on the data structure */}
+                    <div>
+                        {/* Tabs for different room types */}
+                        <ul className="nav nav-tabs">
+                            <li className="nav-item">
+                                <button
+                                    className={`nav-link ${selectedTab === 'SALA LECTURA' ? 'active' : ''}`}
+                                    style={{
+                                        color: selectedTab === 'SALA LECTURA' ? 'black' : 'white',
+                                        border: selectedTab === 'SALA LECTURA' ? '1px solid white' : '1px solid white',
+                                    }}
+                                    onClick={() => setSelectedTab('SALA LECTURA')}
+                                >
+                                    Sala Lectura
+                                </button>
+                            </li>
+                            <li className="nav-item">
+                                <button
+                                    className={`nav-link ${selectedTab === 'AMFITEATRU' ? 'active' : ''}`}
+                                    style={{
+                                        color: selectedTab === 'AMFITEATRU' ? 'black' : 'white',
+                                        border: selectedTab === 'AMFITEATRU' ? '1px solid white' : '1px solid white',
+                                    }}
+                                    onClick={() => setSelectedTab('AMFITEATRU')}
+                                >
+                                    Amfiteatru
+                                </button>
+                            </li>
+                            <li className="nav-item">
+                                <button
+                                    className={`nav-link ${selectedTab === 'LABORATOR' ? 'active' : ''}`}
+                                    style={{
+                                        color: selectedTab === 'LABORATOR' ? 'black' : 'white',
+                                        border: selectedTab === 'LABORATOR' ? '1px solid white' : '1px solid white',
+                                    }}
+                                    onClick={() => setSelectedTab('LABORATOR')}
+                                >
+                                    Laborator
+                                </button>
+                            </li>
+                            {/* Add more tabs as needed */}
+                        </ul>
+                        <div className="table-responsive">
+                            <table className="table table-bordered">
+                                <thead className="thead" style={{ background: 'white' }}>
+                                <tr>
+                                    <th scope="col">Nume</th>
+                                    <th scope="col">Locatie</th>
+                                    <th scope="col">Capacitate</th>
+                                    <th scope="col">Tip</th>
+                                    <th scope="col">Actiuni</th>
+                                    {/* Add more header columns as needed */}
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                {filteredRoomsSelectedTab.map(room => (
+                                    <tr key={room.id}>
+                                        <td className="text-white">{room.name}</td>
+                                        <td className="text-white">{room.location}</td>
+                                        <td className="text-white">{room.capacity}</td>
+                                        <td className="text-white">{room.type}</td>
+                                        <td className="text-white">
+                                            <button type="button" className="btn btn-danger"
+                                                    onClick={() => deleteRoom(room)}>
+                                                Stergere
+                                            </button>
+
+                                            <button type="button" className="btn btn-warning ml-lg-2"
+                                                    onClick={() => updateRoom(room)}>
+                                                Actualizare
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-light ml-lg-2"
+                                                onClick={() => {
+                                                    setSelectedRoomDetails(room);
+                                                    setShowDetailsModal(true);
+                                                }}
+                                            >
+                                                Detalii
+                                            </button>
+                                        </td>
+                                        {/* Add more columns based on the data structure */}
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 ) : (
-                    <div className="row">
-                        {rooms.map(room => (
+                    <div className="row mt-4">
+                        {filteredRooms.map((room) => (
                             <div key={room.id} className="col-md-3 mb-3">
-                                <div className="card">
+                                <div
+                                    className="card"
+                                    style={{
+                                        borderRadius: '20px',
+                                        position: 'relative',
+                                        height: expandedRooms.includes(room.id) ? 'auto' : '230px', // Adjust the initial height as needed
+                                    }}
+                                >
+                                    {/* Contour line styling */}
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: '3px',
+                                            left: '3px',
+                                            right: '3px',
+                                            bottom: '3px',
+                                            border: '2px solid #007bff',
+                                            borderRadius: '20px',
+                                            pointerEvents: 'none',
+                                        }}
+                                    />
                                     <div className="card-body">
-                                        <h5 className="card-title">Sala: {room.name}</h5>
-                                        <p className="card-text">Locatie: {room.location}</p>
-                                        <p className="card-text">Capacitate: {room.capacity}</p>
-                                        <p className="card-text">Tip: {room.type}</p>
-                                        <p className="card-text">Detalii: {room.details}</p>
-                                        {/* Add more fields as needed */}
+                                        <h5 className="card-title text-center">Sala {room.name}</h5>
+                                        <p className="card-text">
+                                            <b>Locatie:</b> {room.location}
+                                        </p>
+                                        <p className="card-text">
+                                            <b>Capacitate:</b> {room.capacity} persoane
+                                        </p>
+                                        <p className="card-text">
+                                            <b>Tip:</b> {room.type}
+                                        </p>
+                                        {expandedRooms.includes(room.id) ? (
+                                            <>
+                                                <p className="card-text">
+                                                    <b>Detalii:</b> {room.details}
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-link"
+                                                    onClick={() => toggleExpand(room.id)}
+                                                >
+                                                    Ascunde detalii
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className="btn btn-link"
+                                                onClick={() => toggleExpand(room.id)}
+                                            >
+                                                Vezi detalii
+                                            </button>
+                                        )}
                                     </div>
-                                    {/* Add more card styling as needed */}
                                 </div>
                             </div>
                         ))}
@@ -445,7 +572,6 @@ function Rooms() {
                                         </div>
                                     </div>
                                 </div>
-
                                 <button
                                     type="submit"
                                     className="btn btn-primary"
@@ -456,7 +582,7 @@ function Rooms() {
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Close</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anlueaza</button>
                         </div>
                     </div>
                 </div>
@@ -596,16 +722,52 @@ function Rooms() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <button type="submit" className="btn btn-primary">Actualizeaza</button>
+                                <button type="submit" className="btn btn-warning">Actualizeaza</button>
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Close</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div className={`modal ${showDetailsModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
+                 style={{display: showDetailsModal ? 'block' : 'none'}}>
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">
+                                {selectedRoomDetails && (
+                                    <div>
+                                        <p>Facilitatile salii <b>{selectedRoomDetails.name}</b></p>
+                                        {/* Add more details as needed */}
+                                    </div>
+                                )}
+                            </h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                                    onClick={() => setShowDetailsModal(false)}>
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            {/* Display details of the selected room here */}
+                            {selectedRoomDetails && (
+                                <div>
+                                    <p>{selectedRoomDetails.details}</p>
+                                    {/* Add more details as needed */}
+                                </div>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary"
+                                    onClick={() => setShowDetailsModal(false)}>Inchide
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 }
