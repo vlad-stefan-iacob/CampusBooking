@@ -1,5 +1,6 @@
 package com.licenta.backend.controllers;
 
+import com.licenta.backend.dto.RoomDTO;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.repositories.RoomRepository;
 import com.licenta.backend.services.RoomService;
@@ -23,25 +24,25 @@ public class RoomController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/all-rooms")
-    public List<Room> getAllRooms(){
+    public List<RoomDTO> getAllRooms(){
         return roomService.getAllRooms();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/room/{roomId}")
-    public Optional<Room> getRoomById(@PathVariable Integer roomId){
+    public List<RoomDTO> getRoomById(@PathVariable Integer roomId){
         return roomService.getRoomById(roomId);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add-room")
-    public Room createRoom(@RequestBody Room room) {
-        return roomService.insertRoom(room);
+    public Room createRoom(@RequestBody RoomDTO roomDTO) {
+        return roomService.insertRoom(roomDTO);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update-room/{roomId}")
-    public Room updateRoom(@PathVariable Integer roomId, @RequestBody Room updatedRoom) {
+    public Room updateRoom(@PathVariable Integer roomId, @RequestBody RoomDTO updatedRoom) {
         return roomService.updateRoom(roomId, updatedRoom);
     }
 

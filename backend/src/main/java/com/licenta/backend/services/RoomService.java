@@ -1,6 +1,10 @@
 package com.licenta.backend.services;
 
+import com.licenta.backend.converter.RoomDTOConverter;
+import com.licenta.backend.dto.RoomDTO;
+import com.licenta.backend.dto.UserDTO;
 import com.licenta.backend.entities.Room;
+import com.licenta.backend.entities.User;
 import com.licenta.backend.exceptions.RoomNotFoundException;
 import com.licenta.backend.repositories.RoomRepository;
 import lombok.AllArgsConstructor;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Data
@@ -18,29 +23,39 @@ import java.util.Optional;
 @NoArgsConstructor
 public class RoomService {
     @Autowired
-    RoomRepository roomRepository;
+    private RoomRepository roomRepository;
 
-    public List<Room> getAllRooms(){
-        return roomRepository.findAll();
+    @Autowired
+    private RoomDTOConverter roomDTOConverter;
+
+    public List<RoomDTO> getAllRooms(){
+        List<Room> rooms = roomRepository.findAll();
+        return rooms.stream()
+                .map(roomDTOConverter::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Room> getRoomById(Integer roomId){
-        return roomRepository.findById(roomId);
+    public List<RoomDTO> getRoomById(Integer roomId) {
+        Optional<Room> rooms = roomRepository.findById(roomId);
+        return rooms.stream()
+                .map(roomDTOConverter::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Room insertRoom(Room room){
+    public Room insertRoom(RoomDTO roomDTO){
+        Room room = roomDTOConverter.convertToEntity(roomDTO);
         return roomRepository.save(room);
     }
 
-    public Room updateRoom(Integer roomId, Room updatedRoom){
+    public Room updateRoom(Integer roomId, RoomDTO roomDTO){
         Optional<Room> existingRoom = roomRepository.findById(roomId);
         if (existingRoom.isPresent()){
             Room room = existingRoom.get();
-            room.setName(updatedRoom.getName());
-            room.setLocation(updatedRoom.getLocation());
-            room.setType(updatedRoom.getType());
-            room.setCapacity(updatedRoom.getCapacity());
-            room.setDetails(updatedRoom.getDetails());
+            room.setName(roomDTO.getName());
+            room.setLocation(roomDTO.getLocation());
+            room.setType(roomDTO.getType());
+            room.setCapacity(roomDTO.getCapacity());
+            room.setDetails(roomDTO.getDetails());
             return roomRepository.save(room);
         } else {
             throw new RoomNotFoundException("Room with ID: " + roomId + " not found!");
