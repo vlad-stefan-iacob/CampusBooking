@@ -582,7 +582,7 @@ function Rooms() {
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anlueaza</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
                         </div>
                     </div>
                 </div>
