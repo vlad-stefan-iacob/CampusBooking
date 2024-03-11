@@ -102,7 +102,7 @@ function RegisterForm() {
     };
 
     const onBack = () => {
-        navigate('/home');
+        navigate(-1);
     };
 
     return (

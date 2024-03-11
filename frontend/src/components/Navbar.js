@@ -34,7 +34,7 @@ export const Navbar = () => {
                 <li className={`profil-trigger ${menuOpen ? 'active' : ''}`} onClick={handleProfilClick}>
                     <div>{firstName} {lastName} <i className="bi bi-person-fill"></i></div>
                     <div className="dropdown-menu">
-                        <Link to="/edit-profile">Vizualizare profil</Link>
+                        <Link to="/profile">Vizualizare profil</Link>
                         <Link to="/logout">Deconectare</Link>
                     </div>
                 </li>

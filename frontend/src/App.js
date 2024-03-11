@@ -6,6 +6,8 @@ import RegisterForm from "./components/RegisterForm";
 import {AuthProvider} from "./components/AuthContext";
 import Logout from "./components/Logout";
 import Rooms from "./components/Rooms";
+import Profile from "./components/Profile";
+import Users from "./components/Users";
 
 function App() {
     return (
@@ -17,6 +19,8 @@ function App() {
                 <Route path="/register" element={<RegisterForm/>}/>
                 <Route path="/logout" element={<Logout/>}/>
                 <Route path="/rooms" element={<Rooms/>}/>
+                <Route path="/profile" element={<Profile/>}/>
+                <Route path="/users" element={<Users/>}/>
             </Routes>
         </AuthProvider>
 

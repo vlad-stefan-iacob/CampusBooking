@@ -13,6 +13,10 @@ function Home() {
         navigate('/register');
     };
 
+    function onUsers() {
+        navigate('/users');
+    }
+
     return (
         <div className="Home">
             <Navbar/>
@@ -27,6 +31,12 @@ function Home() {
                 {role === "ADMIN" && (
                     <button type="button" className="btn btn-secondary" onClick={onRegister}>
                         Inregistrare utilizatori
+                    </button>
+                )}
+
+                {role === "ADMIN" && (
+                    <button type="button" className="btn btn-secondary" onClick={onUsers}>
+                        Vizualizare utilizatori
                     </button>
                 )}
 
