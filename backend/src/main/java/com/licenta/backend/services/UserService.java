@@ -69,4 +69,15 @@ public class UserService {
         TokenRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
     }
+
+    public String decodePassword(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return user.getPassword();
+        } else {
+            throw new UserNotFoundException("User with ID: " + userId + " not found!");
+        }
+    }
+
 }
