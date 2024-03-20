@@ -681,7 +681,7 @@ function Rooms() {
                                         <div className="form-group">
                                             <label htmlFor="type">Tip *</label>
                                             <select
-                                                className={`form-control ${newRoomValidations.type ? '' : 'is-invalid'}`}
+                                                className={`form-control ${updatedRoomValidations.type ? '' : 'is-invalid'}`}
                                                 id="type"
                                                 name="type"
                                                 value={updatedRoom.type}
