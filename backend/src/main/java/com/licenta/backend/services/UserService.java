@@ -53,12 +53,15 @@ public class UserService {
             user.setFirstname(userDTO.getFirstname());
             user.setLastname(userDTO.getLastname());
             user.setEmail(userDTO.getEmail());
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             user.setRole(userDTO.getRole());
+
+            if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
 
             return userRepository.save(user);
         } else {
-            throw new UserNotFoundException("User with ID: " + userId+ " not found!");
+            throw new UserNotFoundException("User with ID: " + userId + " not found!");
         }
     }
 

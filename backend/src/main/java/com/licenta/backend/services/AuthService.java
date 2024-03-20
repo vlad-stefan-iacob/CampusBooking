@@ -4,7 +4,6 @@ import com.licenta.backend.config.AuthenticationRequest;
 import com.licenta.backend.config.AuthenticationResponse;
 import com.licenta.backend.config.JwtService;
 import com.licenta.backend.config.RegisterRequest;
-import com.licenta.backend.entities.Role;
 import com.licenta.backend.entities.Token;
 import com.licenta.backend.entities.TokenType;
 import com.licenta.backend.entities.User;
