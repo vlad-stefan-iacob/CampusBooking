@@ -37,6 +37,11 @@ public class UserController {
         return userService.updateUser(userId, updatedUser);
     }
 
+    @PutMapping("/update-user-password/{userId}")
+    public User updateUserPassword(@PathVariable Integer userId, @RequestBody UserDTO updatedUserPass) {
+        return userService.updateUserPassword(userId, updatedUserPass);
+    }
+
     @DeleteMapping("/delete-user/{userId}")
     public String deleteUser(@PathVariable Integer userId) {
         userService.deleteUser(userId);

@@ -65,6 +65,19 @@ public class UserService {
         }
     }
 
+    public User updateUserPassword(Integer userId, UserDTO userDTO){
+        Optional<User> existingUser = userRepository.findById(userId);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+            return userRepository.save(user);
+        } else {
+            throw new UserNotFoundException("User with ID: " + userId + " not found!");
+        }
+    }
+
     public void deleteUser(Integer userId){
         TokenRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
