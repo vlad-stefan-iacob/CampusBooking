@@ -59,7 +59,8 @@ function LoginForm() {
                     localStorage.setItem('user', JSON.stringify({
                         firstName: response.data.firstName,
                         lastName: response.data.lastName,
-                        role: response.data.role }));
+                        role: response.data.role,
+                        id: response.data.id }));
                     navigate('/home');
                 }
             } catch (error) {

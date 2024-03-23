@@ -10,7 +10,15 @@ function Users() {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [updatedUser, setUpdatedUser] = useState({firstname: "", lastname: "", email: "", role: "", password: "", confirmPassword: "", oldPassword: ""});
+    const [updatedUser, setUpdatedUser] = useState({
+        firstname: "",
+        lastname: "",
+        email: "",
+        role: "",
+        password: "",
+        confirmPassword: "",
+        oldPassword: ""
+    });
     const [submitted, setSubmitted] = useState(false);
     const [passwordMatch, setPasswordMatch] = useState(true);
     const [oldPasswordError, setOldPasswordError] = useState('');
@@ -67,7 +75,7 @@ function Users() {
     };
 
     const handleInputChange = async (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         const isEmpty = value.trim() === '';
         // Update the state based on the field
@@ -384,10 +392,13 @@ function Users() {
                                         </div>
                                         {/* Second Column */}
                                         <div className="col-md-6">
+                                            <p className="text mb-4"><i className="bi bi-info-square"></i> Daca nu
+                                                se doreste schimbarea parolei, campurile de mai jos vor fi lasate libere
+                                            </p>
                                             <div className="form-group">
                                                 <label htmlFor="oldPassword">Vechea parola</label>
                                                 <input
-                                                    type="text"
+                                                    type="password"
                                                     className={`form-control ${oldPasswordError ? 'is-invalid' : ''}`}
                                                     id="oldPassword"
                                                     name="oldPassword"
@@ -400,7 +411,7 @@ function Users() {
                                             <div className="form-group">
                                                 <label htmlFor="password">Noua parola</label>
                                                 <input
-                                                    type="text"
+                                                    type="password"
                                                     className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
                                                     id="password"
                                                     name="password"
@@ -411,7 +422,7 @@ function Users() {
                                             <div className="form-group">
                                                 <label htmlFor="confirmPassword">Confirma noua parola</label>
                                                 <input
-                                                    type="text"
+                                                    type="password"
                                                     className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
                                                     id="confirmPassword"
                                                     name="confirmPassword"
