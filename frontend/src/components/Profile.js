@@ -26,6 +26,7 @@ function Profile() {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
+                const token = getAuthToken();
                 // Retrieve user data from local storage
                 const storedUser = JSON.parse(localStorage.getItem('user'));
                 const {id} = storedUser || {};
@@ -35,6 +36,7 @@ function Profile() {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
                     },
                 });
                 if (response.ok) {
@@ -144,6 +146,7 @@ function Profile() {
                 }).then(response => response.json());
                 setUser(updatedUserInfo[0]);
                 setSuccessMessage('Parola schimbata cu succes');
+                document.getElementById('oldPassword').value = '';
             } else {
                 // Handle errors, e.g., display an error message
                 console.error("Failed to update user:", response.statusText);
@@ -180,7 +183,7 @@ function Profile() {
                                     <div className="form-group">
                                         <label htmlFor="oldPassword">Vechea parola</label>
                                         <input
-                                            type="text"
+                                            type="password"
                                             className={`form-control ${oldPasswordError ? 'is-invalid' : ''}`}
                                             id="oldPassword"
                                             name="oldPassword"
@@ -193,7 +196,7 @@ function Profile() {
                                     <div className="form-group">
                                         <label htmlFor="password">Noua parola</label>
                                         <input
-                                            type="text"
+                                            type="password"
                                             className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
                                             id="password"
                                             name="password"
@@ -204,7 +207,7 @@ function Profile() {
                                     <div className="form-group">
                                         <label htmlFor="confirmPassword">Confirma noua parola</label>
                                         <input
-                                            type="text"
+                                            type="password"
                                             className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
                                             id="confirmPassword"
                                             name="confirmPassword"

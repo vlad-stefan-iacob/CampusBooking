@@ -36,11 +36,12 @@ function Users() {
     const {role} = storedUser || {};
 
     useEffect(() => {
-
+        const token = getAuthToken();
         fetch("http://localhost:8080/api/v1/users/all-users", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
             },
         })
             .then(response => response.json())
