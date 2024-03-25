@@ -7,6 +7,7 @@ import com.licenta.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,32 +23,41 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all-users")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/user/{userId}")
     public List<UserDTO> getUserById(@PathVariable Integer userId) {
         return userService.getUserById(userId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update-user/{userId}")
     public User updateUser(@PathVariable Integer userId, @RequestBody UserDTO updatedUser) {
         return userService.updateUser(userId, updatedUser);
     }
 
+    //
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @PutMapping("/update-user-password/{userId}")
     public User updateUserPassword(@PathVariable Integer userId, @RequestBody UserDTO updatedUserPass) {
         return userService.updateUserPassword(userId, updatedUserPass);
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete-user/{userId}")
     public String deleteUser(@PathVariable Integer userId) {
         userService.deleteUser(userId);
         return "User deleted";
     }
 
+    //
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/verify-password/{userId}/{password}")
     public ResponseEntity<?> verifyPassword(@PathVariable Integer userId, @PathVariable String password) {
         try {
