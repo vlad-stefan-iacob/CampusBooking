@@ -8,6 +8,7 @@ import Logout from "./components/Logout";
 import Rooms from "./components/Rooms";
 import Profile from "./components/Profile";
 import Users from "./components/Users";
+import Reservations from "./components/Reservations";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/rooms" element={<Rooms/>}/>
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/users" element={<Users/>}/>
+                <Route path="/reservations" element={<Reservations/>}/>
             </Routes>
         </AuthProvider>
 
