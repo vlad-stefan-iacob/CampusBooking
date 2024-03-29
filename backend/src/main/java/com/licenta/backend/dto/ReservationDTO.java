@@ -19,4 +19,5 @@ public class ReservationDTO {
     private String startTime;
     private String endTime;
     private ReservationStatus status;
+    private Date reservationDateTime;
 }

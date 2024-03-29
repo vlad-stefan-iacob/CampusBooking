@@ -4,7 +4,9 @@ import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.entities.Reservation;
 import com.licenta.backend.entities.User;
 import com.licenta.backend.entities.Room;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ReservationDTOConverter {
 
     public static ReservationDTO convertToDTO(Reservation reservation) {
@@ -15,6 +17,7 @@ public class ReservationDTOConverter {
                 .startTime(reservation.getStartTime())
                 .endTime(reservation.getEndTime())
                 .status(reservation.getStatus())
+                .reservationDateTime(reservation.getReservationDateTime())
                 .build();
     }
 
@@ -26,6 +29,7 @@ public class ReservationDTOConverter {
         reservation.setStartTime(dto.getStartTime());
         reservation.setEndTime(dto.getEndTime());
         reservation.setStatus(dto.getStatus());
+        reservation.setReservationDateTime(dto.getReservationDateTime());
         return reservation;
     }
 }
