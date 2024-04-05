@@ -18,6 +18,9 @@ function Reservation() {
         reservationDateTime: new Date().toISOString() // Set the current date and time
     });
 
+    const [showRoomModal, setShowRoomModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+
     useEffect(() => {
         const fetchRooms = async () => {
             try {
@@ -62,7 +65,6 @@ function Reservation() {
                 },
                 body: JSON.stringify(reservation),
             });
-
             if (response.ok) {
                 // Reservation inserted successfully
                 console.log("Reservation inserted successfully");
@@ -70,9 +72,16 @@ function Reservation() {
                 // Handle errors, e.g., display an error message
                 console.error("Failed to insert reservation:", response.statusText);
             }
+            setShowRoomModal(false); // Close the room modal
+            setSuccessMessage("Rezervare adaugata cu succes!");
         } catch (error) {
             console.error("Error inserting reservation:", error);
         }
+    };
+
+    const handleSelectRoom = (roomId) => {
+        setReservation({ ...reservation, roomId });
+        setShowRoomModal(false); // Close the room modal
     };
 
     return (
@@ -82,6 +91,7 @@ function Reservation() {
                 <div className="container">
                     <div className="card p-4" style={{ maxWidth: 'none', width: '70%' }}>
                         <h4 className="card-title text-center mb-4">Rezervare</h4>
+                        {successMessage && <div className="alert alert-success">{successMessage}</div>}
                         <div className="row">
                             {/* First column */}
                             <div className="col-md-6">
@@ -122,19 +132,25 @@ function Reservation() {
                             {/* Second column */}
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label htmlFor="roomId">Sala</label>
-                                    <select
-                                        className="form-control"
-                                        id="roomId"
-                                        name="roomId"
-                                        value={reservation.roomId}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="">Selecteaza o sala</option>
-                                        {rooms.map(room => (
-                                            <option key={room.id} value={room.id}>{room.name}</option>
-                                        ))}
-                                    </select>
+                                    <label htmlFor="roomId" className="form-label">Sala</label>
+                                    <div className="row align-items-center">
+                                        <div className="col-sm-12 d-flex">
+                                            <input
+                                                type="text"
+                                                className="form-control flex-grow-1"
+                                                id="roomId"
+                                                name="roomId"
+                                                value={reservation.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : ""}
+                                                readOnly
+                                            />
+                                            <button
+                                                className="btn btn-secondary ml-2" style={{marginTop:"0px",marginBottom:"0px"}}
+                                                onClick={() => setShowRoomModal(true)}
+                                            >
+                                                Alege
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="startTime">Ora de inceput</label>
@@ -160,7 +176,53 @@ function Reservation() {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={handleInsertReservation} className="btn btn-primary">Adauga rezervare</button>
+                        <button onClick={handleInsertReservation} className="btn btn-primary" style={{marginLeft:"75%"}}>Adauga rezervare</button>
+                    </div>
+                </div>
+            </div>
+            {/* Room Modal */}
+            <div className={`modal ${showRoomModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
+                 style={{display: showRoomModal ? 'block' : 'none'}}>
+                <div className="modal-dialog modal-dialog-scrollable" role="document" style={{maxWidth: 'none', width: '90%'}}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Selecteaza o sala</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                                    onClick={() => setShowRoomModal(false)}>
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+                            <table className="table">
+                                <thead>
+                                <tr>
+                                    <th>Nume</th>
+                                    <th>Locatie</th>
+                                    <th>Capacitate</th>
+                                    <th>Tip</th>
+                                    <th>Selecteaza</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {rooms.map(room => (
+                                    <tr key={room.id}>
+                                        <td>{room.name}</td>
+                                        <td>{room.location}</td>
+                                        <td>{room.capacity}</td>
+                                        <td>{room.type}</td>
+                                        <td>
+                                            <button
+                                                className="btn btn-primary" style={{marginLeft:"0px"}}
+                                                onClick={() => handleSelectRoom(room.id)}
+                                            >
+                                                Selecteaza
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
