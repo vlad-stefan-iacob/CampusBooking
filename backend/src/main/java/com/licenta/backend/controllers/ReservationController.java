@@ -1,13 +1,14 @@
 package com.licenta.backend.controllers;
 
 import com.licenta.backend.dto.ReservationDTO;
+import com.licenta.backend.dto.RoomDTO;
 import com.licenta.backend.entities.Reservation;
 import com.licenta.backend.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -18,5 +19,14 @@ public class ReservationController {
     @PostMapping("/add-reservation")
     public Reservation createReservation(@RequestBody ReservationDTO reservationDTO){
         return reservationService.insertReservation(reservationDTO);
+    }
+    @GetMapping("/all-reservations")
+    public List<ReservationDTO> getAllReservations(){
+        return reservationService.getAllReservations();
+    }
+
+    @GetMapping("/{userId}")
+    public List<ReservationDTO> getReservationsByUserId(@PathVariable Integer userId){
+        return reservationService.getReservationsByUserId(userId);
     }
 }

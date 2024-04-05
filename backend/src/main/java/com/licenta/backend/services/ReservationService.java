@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.licenta.backend.entities.ReservationStatus.VIITOR;
 
@@ -34,7 +36,17 @@ public class ReservationService {
     @Autowired
     private ReservationDTOConverter reservationDTOConverter;
 
+    public List<ReservationDTO> getAllReservations() {
+        return reservationRepository.findAll().stream()
+                .map(ReservationDTOConverter::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
+    public List<ReservationDTO> getReservationsByUserId(Integer userId) {
+        return reservationRepository.findByUserId(userId).stream()
+                .map(ReservationDTOConverter::convertToDTO)
+                .collect(Collectors.toList());
+    }
     public Reservation insertReservation(ReservationDTO reservationDTO){
         Reservation reservation = new Reservation();
         reservation.setDate(reservationDTO.getDate());
