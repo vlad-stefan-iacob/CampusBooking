@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Navbar } from "./Navbar";
+import React, {useState, useEffect} from "react";
+import {Navbar} from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getAuthToken } from "../helpers/axios_helper";
+import {getAuthToken} from "../helpers/axios_helper";
+import {useNavigate} from "react-router-dom";
 
 function Reservation() {
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    const { firstName, lastName, id } = storedUser || {};
+    const {firstName, lastName, id, role} = storedUser || {};
 
     const [rooms, setRooms] = useState([]); // State to store list of rooms
     const [reservation, setReservation] = useState({
@@ -20,6 +21,16 @@ function Reservation() {
 
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+
+    const navigate = useNavigate();
+
+    const onAllUserReservations = () => {
+        navigate('/my-reservations');
+    };
+
+    const onAllReservations = () => {
+        navigate('/all-reservations');
+    };
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -47,7 +58,7 @@ function Reservation() {
     }, []);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setReservation({
             ...reservation,
             [name]: value
@@ -68,6 +79,13 @@ function Reservation() {
             if (response.ok) {
                 // Reservation inserted successfully
                 console.log("Reservation inserted successfully");
+                setReservation({
+                    roomId: "",
+                    date: "",
+                    startTime: "",
+                    endTime: "",
+                    reservationDateTime: new Date().toISOString()
+                });
             } else {
                 // Handle errors, e.g., display an error message
                 console.error("Failed to insert reservation:", response.statusText);
@@ -80,17 +98,31 @@ function Reservation() {
     };
 
     const handleSelectRoom = (roomId) => {
-        setReservation({ ...reservation, roomId });
+        setReservation({...reservation, roomId});
         setShowRoomModal(false); // Close the room modal
     };
 
     return (
         <div className="Reservation">
-            <Navbar />
+            <Navbar/>
             <div className="background-home p-4 d-flex justify-content-center align-items-center">
                 <div className="container">
-                    <div className="card p-4" style={{ maxWidth: 'none', width: '70%' }}>
-                        <h4 className="card-title text-center mb-4">Rezervare</h4>
+                    <div className="card p-4" style={{maxWidth: 'none', width: '70%'}}>
+                        <div className="row">
+                            <button type="button" className="btn btn-secondary"
+                                    style={{marginLeft: "2%", marginTop: "0px", marginBottom: "5%"}}
+                                    onClick={onAllUserReservations}>
+                                Rezervarile mele
+                            </button>
+                            {role === 'ADMIN' && (
+                            <button type="button" className="btn btn-secondary"
+                                    style={{marginLeft: "0px", marginTop: "0px", marginBottom: "5%"}}
+                                    onClick={onAllReservations}>
+                                Toate rezervarile
+                            </button>)}
+
+                        </div>
+                        <h4 className="card-title text-center mb-4">Adauga o rezervare</h4>
                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
                         <div className="row">
                             {/* First column */}
@@ -144,7 +176,8 @@ function Reservation() {
                                                 readOnly
                                             />
                                             <button
-                                                className="btn btn-secondary ml-2" style={{marginTop:"0px",marginBottom:"0px"}}
+                                                className="btn btn-secondary ml-2"
+                                                style={{marginTop: "0px", marginBottom: "0px"}}
                                                 onClick={() => setShowRoomModal(true)}
                                             >
                                                 Alege
@@ -176,14 +209,17 @@ function Reservation() {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={handleInsertReservation} className="btn btn-primary" style={{marginLeft:"75%"}}>Adauga rezervare</button>
+                        <button onClick={handleInsertReservation} className="btn btn-primary"
+                                style={{marginLeft: "75%"}}>Adauga rezervare
+                        </button>
                     </div>
                 </div>
             </div>
             {/* Room Modal */}
             <div className={`modal ${showRoomModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
                  style={{display: showRoomModal ? 'block' : 'none'}}>
-                <div className="modal-dialog modal-dialog-scrollable" role="document" style={{maxWidth: 'none', width: '90%'}}>
+                <div className="modal-dialog modal-dialog-scrollable" role="document"
+                     style={{maxWidth: 'none', width: '90%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Selecteaza o sala</h5>
@@ -192,7 +228,7 @@ function Reservation() {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div className="modal-body" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+                        <div className="modal-body" style={{maxHeight: '80vh', overflowY: 'auto'}}>
                             <table className="table">
                                 <thead>
                                 <tr>
@@ -212,7 +248,7 @@ function Reservation() {
                                         <td>{room.type}</td>
                                         <td>
                                             <button
-                                                className="btn btn-primary" style={{marginLeft:"0px"}}
+                                                className="btn btn-primary" style={{marginLeft: "0px"}}
                                                 onClick={() => handleSelectRoom(room.id)}
                                             >
                                                 Selecteaza
