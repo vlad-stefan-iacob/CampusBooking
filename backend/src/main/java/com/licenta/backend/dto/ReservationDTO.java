@@ -13,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationDTO {
+    private Integer id;
     private Integer userId;
     private Integer roomId;
     private Date date;

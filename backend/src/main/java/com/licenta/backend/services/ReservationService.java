@@ -68,4 +68,8 @@ public class ReservationService {
 
         return reservationRepository.save(reservation);
     }
+
+    public void deleteReservation(Integer reservationId) {
+        reservationRepository.deleteById(reservationId);
+    }
 }

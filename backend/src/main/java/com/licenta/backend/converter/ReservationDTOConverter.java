@@ -11,6 +11,7 @@ public class ReservationDTOConverter {
 
     public static ReservationDTO convertToDTO(Reservation reservation) {
         return ReservationDTO.builder()
+                .id(reservation.getId())
                 .userId(reservation.getUser().getId())
                 .roomId(reservation.getRoom().getId())
                 .date(reservation.getDate())
@@ -23,6 +24,7 @@ public class ReservationDTOConverter {
 
     public static Reservation convertToEntity(ReservationDTO dto, User user, Room room) {
         Reservation reservation = new Reservation();
+        reservation.setId(dto.getId());
         reservation.setUser(user);
         reservation.setRoom(room);
         reservation.setDate(dto.getDate());
