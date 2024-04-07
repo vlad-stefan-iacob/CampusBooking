@@ -3,6 +3,7 @@ package com.licenta.backend.controllers;
 import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.dto.RoomDTO;
 import com.licenta.backend.entities.Reservation;
+import com.licenta.backend.entities.Room;
 import com.licenta.backend.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,9 @@ public class ReservationController {
     public String deleteReservation(@PathVariable Integer reservationId) {
         reservationService.deleteReservation(reservationId);
         return "Reservation deleted";
+    }
+    @PutMapping("/update-reservation/{reservationId}")
+    public Reservation updateRoom(@PathVariable Integer reservationId, @RequestBody ReservationDTO updatedReservation) {
+        return reservationService.updateReservation(reservationId, updatedReservation);
     }
 }

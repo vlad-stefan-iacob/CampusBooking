@@ -6,6 +6,9 @@ import com.licenta.backend.entities.Reservation;
 import com.licenta.backend.entities.ReservationStatus;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.entities.User;
+import com.licenta.backend.exceptions.ReservationNotFoundException;
+import com.licenta.backend.exceptions.RoomNotFoundException;
+import com.licenta.backend.exceptions.UserNotFoundException;
 import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
 import com.licenta.backend.repositories.UserRepository;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.licenta.backend.entities.ReservationStatus.VIITOR;
@@ -72,4 +76,23 @@ public class ReservationService {
     public void deleteReservation(Integer reservationId) {
         reservationRepository.deleteById(reservationId);
     }
+
+    public Reservation updateReservation(Integer reservationId, ReservationDTO reservationDTO) {
+        Optional<Reservation> existingReservation = reservationRepository.findById(reservationId);
+        if (existingReservation.isPresent()) {
+            Reservation reservation = existingReservation.get();
+            // Update the fields of the existing reservation entity
+            reservation.setDate(reservationDTO.getDate());
+            reservation.setStartTime(reservationDTO.getStartTime());
+            reservation.setEndTime(reservationDTO.getEndTime());
+            reservation.setStatus(ReservationStatus.valueOf(String.valueOf(VIITOR)));
+            reservation.setUser(userRepository.findById(reservationDTO.getUserId()).orElseThrow(() -> new UserNotFoundException("User with ID: " + reservationDTO.getUserId() + " not found!")));
+            reservation.setRoom(roomRepository.findById(reservationDTO.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Room with ID: " + reservationDTO.getRoomId() + " not found!")));
+            // Save and return the updated reservation entity
+            return reservationRepository.save(reservation);
+        } else {
+            throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " not found!");
+        }
+    }
+
 }
