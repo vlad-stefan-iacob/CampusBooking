@@ -219,7 +219,7 @@ function Reservation() {
             <div className={`modal ${showRoomModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
                  style={{display: showRoomModal ? 'block' : 'none'}}>
                 <div className="modal-dialog modal-dialog-scrollable" role="document"
-                     style={{maxWidth: 'none', width: '90%'}}>
+                     style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Selecteaza o sala</h5>

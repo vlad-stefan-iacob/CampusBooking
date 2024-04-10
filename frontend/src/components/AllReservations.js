@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {getAuthToken} from "../helpers/axios_helper";
 import {useNavigate} from "react-router-dom";
 
-function AllUserReservations() {
+function AllReservations() {
     const [reservations, setReservations] = useState([]);
     const navigate = useNavigate();
     const [selectedTab, setSelectedTab] = useState('VIITOR');
@@ -15,6 +15,7 @@ function AllUserReservations() {
     const [updatedReservation, setUpdatedReservation] = useState({userId: "", roomId: "", date: "", startTime: "", endTime: ""});
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [rooms, setRooms] = useState([]);
+
     const onBack = () => {
         navigate(-1);
     };
@@ -142,20 +143,24 @@ function AllUserReservations() {
         })}`;
     };
 
-    const handleRoomSelection = (roomId, e) => {
-        e.preventDefault();
-        setSelectedReservation({ ...selectedReservation, roomId });
-        setUpdatedReservation({ ...updatedReservation, roomId });
+    const handleRoomSelection = (roomId) => {
+        setSelectedReservation(prevReservation => ({ ...prevReservation, roomId }));
+        setUpdatedReservation(prevUpdatedReservation => ({ ...prevUpdatedReservation, roomId }));
         setShowRoomModal(false);
-        handleInputChange({ target: { name: 'roomId', value: roomId } });
-        //closeModal(true);
     };
+
+    const handleRoomSelect = (room) => {
+        setSelectedReservation({
+            ...selectedReservation,
+            roomId: room.id,
+            roomName: room.name
+        });
+    }
+
 
     const handleDelete = async () => {
         try {
             const token = getAuthToken();
-            const storedUser = JSON.parse(localStorage.getItem('user'));
-            const { id } = storedUser || {};
             const response = await fetch(`http://localhost:8080/api/v1/reservations/delete-reservation/${selectedReservation.id}`, {
                 method: 'DELETE',
                 headers: {
@@ -168,7 +173,7 @@ function AllUserReservations() {
                 closeModal();
 
                 // Fetch updated reservations data from the backend
-                const updatedReservationsResponse = await fetch(`http://localhost:8080/api/v1/reservations/${id}`, {
+                const updatedReservationsResponse = await fetch(`http://localhost:8080/api/v1/reservations/all-reservations`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -224,8 +229,6 @@ function AllUserReservations() {
         e.preventDefault();
         try {
             const token = getAuthToken();
-            const storedUser = JSON.parse(localStorage.getItem('user'));
-            const { id } = storedUser || {};
             const response = await fetch(`http://localhost:8080/api/v1/reservations/update-reservation/${selectedReservation.id}`, {
                 method: 'PUT',
                 headers: {
@@ -239,7 +242,7 @@ function AllUserReservations() {
                 closeModal();
 
                 // Fetch updated reservations data from the backend
-                const updatedReservationsResponse = await fetch(`http://localhost:8080/api/v1/reservations/${id}`, {
+                const updatedReservationsResponse = await fetch(`http://localhost:8080/api/v1/reservations/all-reservations`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -471,7 +474,10 @@ function AllUserReservations() {
                                                         <button
                                                             className="btn btn-secondary ml-2"
                                                             style={{marginTop: "0px", marginBottom: "0px"}}
-                                                            onClick={() => setShowRoomModal(true)}
+                                                            onClick={(e) => {
+                                                                e.preventDefault(); // Prevent form submission
+                                                                setShowRoomModal(true); // Open the second modal
+                                                            }}
                                                         >
                                                             Alege
                                                         </button>
@@ -516,7 +522,7 @@ function AllUserReservations() {
                 <div className={`modal ${showRoomModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
                      style={{display: showRoomModal ? 'block' : 'none'}}>
                     <div className="modal-dialog modal-dialog-scrollable" role="document"
-                         style={{maxWidth: 'none', width: '90%'}}>
+                         style={{maxWidth: 'none', width: '60%'}}>
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Selecteaza o sala</h5>
@@ -546,7 +552,9 @@ function AllUserReservations() {
                                             <td>
                                                 <button
                                                     className="btn btn-primary" style={{marginLeft: "0px"}}
-                                                    onClick={() => handleRoomSelection(room.id)}
+                                                    onClick={() => {
+                                                        handleRoomSelection(room.id);
+                                                        handleRoomSelect(room);}}
                                                 >
                                                     Selecteaza
                                                 </button>
@@ -564,4 +572,4 @@ function AllUserReservations() {
     );
 }
 
-export default AllUserReservations;
+export default AllReservations;
