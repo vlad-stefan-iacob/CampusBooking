@@ -7,11 +7,11 @@ import {useNavigate} from "react-router-dom";
 function AllReservations() {
     const [reservations, setReservations] = useState([]);
     const navigate = useNavigate();
-    const [selectedTab, setSelectedTab] = useState('VIITOR');
+    const [currentDate] = useState(new Date());
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [selectedReservation, setSelectedReservation] = useState(null);
-    const filteredReservationsSelectedTab = reservations.filter((reservation) => reservation.status === selectedTab);
+    const [showFuture, setShowFuture] = useState(true);
     const [updatedReservation, setUpdatedReservation] = useState({userId: "", roomId: "", date: "", startTime: "", endTime: ""});
     const [showRoomModal, setShowRoomModal] = useState(false);
     const [rooms, setRooms] = useState([]);
@@ -142,6 +142,9 @@ function AllReservations() {
             minute: '2-digit'
         })}`;
     };
+
+    const futureReservations = reservations.filter(reservation => reservation.date > formatDate(currentDate));
+    const pastReservations = reservations.filter(reservation => reservation.date <= formatDate(currentDate));
 
     const handleRoomSelection = (roomId) => {
         setSelectedReservation(prevReservation => ({ ...prevReservation, roomId }));
@@ -307,29 +310,28 @@ function AllReservations() {
                 <ul className="nav nav-tabs">
                     <li className="nav-item">
                         <button
-                            className={`nav-link ${selectedTab === 'VIITOR' ? 'active' : ''}`}
+                            className={`nav-link ${showFuture ? 'active' : ''}`}
                             style={{
-                                color: selectedTab === 'VIITOR' ? 'black' : 'white',
-                                border: selectedTab === 'VIITOR' ? '1px solid white' : '1px solid white',
+                                color: showFuture ? 'black' : 'white',
+                                border: '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('VIITOR')}
+                            onClick={() => setShowFuture(true)}
                         >
                             Rezervari viitoare
                         </button>
                     </li>
                     <li className="nav-item">
                         <button
-                            className={`nav-link ${selectedTab === 'TRECUT' ? 'active' : ''}`}
+                            className={`nav-link ${!showFuture ? 'active' : ''}`}
                             style={{
-                                color: selectedTab === 'TRECUT' ? 'black' : 'white',
-                                border: selectedTab === 'TRECUT' ? '1px solid white' : '1px solid white',
+                                color: !showFuture ? 'black' : 'white',
+                                border: '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('TRECUT')}
+                            onClick={() => setShowFuture(false)}
                         >
                             Rezervari trecute
                         </button>
                     </li>
-                    {/* Add more tabs as needed */}
                 </ul>
                 <div className="table-responsive"> {/* Make the table responsive */}
                     <table className="table table-bordered">
@@ -339,35 +341,57 @@ function AllReservations() {
                             <th>Sala</th>
                             <th>Ora inceput</th>
                             <th>Ora sfarsit</th>
-                            <th>Status</th>
                             <th>Rezervare creata de</th>
                             <th>Rezervare creata la data de</th>
                             <th>Actiuni</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredReservationsSelectedTab.map((reservation) => (
-                            <tr key={reservation.id}>
-                                <td className="text-white">{reservation.date}</td>
-                                <td className="text-white">{reservation.roomName}</td>
-                                <td className="text-white">{reservation.startTime}</td>
-                                <td className="text-white">{reservation.endTime}</td>
-                                <td className="text-white">{reservation.status}</td>
-                                <td className="text-white">{reservation.userName}</td>
-                                <td className="text-white">{reservation.reservationDateTime}</td>
-                                <td>
-                                    <button type="button" className="btn btn-danger"
-                                            onClick={() => deleteReservation(reservation)}>
-                                        Stergere
-                                    </button>
-                                    <button type="button" className="btn btn btn-warning ml-lg-2"
-                                            onClick={() => updateReservation(reservation)}>
-                                        Actualizare
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {showFuture ? (
+                            futureReservations.map(reservation => (
+                                <tr key={reservation.id}>
+                                    <td className="text-white">{reservation.date}</td>
+                                    <td className="text-white">{reservation.roomName}</td>
+                                    <td className="text-white">{reservation.startTime}</td>
+                                    <td className="text-white">{reservation.endTime}</td>
+                                    <td className="text-white">{reservation.userName}</td>
+                                    <td className="text-white">{reservation.reservationDateTime}</td>
+                                    <td>
+                                        <button type="button" className="btn btn-danger"
+                                                onClick={() => deleteReservation(reservation)}>
+                                            Stergere
+                                        </button>
+                                        <button type="button" className="btn btn-warning ml-lg-2"
+                                                onClick={() => updateReservation(reservation)}>
+                                            Actualizare
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            pastReservations.map(reservation => (
+                                <tr key={reservation.id}>
+                                    <td className="text-white">{reservation.date}</td>
+                                    <td className="text-white">{reservation.roomName}</td>
+                                    <td className="text-white">{reservation.startTime}</td>
+                                    <td className="text-white">{reservation.endTime}</td>
+                                    <td className="text-white">{reservation.userName}</td>
+                                    <td className="text-white">{reservation.reservationDateTime}</td>
+                                    <td>
+                                        <button type="button" className="btn btn-danger"
+                                                onClick={() => deleteReservation(reservation)}>
+                                            Stergere
+                                        </button>
+                                        <button type="button" className="btn btn-warning ml-lg-2"
+                                                onClick={() => updateReservation(reservation)}>
+                                            Actualizare
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                         </tbody>
+
                     </table>
                 </div>
 

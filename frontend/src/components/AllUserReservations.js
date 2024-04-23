@@ -7,11 +7,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function AllUserReservations() {
     const [reservations, setReservations] = useState([]);
     const navigate = useNavigate();
-    const [selectedTab, setSelectedTab] = useState('VIITOR');
+    const [currentDate] = useState(new Date());
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [selectedReservation, setSelectedReservation] = useState(null);
-    const filteredReservationsSelectedTab = reservations.filter((reservation) => reservation.status === selectedTab);
+    const [showFuture, setShowFuture] = useState(true);
     const [updatedReservation, setUpdatedReservation] = useState({
         userId: "",
         roomId: "",
@@ -155,6 +155,9 @@ function AllUserReservations() {
             minute: '2-digit'
         })}`;
     };
+
+    const futureReservations = reservations.filter(reservation => reservation.date > formatDate(currentDate));
+    const pastReservations = reservations.filter(reservation => reservation.date <= formatDate(currentDate));
 
     const handleRoomSelection = (roomId) => {
         setSelectedReservation(prevReservation => ({...prevReservation, roomId}));
@@ -320,26 +323,26 @@ function AllUserReservations() {
                         <ul className="nav nav-tabs">
                             <li className="nav-item">
                                 <button
-                                    className={`nav-link ${selectedTab === 'VIITOR' ? 'active' : ''}`}
+                                    className={`nav-link ${showFuture ? 'active' : ''}`}
                                     style={{
-                                        color: selectedTab === 'VIITOR' ? 'black' : 'black',
-                                        background: selectedTab === 'VIITOR' ? '#D0C6C3' : 'white',
-                                        border: selectedTab === 'VIITOR' ? '2px solid #D0C6C3' : '1px solid #D0C6C3',
+                                        color: showFuture ? 'black' : 'black',
+                                        background: showFuture ? '#D0C6C3' : 'white',
+                                        border: showFuture ? '2px solid #D0C6C3' : '1px solid #D0C6C3',
                                     }}
-                                    onClick={() => setSelectedTab('VIITOR')}
+                                    onClick={() => setShowFuture(true)}
                                 >
                                     Rezervari viitoare
                                 </button>
                             </li>
                             <li className="nav-item">
                                 <button
-                                    className={`nav-link ${selectedTab === 'TRECUT' ? 'active' : ''}`}
+                                    className={`nav-link ${!showFuture ? 'active' : ''}`}
                                     style={{
-                                        color: selectedTab === 'TRECUT' ? 'black' : 'black',
-                                        background: selectedTab === 'TRECUT' ? '#D0C6C3' : 'white',
-                                        border: selectedTab === 'TRECUT' ? '2px solid #D0C6C3' : '1px solid #D0C6C3',
+                                        color: !showFuture ? 'black' : 'black',
+                                        background: !showFuture ? '#D0C6C3' : 'white',
+                                        border: !showFuture ? '2px solid #D0C6C3' : '1px solid #D0C6C3',
                                     }}
-                                    onClick={() => setSelectedTab('TRECUT')}
+                                    onClick={() => setShowFuture(false)}
                                 >
                                     Rezervari trecute
                                 </button>
@@ -354,32 +357,42 @@ function AllUserReservations() {
                                     <th>Sala</th>
                                     <th>Ora inceput</th>
                                     <th>Ora sfarsit</th>
-                                    <th>Status</th>
                                     <th>Rezervare creata la data de</th>
-                                    <th>Actiuni</th>
+                                    {showFuture && <th>Actiuni</th>}
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredReservationsSelectedTab.map(reservation => (
-                                    <tr key={reservation.id}>
-                                        <td>{reservation.date}</td>
-                                        <td>{reservation.roomName}</td>
-                                        <td>{reservation.startTime}</td>
-                                        <td>{reservation.endTime}</td>
-                                        <td>{reservation.status}</td>
-                                        <td>{reservation.reservationDateTime}</td>
-                                        <td>
-                                            <button type="button" className="btn btn-danger"
-                                                    onClick={() => deleteReservation(reservation)}>
-                                                Stergere
-                                            </button>
-                                            <button type="button" className="btn btn btn-warning ml-lg-2"
-                                                    onClick={() => updateReservation(reservation)}>
-                                                Actualizare
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {showFuture ? (
+                                    futureReservations.map(reservation => (
+                                        <tr key={reservation.id}>
+                                            <td>{reservation.date}</td>
+                                            <td>{reservation.roomName}</td>
+                                            <td>{reservation.startTime}</td>
+                                            <td>{reservation.endTime}</td>
+                                            <td>{reservation.reservationDateTime}</td>
+                                            <td>
+                                                <button type="button" className="btn btn-danger"
+                                                        onClick={() => deleteReservation(reservation)}>
+                                                    Stergere
+                                                </button>
+                                                <button type="button" className="btn btn-warning ml-lg-2"
+                                                        onClick={() => updateReservation(reservation)}>
+                                                    Actualizare
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    pastReservations.map(reservation => (
+                                        <tr key={reservation.id}>
+                                            <td>{reservation.date}</td>
+                                            <td>{reservation.roomName}</td>
+                                            <td>{reservation.startTime}</td>
+                                            <td>{reservation.endTime}</td>
+                                            <td>{reservation.reservationDateTime}</td>
+                                        </tr>
+                                    ))
+                                )}
                                 </tbody>
                             </table>
                         </div>
