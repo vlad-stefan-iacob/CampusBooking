@@ -1,6 +1,5 @@
 package com.licenta.backend.dto;
 
-import com.licenta.backend.entities.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +18,5 @@ public class ReservationDTO {
     private Date date;
     private String startTime;
     private String endTime;
-    private ReservationStatus status;
     private Date reservationDateTime;
 }

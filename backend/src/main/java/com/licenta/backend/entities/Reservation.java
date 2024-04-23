@@ -31,9 +31,6 @@ public class Reservation {
     private String startTime;
     private String endTime;
 
-    @Enumerated(EnumType.STRING)
-    private ReservationStatus status;
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date reservationDateTime;
 }

@@ -3,7 +3,6 @@ package com.licenta.backend.services;
 import com.licenta.backend.converter.ReservationDTOConverter;
 import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.entities.Reservation;
-import com.licenta.backend.entities.ReservationStatus;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.entities.User;
 import com.licenta.backend.exceptions.ReservationNotFoundException;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.licenta.backend.entities.ReservationStatus.VIITOR;
 
 @Service
 @Data
@@ -56,7 +54,6 @@ public class ReservationService {
         reservation.setDate(reservationDTO.getDate());
         reservation.setStartTime(reservationDTO.getStartTime());
         reservation.setEndTime(reservationDTO.getEndTime());
-        reservation.setStatus(ReservationStatus.valueOf(String.valueOf(VIITOR)));
         reservation.setReservationDateTime(new Date()); // Assuming current date/time for reservation creation
 
         // Retrieve User entity
@@ -85,7 +82,6 @@ public class ReservationService {
             reservation.setDate(reservationDTO.getDate());
             reservation.setStartTime(reservationDTO.getStartTime());
             reservation.setEndTime(reservationDTO.getEndTime());
-            reservation.setStatus(ReservationStatus.valueOf(String.valueOf(VIITOR)));
             reservation.setUser(userRepository.findById(reservationDTO.getUserId()).orElseThrow(() -> new UserNotFoundException("User with ID: " + reservationDTO.getUserId() + " not found!")));
             reservation.setRoom(roomRepository.findById(reservationDTO.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Room with ID: " + reservationDTO.getRoomId() + " not found!")));
             // Save and return the updated reservation entity
