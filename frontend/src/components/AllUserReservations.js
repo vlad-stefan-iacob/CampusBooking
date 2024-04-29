@@ -5,6 +5,9 @@ import {Navbar} from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function AllUserReservations() {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const {role} = storedUser || {};
+
     const [reservations, setReservations] = useState([]);
     const navigate = useNavigate();
     const [currentDate] = useState(new Date());
@@ -140,6 +143,20 @@ function AllUserReservations() {
 
         fetchRooms();
     }, []);
+
+    const filteredRooms = rooms.filter((room) => {
+        if (role === 'ADMIN') {
+            // Admin can see all types of rooms
+            return true;
+        } else if (role === 'STUDENT') {
+            return room.type === 'SALA LECTURA';
+        } else if (role === 'PROFESOR') {
+            return room.type === 'AMFITEATRU';
+        } else if (role === 'ASISTENT')
+            return room.type === 'LABORATOR';
+
+        return false;
+    });
 
     // Function to format date (day-month-year)
     const formatDate = (dateString) => {
@@ -313,6 +330,23 @@ function AllUserReservations() {
         }
     }
 
+    const generateTimeOptions = () => {
+        const options = [];
+        for (let hour = 0; hour < 24; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                options.push(timeString);
+            }
+        }
+        return options;
+    };
+
+    // Opțiunile de timp generale
+    const timeOptions = generateTimeOptions();
+
+    // Calculează opțiuni pentru ora de sfârșit bazate pe ora de început selectată
+    const endTimeOptions = updatedReservation.startTime ? timeOptions.filter(time => time > updatedReservation.startTime) : [];
+
     return (
         <div className="AllUserReservations">
             <Navbar/>
@@ -478,6 +512,7 @@ function AllUserReservations() {
                                                 name="date"
                                                 value={updatedReservation.date}
                                                 onChange={handleInputChange}
+                                                min={new Date().toISOString().substring(0, 10)}
                                             />
                                         </div>
                                     </div>
@@ -516,25 +551,31 @@ function AllUserReservations() {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="startTime">Ora de inceput</label>
-                                            <input
-                                                type="time"
+                                            <select
                                                 className="form-control"
                                                 id="startTime"
                                                 name="startTime"
                                                 value={updatedReservation.startTime}
                                                 onChange={handleInputChange}
-                                            />
+                                            >
+                                                {timeOptions.map(time => (
+                                                    <option key={time} value={time}>{time}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="endTime">Ora de sfarsit</label>
-                                            <input
-                                                type="time"
+                                            <select
                                                 className="form-control"
                                                 id="endTime"
                                                 name="endTime"
                                                 value={updatedReservation.endTime}
                                                 onChange={handleInputChange}
-                                            />
+                                            >
+                                                {endTimeOptions.map(time => (
+                                                    <option key={time} value={time}>{time}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -561,40 +602,76 @@ function AllUserReservations() {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div className="modal-body" style={{maxHeight: '80vh', overflowY: 'auto'}}>
-                            <table className="table">
-                                <thead>
-                                <tr>
-                                    <th>Nume</th>
-                                    <th>Locatie</th>
-                                    <th>Capacitate</th>
-                                    <th>Tip</th>
-                                    <th>Selecteaza</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {rooms.map(room => (
-                                    <tr key={room.id}>
-                                        <td>{room.name}</td>
-                                        <td>{room.location}</td>
-                                        <td>{room.capacity}</td>
-                                        <td>{room.type}</td>
-                                        <td>
-                                            <button
-                                                className="btn btn-primary" style={{marginLeft: "0px"}}
-                                                onClick={() => {
-                                                    handleRoomSelection(room.id);
-                                                    handleRoomSelect(room);
-                                                }}
-                                            >
-                                                Selecteaza
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        {role === "ADMIN" ? (
+                            <div>
+                                <div className="modal-body" style={{maxHeight: '80vh', overflowY: 'auto'}}>
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Nume</th>
+                                            <th>Locatie</th>
+                                            <th>Capacitate</th>
+                                            <th>Tip</th>
+                                            <th>Selecteaza</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {filteredRooms.map(room => (
+                                            <tr key={room.id}>
+                                                <td>{room.name}</td>
+                                                <td>{room.location}</td>
+                                                <td>{room.capacity}</td>
+                                                <td>{room.type}</td>
+                                                <td>
+                                                    <button
+                                                        className="btn btn-primary" style={{marginLeft: "0px"}}
+                                                        onClick={() => {
+                                                            handleRoomSelection(room.id);
+                                                            handleRoomSelect(room);}}
+                                                    >
+                                                        Selecteaza
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="modal-body" style={{maxHeight: '80vh', overflowY: 'auto'}}>
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Nume</th>
+                                            <th>Locatie</th>
+                                            <th>Capacitate</th>
+                                            <th>Tip</th>
+                                            <th>Selecteaza</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {filteredRooms.map(room => (
+                                            <tr key={room.id}>
+                                                <td>{room.name}</td>
+                                                <td>{room.location}</td>
+                                                <td>{room.capacity}</td>
+                                                <td>{room.type}</td>
+                                                <td>
+                                                    <button
+                                                        className="btn btn-primary" style={{marginLeft: "0px"}}
+                                                        onClick={() => handleRoomSelection(room.id)}
+                                                    >
+                                                        Selecteaza
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>)}
                     </div>
                 </div>
             </div>
