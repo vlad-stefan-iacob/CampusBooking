@@ -17,7 +17,6 @@ public class ReservationDTOConverter {
                 .date(reservation.getDate())
                 .startTime(reservation.getStartTime())
                 .endTime(reservation.getEndTime())
-                .status(reservation.getStatus())
                 .reservationDateTime(reservation.getReservationDateTime())
                 .build();
     }
@@ -30,7 +29,6 @@ public class ReservationDTOConverter {
         reservation.setDate(dto.getDate());
         reservation.setStartTime(dto.getStartTime());
         reservation.setEndTime(dto.getEndTime());
-        reservation.setStatus(dto.getStatus());
         reservation.setReservationDateTime(dto.getReservationDateTime());
         return reservation;
     }
