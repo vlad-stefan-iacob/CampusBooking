@@ -535,37 +535,6 @@ function AllUserReservations() {
                                     {/* Second column */}
                                     <div className="col-md-6">
                                         <div className="form-group">
-                                            <label htmlFor="roomId" className="form-label">Sala</label>
-                                            <div className="row align-items-center">
-                                                <div className="col-sm-12 d-flex">
-                                                    <input
-                                                        type="text"
-                                                        className="form-control flex-grow-1"
-                                                        id="roomId"
-                                                        name="roomId"
-                                                        value={selectedReservation?.roomName}
-                                                        readOnly
-                                                    />
-                                                    <input
-                                                        type="hidden"
-                                                        name="roomId"
-                                                        value={selectedReservation?.roomId || ""}
-                                                        readOnly
-                                                    />
-                                                    <button
-                                                        className="btn btn-secondary ml-2"
-                                                        style={{marginTop: "0px", marginBottom: "0px"}}
-                                                        onClick={(e) => {
-                                                            e.preventDefault(); // Prevent form submission
-                                                            setShowRoomModal(true); // Open the second modal
-                                                        }}
-                                                    >
-                                                        Alege
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="form-group">
                                             <label htmlFor="startTime">Ora de inceput</label>
                                             <select
                                                 className="form-control"
@@ -592,6 +561,37 @@ function AllUserReservations() {
                                                     <option key={time} value={time}>{time}</option>
                                                 ))}
                                             </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="roomId" className="form-label">Sala</label>
+                                            <div className="row align-items-center">
+                                                <div className="col-sm-12 d-flex">
+                                                    <input
+                                                        type="text"
+                                                        className="form-control flex-grow-1"
+                                                        id="roomId"
+                                                        name="roomId"
+                                                        value={selectedReservation?.roomName}
+                                                        readOnly
+                                                    />
+                                                    <input
+                                                        type="hidden"
+                                                        name="roomId"
+                                                        value={selectedReservation?.roomId || ""}
+                                                        readOnly
+                                                    />
+                                                    <button
+                                                        className="btn btn-secondary ml-2"
+                                                        style={{marginTop: "0px", marginBottom: "0px", marginRight:"0px"}}
+                                                        onClick={(e) => {
+                                                            e.preventDefault(); // Prevent form submission
+                                                            setShowRoomModal(true); // Open the second modal
+                                                        }}
+                                                    >
+                                                        Alege
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

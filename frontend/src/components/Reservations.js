@@ -23,6 +23,7 @@ function Reservation() {
     const [successMessage, setSuccessMessage] = useState("");
 
     const navigate = useNavigate();
+    const [errors, setErrors] = useState({});
 
     const onAllUserReservations = () => {
         navigate('/my-reservations');
@@ -30,6 +31,34 @@ function Reservation() {
 
     const onAllReservations = () => {
         navigate('/all-reservations');
+    };
+
+    const validateForm = () => {
+        let formIsValid = true;
+        let newErrors = {};
+
+        if (!reservation.date) {
+            formIsValid = false;
+            newErrors.date = "Selectați o data!";
+        }
+
+        if (!reservation.startTime) {
+            formIsValid = false;
+            newErrors.startTime = "Selectati ora de inceput!";
+        }
+
+        if (!reservation.endTime) {
+            formIsValid = false;
+            newErrors.endTime = "Selectati ora de sfarsit!";
+        }
+
+        if (!reservation.roomId) {
+            formIsValid = false;
+            newErrors.roomId = "Selectati o sala!";
+        }
+
+        setErrors(newErrors);
+        return formIsValid;
     };
 
     useEffect(() => {
@@ -77,9 +106,20 @@ function Reservation() {
             ...reservation,
             [name]: value
         });
+
+        // Verificare și eliminare eroare dacă există
+        if (value.trim() !== '') {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
     };
 
     const handleInsertReservation = async () => {
+        if (!validateForm()) {
+            return; // Oprire dacă formularul nu este valid
+        }
         try {
             const token = getAuthToken();
             const response = await fetch("http://localhost:8080/api/v1/reservations/add-reservation", {
@@ -93,6 +133,7 @@ function Reservation() {
             if (response.ok) {
                 // Reservation inserted successfully
                 console.log("Reservation inserted successfully");
+                setSuccessMessage("Rezervare adaugata cu succes!");
                 setReservation({
                     roomId: "",
                     date: "",
@@ -100,6 +141,7 @@ function Reservation() {
                     endTime: "",
                     reservationDateTime: new Date().toISOString()
                 });
+                setErrors({});
             } else {
                 // Handle errors, e.g., display an error message
                 console.error("Failed to insert reservation:", response.statusText);
@@ -112,9 +154,25 @@ function Reservation() {
     };
 
     const handleSelectRoom = (roomId) => {
-        setReservation({...reservation, roomId});
-        setShowRoomModal(false); // Close the room modal
+        const roomName = rooms.find(room => room.id === roomId)?.name;
+        if (roomName) {
+            setReservation(prev => ({
+                ...prev,
+                roomId: roomId
+            }));
+            setErrors(prev => ({
+                ...prev,
+                roomId: ''  // Resetează eroarea pentru roomId dacă alegerea este validă
+            }));
+        } else {
+            setErrors(prev => ({
+                ...prev,
+                roomId: 'Sala selectata nu este valida'  // Setează o eroare dacă nu se găsește sala
+            }));
+        }
+        setShowRoomModal(false);  // Închide modalul după alegere
     };
+
 
     const generateTimeOptions = () => {
         const options = [];
@@ -184,43 +242,22 @@ function Reservation() {
                                     <label htmlFor="date">Data</label>
                                     <input
                                         type="date"
-                                        className="form-control"
+                                        className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                                         id="date"
                                         name="date"
                                         value={reservation.date}
                                         onChange={handleInputChange}
                                         min={new Date().toISOString().substring(0, 10)}
                                     />
+                                    {errors.date && <div className="error-message">{errors.date}</div>}
                                 </div>
                             </div>
                             {/* Second column */}
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label htmlFor="roomId" className="form-label">Sala</label>
-                                    <div className="row align-items-center">
-                                        <div className="col-sm-12 d-flex">
-                                            <input
-                                                type="text"
-                                                className="form-control flex-grow-1"
-                                                id="roomId"
-                                                name="roomId"
-                                                value={reservation.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : ""}
-                                                readOnly
-                                            />
-                                            <button
-                                                className="btn btn-secondary ml-2"
-                                                style={{marginTop: "0px", marginBottom: "0px"}}
-                                                onClick={() => setShowRoomModal(true)}
-                                            >
-                                                Alege
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="form-group">
                                     <label htmlFor="startTime">Ora de inceput</label>
                                     <select
-                                        className="form-control"
+                                        className={`form-control ${errors.startTime ? 'is-invalid' : ''}`}
                                         id="startTime"
                                         name="startTime"
                                         value={reservation.startTime}
@@ -230,12 +267,12 @@ function Reservation() {
                                             <option key={time} value={time}>{time}</option>
                                         ))}
                                     </select>
+                                    {errors.startTime && <div className="error-message">{errors.startTime}</div>}
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="endTime">Ora de sfarsit</label>
                                     <select
-                                        type="time"
-                                        className="form-control"
+                                        className={`form-control ${errors.endTime ? 'is-invalid' : ''}`}
                                         id="endTime"
                                         name="endTime"
                                         value={reservation.endTime}
@@ -245,6 +282,30 @@ function Reservation() {
                                             <option key={time} value={time}>{time}</option>
                                         ))}
                                     </select>
+                                    {errors.endTime && <div className="error-message">{errors.endTime}</div>}
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="roomId" className="form-label">Sala</label>
+                                    <div className="row align-items-center">
+                                        <div className="col-sm-12 d-flex">
+                                            <input
+                                                type="text"
+                                                className={`form-control ${errors.roomId ? 'is-invalid' : ''}`}
+                                                id="roomId"
+                                                name="roomId"
+                                                value={reservation.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : ""}
+                                                readOnly
+                                            />
+                                            <button
+                                                className="btn btn-secondary ml-2"
+                                                style={{marginTop: "0px", marginBottom: "0px", marginRight:"0px"}}
+                                                onClick={() => setShowRoomModal(true)}
+                                            >
+                                                Alege
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {errors.roomId && <div className="error-message">{errors.roomId}</div>}
                                 </div>
                             </div>
                         </div>
