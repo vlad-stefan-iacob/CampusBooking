@@ -160,8 +160,24 @@ function AllReservations() {
         })}`;
     };
 
-    const futureReservations = reservations.filter(reservation => reservation.date > formatDate(currentDate));
-    const pastReservations = reservations.filter(reservation => reservation.date <= formatDate(currentDate));
+    function formatDateForComparison(dateString) {
+        if (typeof dateString === 'string' && dateString.includes('/')) {
+            const parts = dateString.split('/');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Rearanjează componentele datei pentru formatul ISO
+        }
+    }
+
+    const currentDateFormatted = formatDateForComparison(formatDate(currentDate)); // Convertim data curentă în formatul ISO
+
+    const futureReservations = reservations.filter(reservation => {
+        const reservationDateFormatted = formatDateForComparison(reservation.date);
+        return reservationDateFormatted >= currentDateFormatted;
+    });
+
+    const pastReservations = reservations.filter(reservation => {
+        const reservationDateFormatted = formatDateForComparison(reservation.date);
+        return reservationDateFormatted < currentDateFormatted;
+    });
 
     const handleRoomSelection = (roomId) => {
         setSelectedReservation(prevReservation => ({ ...prevReservation, roomId }));
