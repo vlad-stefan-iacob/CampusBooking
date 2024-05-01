@@ -602,6 +602,7 @@ function Rooms() {
                         </div>
                         <div className="modal-body">
                             <p>Sunteti sigur ca doriti sa stergeti sala?</p>
+                            <p><i className="bi bi-exclamation-triangle-fill"></i> Stergerea unei sali duce la stergerea rezervarilor atasate!</p>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-danger" onClick={handleDelete}>Sterge</button>
