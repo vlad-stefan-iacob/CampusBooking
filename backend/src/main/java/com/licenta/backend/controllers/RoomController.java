@@ -1,5 +1,6 @@
 package com.licenta.backend.controllers;
 
+import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.dto.RoomDTO;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.repositories.RoomRepository;
@@ -64,5 +65,14 @@ public class RoomController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Internal Server Error"));
         }
+    }
+
+    @PostMapping("/check-availability")
+    public ResponseEntity<List<RoomDTO>> checkAvailability(@RequestBody ReservationDTO reservationDTO) {
+        List<RoomDTO> availableRooms = roomService.findAvailableRooms(reservationDTO.getDate(), reservationDTO.getStartTime(), reservationDTO.getEndTime());
+        if (availableRooms.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(availableRooms);
     }
 }

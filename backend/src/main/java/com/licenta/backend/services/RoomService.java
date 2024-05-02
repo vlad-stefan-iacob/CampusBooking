@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,5 +64,12 @@ public class RoomService {
     }
     public void deleteRoom(Integer roomId){
         roomRepository.deleteById(roomId);
+    }
+
+    public List<RoomDTO> findAvailableRooms(Date date, String startTime, String endTime) {
+        List<Room> rooms = roomRepository.findAvailableRooms(date, startTime, endTime);
+        return rooms.stream()
+                .map(roomDTOConverter::convertToDTO)
+                .collect(Collectors.toList());
     }
 }
