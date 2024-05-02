@@ -86,6 +86,37 @@ function Reservation() {
         fetchRooms();
     }, []);
 
+    useEffect(() => {
+        const fetchAvailableRooms = async () => {
+            const token = getAuthToken();
+            const {date, startTime, endTime} = reservation;
+            if (date && startTime && endTime) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/v1/rooms/check-availability`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({date, startTime, endTime})
+                    });
+                    const availableRooms = await response.json();
+                    if (response.ok) {
+                        setRooms(availableRooms);
+                    } else {
+                        console.error('Failed to check room availability:', response.statusText);
+                        setRooms([]); // Clear rooms if no available rooms found
+                    }
+                } catch (error) {
+                    console.error('Error checking room availability:', error);
+                    setRooms([]);
+                }
+            }
+        };
+
+        fetchAvailableRooms();
+    }, [reservation]);
+
     const filteredRooms = rooms.filter((room) => {
         if (role === 'ADMIN') {
             // Admin can see all types of rooms
@@ -101,13 +132,24 @@ function Reservation() {
     });
 
     const handleInputChange = (e) => {
-        const {name, value} = e.target;
-        setReservation({
-            ...reservation,
-            [name]: value
+        const { name, value } = e.target;
+        setReservation(prevReservation => {
+            // Check if the modified field is date, startTime, or endTime
+            if (['date', 'startTime', 'endTime'].includes(name) && prevReservation.roomId) {
+                // If changing date/time, reset roomId
+                return {
+                    ...prevReservation,
+                    [name]: value,
+                    roomId: ""
+                };
+            }
+            return {
+                ...prevReservation,
+                [name]: value
+            };
         });
 
-        // Verificare și eliminare eroare dacă există
+        // Remove error for this field if any
         if (value.trim() !== '') {
             setErrors(prev => ({
                 ...prev,
@@ -294,12 +336,14 @@ function Reservation() {
                                                 id="roomId"
                                                 name="roomId"
                                                 value={reservation.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : ""}
+                                                placeholder={!reservation.roomId ? "Alege data si intervalul orar" : ""}
                                                 readOnly
                                             />
                                             <button
                                                 className="btn btn-secondary ml-2"
                                                 style={{marginTop: "0px", marginBottom: "0px", marginRight:"0px"}}
                                                 onClick={() => setShowRoomModal(true)}
+                                                disabled={!reservation.date || !reservation.startTime || !reservation.endTime || !!reservation.roomId}
                                             >
                                                 Alege
                                             </button>
@@ -322,7 +366,8 @@ function Reservation() {
                      style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Selecteaza o sala</h5>
+                            <h5 className="modal-title">Selecteaza o sala
+                            <p className="text-black mb-4"><i className="bi bi-info-square"></i> Salile afisate sunt cele disponibile in data si intervalul orar selectate.</p></h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={() => setShowRoomModal(false)}>
                                 <span aria-hidden="true">&times;</span>
