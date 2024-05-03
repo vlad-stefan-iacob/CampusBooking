@@ -19,4 +19,5 @@ public class ReservationDTO {
     private String startTime;
     private String endTime;
     private Date reservationDateTime;
+    private Integer capacityReserved = 1;
 }

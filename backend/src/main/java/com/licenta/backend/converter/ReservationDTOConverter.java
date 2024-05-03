@@ -18,19 +18,21 @@ public class ReservationDTOConverter {
                 .startTime(reservation.getStartTime())
                 .endTime(reservation.getEndTime())
                 .reservationDateTime(reservation.getReservationDateTime())
+                .capacityReserved(reservation.getCapacityReserved())
                 .build();
     }
 
     public static Reservation convertToEntity(ReservationDTO dto, User user, Room room) {
-        Reservation reservation = new Reservation();
-        reservation.setId(dto.getId());
-        reservation.setUser(user);
-        reservation.setRoom(room);
-        reservation.setDate(dto.getDate());
-        reservation.setStartTime(dto.getStartTime());
-        reservation.setEndTime(dto.getEndTime());
-        reservation.setReservationDateTime(dto.getReservationDateTime());
-        return reservation;
+        return Reservation.builder()
+                .id(dto.getId())
+                .user(user)
+                .room(room)
+                .date(dto.getDate())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .reservationDateTime(dto.getReservationDateTime())
+                .capacityReserved(dto.getCapacityReserved()) // Include reserved capacity
+                .build();
     }
 }
 

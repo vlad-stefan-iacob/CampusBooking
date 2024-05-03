@@ -55,6 +55,7 @@ public class ReservationService {
         reservation.setStartTime(reservationDTO.getStartTime());
         reservation.setEndTime(reservationDTO.getEndTime());
         reservation.setReservationDateTime(new Date()); // Assuming current date/time for reservation creation
+        reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
 
         // Retrieve User entity
         User user = userRepository.findById(reservationDTO.getUserId())
@@ -82,6 +83,7 @@ public class ReservationService {
             reservation.setDate(reservationDTO.getDate());
             reservation.setStartTime(reservationDTO.getStartTime());
             reservation.setEndTime(reservationDTO.getEndTime());
+            reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
             reservation.setUser(userRepository.findById(reservationDTO.getUserId()).orElseThrow(() -> new UserNotFoundException("User with ID: " + reservationDTO.getUserId() + " not found!")));
             reservation.setRoom(roomRepository.findById(reservationDTO.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Room with ID: " + reservationDTO.getRoomId() + " not found!")));
             // Save and return the updated reservation entity
@@ -89,6 +91,10 @@ public class ReservationService {
         } else {
             throw new ReservationNotFoundException("Reservation with ID: " + reservationId + " not found!");
         }
+    }
+
+    public Integer checkAvailableCapacity(Integer roomId, Date date, String startTime, String endTime) {
+        return roomRepository.findAvailableCapacity(roomId, date, startTime, endTime);
     }
 
 }

@@ -33,4 +33,6 @@ public class Reservation {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date reservationDateTime;
+
+    private Integer capacityReserved = 1;
 }
