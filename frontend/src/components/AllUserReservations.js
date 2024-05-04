@@ -572,6 +572,7 @@ function AllUserReservations() {
                                                 name="date"
                                                 value={updatedReservation.date}
                                                 onChange={handleInputChange}
+                                                style={{ cursor: 'pointer' }}
                                                 min={new Date().toISOString().substring(0, 10)}
                                             />
                                         </div>
@@ -586,6 +587,7 @@ function AllUserReservations() {
                                                 name="startTime"
                                                 value={updatedReservation.startTime}
                                                 onChange={handleInputChange}
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 {timeOptions.map(time => (
                                                     <option key={time} value={time}>{time}</option>
@@ -600,6 +602,7 @@ function AllUserReservations() {
                                                 name="endTime"
                                                 value={updatedReservation.endTime}
                                                 onChange={handleInputChange}
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 {endTimeOptions.map(time => (
                                                     <option key={time} value={time}>{time}</option>
@@ -681,8 +684,8 @@ function AllUserReservations() {
                                             <tr key={room.id}>
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
-                                                <td>{room.capacity}</td>
-                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
@@ -719,8 +722,8 @@ function AllUserReservations() {
                                             <tr key={room.id}>
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
-                                                <td>{room.capacity}</td>
-                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button

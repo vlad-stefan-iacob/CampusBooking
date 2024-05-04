@@ -428,8 +428,8 @@ function Reservation() {
                                             <tr key={room.id}>
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
-                                                <td>{room.capacity}</td>
-                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
@@ -464,8 +464,8 @@ function Reservation() {
                                             <tr key={room.id}>
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
-                                                <td>{room.capacity}</td>
-                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.capacity}</td>
+                                                <td style={{textAlign:'center'}}>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
