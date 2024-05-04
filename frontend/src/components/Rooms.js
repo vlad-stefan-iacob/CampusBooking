@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function Rooms() {
     const [rooms, setRooms] = useState([]);
+    const [roomAvailabilityChecked, setRoomAvailabilityChecked] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -33,6 +34,10 @@ function Rooms() {
     });
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const {role} = storedUser || {};
+
+    const [selectedDate, setSelectedDate] = useState(); // Stocăm data în format YYYY-MM-DD
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     useEffect(() => {
         // Fetch data from the backend
@@ -289,6 +294,45 @@ function Rooms() {
         return false;
     });
 
+    const generateTimeOptions = () => {
+        const options = [];
+        for (let hour = 0; hour < 24; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                options.push(timeString);
+            }
+        }
+        return options;
+    };
+
+    const timeOptions = generateTimeOptions();
+
+    const checkRoomAvailability = async () => {
+        setRoomAvailabilityChecked(true);
+        const token = getAuthToken();
+        if (selectedDate && startTime && endTime) {
+            setRooms([]); // Resetează lista de săli înainte de a prelua sălile disponibile
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/v1/rooms/check-availability`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({date: selectedDate, startTime, endTime})
+                });
+                const availableRooms = await response.json();
+                if (response.ok) {
+                    setRooms(availableRooms);
+                } else {
+                    console.error('Failed to check room availability:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error checking room availability:', error);
+            }
+        }
+    };
 
     return (
         <div className="Rooms">
@@ -302,8 +346,46 @@ function Rooms() {
                         </button>
                     )}
                 </h2>
-                <h5 className="text-white mb-4"><i className="bi bi-info-square"></i> Salile afisate sunt cele ce pot fi
-                    rezervate de utilizatori cu rolul de {role}.</h5>
+                <h6 className="text-white"><i className="bi bi-info-square"></i> Salile afisate sunt cele ce pot fi
+                    rezervate de utilizatori cu rolul de {role}.</h6>
+                {((role === "STUDENT") || (role === "PROFESOR") || (role === "ASISTENT")) &&(
+                    <div>
+                        <h6 className="text-white" style={{ display: 'inline-block'}}><i className="bi bi-info-square"></i> Afla salile disponibile din data: </h6>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="form-control mx-2"
+                            style={{ display: 'inline-block', width: 'auto' }}
+                        />
+                        <h6 className="text-white" style={{ display: 'inline-block'}}> de la ora: </h6>
+                        <select
+                            className="form-control mx-2"
+                            style={{ display: 'inline-block', width: 'auto' }}
+                            value={startTime}
+                            onChange={(e) => setStartTime(e.target.value)}
+                        >
+                            {timeOptions.map((time) => (
+                                <option key={time} value={time}>{time}</option>
+                            ))}
+                        </select>
+                        <h6 className="text-white" style={{ display: 'inline-block'}}> la ora: </h6>
+                        <select
+                            className="form-control mx-2"
+                            style={{ display: 'inline-block', width: 'auto' }}
+                            value={endTime}
+                            onChange={(e) => setEndTime(e.target.value)}
+                            disabled={!startTime}
+                        >
+                            {timeOptions.map((time) => (
+                                <option key={time} value={time}>{time}</option>
+                            ))}
+                        </select>
+                        <button type="button" className="btn btn-secondary" disabled={(!selectedDate) || (!startTime) || (!endTime)} onClick={checkRoomAvailability}>
+                            Vezi sali
+                        </button>
+                    </div>
+                )}
                 {role === "ADMIN" ? (
                     <div>
                         {/* Tabs for different room types */}
@@ -430,28 +512,44 @@ function Rooms() {
                                         <p className="card-text">
                                             <b>Tip:</b> {room.type}
                                         </p>
-                                        {expandedRooms.includes(room.id) ? (
-                                            <>
-                                                <p className="card-text">
-                                                    <b>Detalii:</b> {room.details}
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-link"
-                                                    onClick={() => toggleExpand(room.id)}
-                                                >
-                                                    Ascunde detalii
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className="btn btn-link"
-                                                onClick={() => toggleExpand(room.id)}
-                                            >
-                                                Vezi detalii
-                                            </button>
-                                        )}
+                                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                                            {expandedRooms.includes(room.id) ? (
+                                                <>
+                                                    <p className="card-text">
+                                                        <b>Detalii:</b> {room.details}
+                                                    </p>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginTop: '10px' }}>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-link"
+                                                            onClick={() => toggleExpand(room.id)}
+                                                        >
+                                                            Ascunde detalii
+                                                        </button>
+                                                        {roomAvailabilityChecked && (
+                                                            <button type="button" className="btn btn-primary ml-2">
+                                                                Rezerva
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-link"
+                                                        onClick={() => toggleExpand(room.id)}
+                                                    >
+                                                        Vezi detalii
+                                                    </button>
+                                                    {roomAvailabilityChecked && (
+                                                        <button type="button" className="btn btn-primary ml-2">
+                                                            Rezerva
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
