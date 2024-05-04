@@ -68,8 +68,14 @@ public class RoomService {
 
     public List<RoomDTO> findAvailableRooms(Date date, String startTime, String endTime) {
         List<Room> rooms = roomRepository.findAvailableRooms(date, startTime, endTime);
-        return rooms.stream()
-                .map(roomDTOConverter::convertToDTO)
-                .collect(Collectors.toList());
+        return rooms.stream().map(room -> {
+            RoomDTO roomDTO = roomDTOConverter.convertToDTO(room);
+            if ("SALA LECTURA".equals(room.getType())) {
+                Integer availableCapacity = roomRepository.findAvailableCapacity(room.getId(), date, startTime, endTime);
+                roomDTO.setAvailableCapacity(availableCapacity);
+            }
+            return roomDTO;
+        }).collect(Collectors.toList());
     }
+
 }

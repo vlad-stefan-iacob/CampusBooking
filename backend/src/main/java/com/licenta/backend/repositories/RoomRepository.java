@@ -22,10 +22,7 @@ public interface RoomRepository extends JpaRepository<Room,Integer> {
             "WHERE res.room = r AND res.date = :date AND NOT (res.endTime <= :startTime OR res.startTime >= :endTime))")
     List<Room> findAvailableRooms(@Param("date") Date date, @Param("startTime") String startTime, @Param("endTime") String endTime);
 
-    @Query("SELECT r.capacity - COALESCE((" +
-            "SELECT SUM(res.capacityReserved) FROM Reservation res " +
-            "WHERE res.room = r AND res.date = :date AND NOT (res.endTime <= :startTime OR res.startTime >= :endTime)), 0) AS availableCapacity " +
-            "FROM Room r " +
-            "WHERE r.id = :roomId")
+    @Query("SELECT r.capacity - COALESCE((SELECT SUM(res.capacityReserved) FROM Reservation res WHERE res.room = r AND res.date = :date AND NOT (res.endTime <= :startTime OR res.startTime >= :endTime)), 0) AS availableCapacity FROM Room r WHERE r.id = :roomId")
     Integer findAvailableCapacity(@Param("roomId") Integer roomId, @Param("date") Date date, @Param("startTime") String startTime, @Param("endTime") String endTime);
+
 }

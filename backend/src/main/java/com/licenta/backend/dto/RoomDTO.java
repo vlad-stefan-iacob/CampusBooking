@@ -10,4 +10,5 @@ public class RoomDTO {
     private Integer capacity;
     private String type;
     private String details;
+    private Integer availableCapacity;
 }

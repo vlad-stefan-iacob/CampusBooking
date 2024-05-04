@@ -15,6 +15,7 @@ public class RoomDTOConverter {
         roomDTO.setCapacity(room.getCapacity());
         roomDTO.setType(room.getType());
         roomDTO.setDetails(room.getDetails());
+        roomDTO.setAvailableCapacity(room.getAvailableCapacity());
 
         return roomDTO;
     }
@@ -27,6 +28,7 @@ public class RoomDTOConverter {
         room.setCapacity(roomDTO.getCapacity());
         room.setType(roomDTO.getType());
         room.setDetails(roomDTO.getDetails());
+        room.setAvailableCapacity(roomDTO.getAvailableCapacity());
 
         return room;
     }
