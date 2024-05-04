@@ -192,6 +192,9 @@ function Reservation() {
                     reservationDateTime: new Date().toISOString()
                 });
                 setErrors({});
+                setTimeout(() => {
+                    window.location.reload();
+                }, 5000); // 10000 milisecunde = 10 secunde
             } else {
                 // Gestionare erori
                 console.error("Failed to insert reservation:", response.statusText);
@@ -249,19 +252,41 @@ function Reservation() {
                     <div className="card p-4" style={{maxWidth: 'none', width: '70%'}}>
                         <div className="row">
                             <button type="button" className="btn btn-secondary"
-                                    style={{marginLeft: "2%", marginTop: "0px", marginBottom: "5%"}}
+                                    style={{marginLeft: "2%", marginTop: "0px", marginBottom: "2%"}}
                                     onClick={onAllUserReservations}>
                                 Rezervarile mele
                             </button>
                             {role === 'ADMIN' && (
                                 <button type="button" className="btn btn-secondary"
-                                        style={{marginLeft: "0px", marginTop: "0px", marginBottom: "5%"}}
+                                        style={{marginLeft: "0px", marginTop: "0px", marginBottom: "2%"}}
                                         onClick={onAllReservations}>
                                     Toate rezervarile
                                 </button>)}
 
                         </div>
-                        <h4 className="card-title text-center mb-4">Adauga o rezervare</h4>
+                        <h4 className="card-title text-center mb-4"><b>Adauga o rezervare</b></h4>
+                        {role === 'ADMIN' && (
+                            <div>
+                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip AMFITEATRU si LABORATOR se rezerva doar integral.</p>
+                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip SALA LECTURA se rezerva pe baza numarului de locuri disponibile.</p>
+                            </div>
+                        )}
+                        {role === 'STUDENT' && (
+                            <div>
+                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip SALA LECTURA se rezerva pe baza numarului de locuri disponibile.</p>
+                            </div>
+                        )}
+                        {role === 'PROFESOR' && (
+                            <div>
+                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip AMFITEATRU se rezerva doar integral.</p>
+                            </div>
+                        )}
+                        {role === 'ASISTENT' && (
+                            <div>
+                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip LABORATOR se rezerva doar integral.</p>
+                            </div>
+                        )}
+                        <hr style={{ backgroundColor: 'black', height: '1px', marginTop: '0px', marginBottom:'5px'}} />
                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
                         <div className="row">
                             {/* First column */}
@@ -298,6 +323,7 @@ function Reservation() {
                                         value={reservation.date}
                                         onChange={handleInputChange}
                                         min={new Date().toISOString().substring(0, 10)}
+                                        style={{ cursor: 'pointer' }}
                                     />
                                     {errors.date && <div className="error-message">{errors.date}</div>}
                                 </div>
@@ -312,6 +338,7 @@ function Reservation() {
                                         name="startTime"
                                         value={reservation.startTime}
                                         onChange={handleInputChange}
+                                        style={{ cursor: 'pointer' }}
                                     >
                                         {timeOptions.map(time => (
                                             <option key={time} value={time}>{time}</option>
@@ -327,6 +354,7 @@ function Reservation() {
                                         name="endTime"
                                         value={reservation.endTime}
                                         onChange={handleInputChange}
+                                        style={{ cursor: 'pointer' }}
                                     >
                                         {endTimeOptions.map(time => (
                                             <option key={time} value={time}>{time}</option>
@@ -390,6 +418,7 @@ function Reservation() {
                                             <th>Nume</th>
                                             <th>Locatie</th>
                                             <th>Capacitate</th>
+                                            <th>Locuri disponibile</th>
                                             <th>Tip</th>
                                             <th>Selecteaza</th>
                                         </tr>
@@ -400,6 +429,7 @@ function Reservation() {
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
                                                 <td>{room.capacity}</td>
+                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
@@ -424,6 +454,7 @@ function Reservation() {
                                             <th>Nume</th>
                                             <th>Locatie</th>
                                             <th>Capacitate</th>
+                                            <th>Locuri disponibile</th>
                                             <th>Tip</th>
                                             <th>Selecteaza</th>
                                         </tr>
@@ -434,6 +465,7 @@ function Reservation() {
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
                                                 <td>{room.capacity}</td>
+                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button

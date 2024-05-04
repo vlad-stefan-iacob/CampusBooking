@@ -54,8 +54,22 @@ function AllUserReservations() {
     }
 
     const handleInputChange = (event) => {
-        const {name, value} = event.target;
-        setUpdatedReservation({...updatedReservation, [name]: value});
+        const { name, value } = event.target;
+        setUpdatedReservation(prevReservation => {
+            // Check if the modified field is date, startTime, or endTime
+            if (['date', 'startTime', 'endTime'].includes(name) && prevReservation.roomId) {
+                // If changing date/time, reset roomId
+                return {
+                    ...prevReservation,
+                    [name]: value,
+                    roomId: ""
+                };
+            }
+            return {
+                ...prevReservation,
+                [name]: value
+            };
+        });
     };
 
     useEffect(() => {
@@ -143,6 +157,36 @@ function AllUserReservations() {
 
         fetchRooms();
     }, []);
+
+    useEffect(() => {
+        const fetchAvailableRooms = async () => {
+            const token = getAuthToken();
+            const {date, startTime, endTime} = updatedReservation;
+            if (updatedReservation.date && updatedReservation.startTime && updatedReservation.endTime) {
+                setRooms([]); // Reset rooms list before fetching new available rooms
+                try {
+                    const response = await fetch(`http://localhost:8080/api/v1/rooms/check-availability`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({date, startTime, endTime})
+                    });
+                    const availableRooms = await response.json();
+                    if (response.ok) {
+                        setRooms(availableRooms);
+                    } else {
+                        console.error('Failed to check room availability:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error checking room availability:', error);
+                }
+            }
+        };
+
+        fetchAvailableRooms();
+    }, [updatedReservation.date, updatedReservation.startTime, updatedReservation.endTime, updatedReservation]);
 
     const filteredRooms = rooms.filter((room) => {
         if (role === 'ADMIN') {
@@ -627,6 +671,7 @@ function AllUserReservations() {
                                             <th>Nume</th>
                                             <th>Locatie</th>
                                             <th>Capacitate</th>
+                                            <th>Locuri disponibile</th>
                                             <th>Tip</th>
                                             <th>Selecteaza</th>
                                         </tr>
@@ -637,6 +682,7 @@ function AllUserReservations() {
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
                                                 <td>{room.capacity}</td>
+                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
@@ -663,6 +709,7 @@ function AllUserReservations() {
                                             <th>Nume</th>
                                             <th>Locatie</th>
                                             <th>Capacitate</th>
+                                            <th>Locuri disponibile</th>
                                             <th>Tip</th>
                                             <th>Selecteaza</th>
                                         </tr>
@@ -673,6 +720,7 @@ function AllUserReservations() {
                                                 <td>{room.name}</td>
                                                 <td>{room.location}</td>
                                                 <td>{room.capacity}</td>
+                                                <td>{room.type === 'SALA LECTURA' ? room.availableCapacity : room.capacity}</td>
                                                 <td>{room.type}</td>
                                                 <td>
                                                     <button
