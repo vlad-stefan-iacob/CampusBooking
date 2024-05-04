@@ -91,6 +91,7 @@ function Reservation() {
             const token = getAuthToken();
             const {date, startTime, endTime} = reservation;
             if (date && startTime && endTime) {
+                setRooms([]); // Reset rooms list before fetching new available rooms
                 try {
                     const response = await fetch(`http://localhost:8080/api/v1/rooms/check-availability`, {
                         method: "POST",
@@ -105,17 +106,15 @@ function Reservation() {
                         setRooms(availableRooms);
                     } else {
                         console.error('Failed to check room availability:', response.statusText);
-                        setRooms([]); // Clear rooms if no available rooms found
                     }
                 } catch (error) {
                     console.error('Error checking room availability:', error);
-                    setRooms([]);
                 }
             }
         };
 
         fetchAvailableRooms();
-    }, [reservation]);
+    }, [reservation.date, reservation.startTime, reservation.endTime, reservation]); // React to changes in these fields
 
     const filteredRooms = rooms.filter((room) => {
         if (role === 'ADMIN') {
@@ -164,7 +163,16 @@ function Reservation() {
         }
         try {
             const token = getAuthToken();
-            const response = await fetch("http://localhost:8080/api/v1/reservations/add-reservation", {
+            // Găsește sala selectată din lista de săli
+            const selectedRoom = rooms.find(room => room.id === reservation.roomId);
+            let url = "http://localhost:8080/api/v1/reservations/add-reservation"; // URL-ul implicit pentru AMFITEATRU si LABORATOR
+
+            // Verifică dacă sala este de tip SALA LECTURA și schimbă URL-ul dacă este necesar
+            if (selectedRoom.type === 'SALA LECTURA') {
+                url = `http://localhost:8080/api/v1/reservations/reserve-reading-room/${selectedRoom.id}`;
+            }
+
+            const response = await fetch(url, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -173,7 +181,7 @@ function Reservation() {
                 body: JSON.stringify(reservation),
             });
             if (response.ok) {
-                // Reservation inserted successfully
+                // Rezervare adăugată cu succes
                 console.log("Reservation inserted successfully");
                 setSuccessMessage("Rezervare adaugata cu succes!");
                 setReservation({
@@ -185,10 +193,10 @@ function Reservation() {
                 });
                 setErrors({});
             } else {
-                // Handle errors, e.g., display an error message
+                // Gestionare erori
                 console.error("Failed to insert reservation:", response.statusText);
             }
-            setShowRoomModal(false); // Close the room modal
+            setShowRoomModal(false); // Închide modalul de săli
             setSuccessMessage("Rezervare adaugata cu succes!");
         } catch (error) {
             console.error("Error inserting reservation:", error);
