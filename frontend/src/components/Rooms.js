@@ -3,6 +3,7 @@ import {Navbar} from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getAuthToken} from "../helpers/axios_helper";
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import {useNavigate} from "react-router-dom";
 
 function Rooms() {
     const [rooms, setRooms] = useState([]);
@@ -306,6 +307,12 @@ function Rooms() {
     };
 
     const timeOptions = generateTimeOptions();
+    const navigate = useNavigate();
+    const filteredEndTimeOptions = startTime ? timeOptions.filter(time => time > startTime) : [];
+    const handleReserve = (room) => {
+        // Navighează către pagina de rezervări cu datele necesare
+        navigate(`/reservations?date=${selectedDate}&startTime=${startTime}&endTime=${endTime}&roomId=${room.id}&name=${room.name}`);
+    };
 
     const checkRoomAvailability = async () => {
         setRoomAvailabilityChecked(true);
@@ -357,6 +364,7 @@ function Rooms() {
                             onChange={(e) => setSelectedDate(e.target.value)}
                             className="form-control mx-2"
                             style={{ display: 'inline-block', width: 'auto' }}
+                            min={new Date().toISOString().substring(0, 10)}
                         />
                         <h6 className="text-white" style={{ display: 'inline-block'}}> de la ora: </h6>
                         <select
@@ -377,7 +385,7 @@ function Rooms() {
                             onChange={(e) => setEndTime(e.target.value)}
                             disabled={!startTime}
                         >
-                            {timeOptions.map((time) => (
+                            {filteredEndTimeOptions.map((time) => (
                                 <option key={time} value={time}>{time}</option>
                             ))}
                         </select>
@@ -527,7 +535,7 @@ function Rooms() {
                                                             Ascunde detalii
                                                         </button>
                                                         {roomAvailabilityChecked && (
-                                                            <button type="button" className="btn btn-primary ml-2">
+                                                            <button type="button" className="btn btn-primary ml-2" onClick={() => handleReserve(room)}>
                                                                 Rezerva
                                                             </button>
                                                         )}
@@ -543,7 +551,7 @@ function Rooms() {
                                                         Vezi detalii
                                                     </button>
                                                     {roomAvailabilityChecked && (
-                                                        <button type="button" className="btn btn-primary ml-2">
+                                                        <button type="button" className="btn btn-primary ml-2" onClick={() => handleReserve(room)}>
                                                             Rezerva
                                                         </button>
                                                     )}

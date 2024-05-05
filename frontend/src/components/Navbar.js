@@ -16,15 +16,15 @@ export const Navbar = () => {
 
     return (
         <nav>
-            <Link to="/home" className="title">
-                CampusBooking <img src={campusBookingLogo} alt="CampusBooking Logo" className="logo" />
+            <Link to="/home" className="title" style={{marginLeft:'1.5%'}}>
+                CampusBooking <img src={campusBookingLogo} alt="CampusBooking Logo" className="logo"/>
             </Link>
             <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <ul className={menuOpen ? "open" : ""}>
+            <ul className={menuOpen ? "open" : ""} style={{marginRight:'0.7%'}}>
                 <li>
                     <Link to="/rooms">Sali <i className="bi bi-building"></i></Link>
                 </li>

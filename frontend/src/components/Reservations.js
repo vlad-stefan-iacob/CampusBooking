@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {Navbar} from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {getAuthToken} from "../helpers/axios_helper";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 function Reservation() {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -163,14 +163,10 @@ function Reservation() {
         }
         try {
             const token = getAuthToken();
-            // Găsește sala selectată din lista de săli
-            const selectedRoom = rooms.find(room => room.id === reservation.roomId);
-            let url = "http://localhost:8080/api/v1/reservations/add-reservation"; // URL-ul implicit pentru AMFITEATRU si LABORATOR
-
-            // Verifică dacă sala este de tip SALA LECTURA și schimbă URL-ul dacă este necesar
-            if (selectedRoom.type === 'SALA LECTURA') {
-                url = `http://localhost:8080/api/v1/reservations/reserve-reading-room/${selectedRoom.id}`;
-            }
+            // Utilizează direct tipul sălii stocat în starea rezervării
+            let url = reservation.roomType === 'SALA LECTURA'
+                ? `http://localhost:8080/api/v1/reservations/reserve-reading-room/${reservation.roomId}`
+                : "http://localhost:8080/api/v1/reservations/add-reservation";
 
             const response = await fetch(url, {
                 method: "POST",
@@ -194,7 +190,7 @@ function Reservation() {
                 setErrors({});
                 setTimeout(() => {
                     window.location.reload();
-                }, 5000); // 10000 milisecunde = 10 secunde
+                }, 5000);
             } else {
                 // Gestionare erori
                 console.error("Failed to insert reservation:", response.statusText);
@@ -207,11 +203,12 @@ function Reservation() {
     };
 
     const handleSelectRoom = (roomId) => {
-        const roomName = rooms.find(room => room.id === roomId)?.name;
-        if (roomName) {
+        const room = rooms.find(room => room.id === roomId);
+        if (room) {
             setReservation(prev => ({
                 ...prev,
-                roomId: roomId
+                roomId: room.id,
+                roomType: room.type  // Stocăm și tipul sălii
             }));
             setErrors(prev => ({
                 ...prev,
@@ -225,7 +222,6 @@ function Reservation() {
         }
         setShowRoomModal(false);  // Închide modalul după alegere
     };
-
 
     const generateTimeOptions = () => {
         const options = [];
@@ -243,6 +239,28 @@ function Reservation() {
 
     // Calculează opțiuni pentru ora de sfârșit bazate pe ora de început selectată
     const endTimeOptions = reservation.startTime ? timeOptions.filter(time => time > reservation.startTime) : [];
+
+    const location = useLocation();
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const date = searchParams.get('date');
+        const startTime = searchParams.get('startTime');
+        const endTime = searchParams.get('endTime');
+        const roomId = searchParams.get('roomId');
+        const name = searchParams.get('name');
+
+        if (date && startTime && endTime && roomId) {
+            setReservation(prev => ({
+                ...prev,
+                date: date,
+                startTime: startTime,
+                endTime: endTime,
+                roomId: roomId,
+                name: name
+            }));
+        }
+    }, [location]);
 
     return (
         <div className="Reservation">
@@ -371,7 +389,7 @@ function Reservation() {
                                                 className={`form-control ${errors.roomId ? 'is-invalid' : ''}`}
                                                 id="roomId"
                                                 name="roomId"
-                                                value={reservation.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : ""}
+                                                value={reservation.name || (reservation?.roomId ? rooms.find(room => room.id === reservation.roomId)?.name : "")}
                                                 placeholder={!reservation.roomId ? "Alege data si intervalul orar" : ""}
                                                 readOnly
                                             />
