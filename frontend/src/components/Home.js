@@ -2,6 +2,8 @@ import React from 'react';
 import {Navbar} from "./Navbar";
 import {useNavigate} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ReactBigCalendar from "./ReactBigCalendar";
+import "../style/Calendar.css";
 
 function Home() {
 
@@ -39,7 +41,7 @@ function Home() {
                         Vizualizare utilizatori
                     </button>
                 )}
-
+                <ReactBigCalendar />
             </div>
         </div>
     );

@@ -1,0 +1,63 @@
+/* Resetarea și stilizarea generală a calendarului */
+.rbc-calendar {
+    background: white;
+    color: black;
+    border: 1px solid black;
+    font-family: 'Arial', sans-serif;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+/* Headerul calendarului și zilele săptămânii */
+.rbc-header {
+    background-color: white;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    color: black;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+/* Fundalul zilelor din calendar */
+.rbc-day-bg {
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+/* Stil pentru zilele care nu sunt în luna curentă */
+.rbc-off-range-bg {
+    background-color: white; /* asigură că întregul fundal este alb */
+}
+
+/* Stil pentru ziua curentă */
+.rbc-today {
+    background-color: #ffffff; /* fundal alb și pentru ziua curentă */
+    border: 1px solid black; /* chenar negru distinct */
+}
+
+/* Evenimentele din calendar */
+.rbc-event {
+    background-color: white; /* fundal alb pentru evenimente */
+    border: 1px solid black; /* chenar negru */
+    color: black; /* textul în culoare neagră */
+}
+
+/* Butoanele de navigare */
+.rbc-btn {
+    color: black; /* butoane cu text negru */
+    background: none;
+    border: none;
+    outline: none;
+}
+
+.rbc-btn:hover {
+    background-color: #eeeeee; /* fundal ușor gri la hover pentru contrast */
+    border-radius: 5px;
+}
+
+/* Modificări specifice pentru view-uri, cum ar fi luna, săptămâna, ziua */
+.rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+    border: 1px solid black; /* chenar extern pentru fiecare vizualizare */
+}

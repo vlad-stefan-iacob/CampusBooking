@@ -26,6 +26,9 @@ export const Navbar = () => {
             </div>
             <ul className={menuOpen ? "open" : ""} style={{marginRight:'0.7%'}}>
                 <li>
+                    <Link to="/home">Acasa <i class="bi bi-house"></i></Link>
+                </li>
+                <li>
                     <Link to="/rooms">Sali <i className="bi bi-building"></i></Link>
                 </li>
                 <li>
