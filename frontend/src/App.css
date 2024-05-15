@@ -60,11 +60,24 @@
     align-content: center;
 }
 
-.welcome-message{
+.welcome-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+}
+
+.button-group {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.welcome-message{
+    display: flex;
+    text-align: left;
     padding: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
     font-size: 20px;
     color: white;
 }

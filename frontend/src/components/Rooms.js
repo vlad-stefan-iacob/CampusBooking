@@ -297,8 +297,12 @@ function Rooms() {
 
     const generateTimeOptions = () => {
         const options = [];
-        for (let hour = 0; hour < 24; hour++) {
+        for (let hour = 8; hour <= 22; hour++) { // Se oprește la ora 21 inclusiv
             for (let minute = 0; minute < 60; minute += 30) {
+                // Verifică dacă ora este 21 și minutele sunt mai mult de 30, să nu adauge 21:30+
+                if (hour === 22 && minute >= 30) {
+                    break; // Încetează bucla de minute dacă condiția este adevărată
+                }
                 const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
                 options.push(timeString);
             }
@@ -373,6 +377,7 @@ function Rooms() {
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
                         >
+                            <option value="" disabled>selecteaza</option>
                             {timeOptions.map((time) => (
                                 <option key={time} value={time}>{time}</option>
                             ))}

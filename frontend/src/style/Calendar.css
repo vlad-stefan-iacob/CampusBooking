@@ -1,6 +1,6 @@
 /* Resetarea și stilizarea generală a calendarului */
 .rbc-calendar {
-    background: white;
+    background: #f9f9f9; /* Alb spălăcit pentru un aspect mai puțin strident */
     color: black;
     border: 1px solid black;
     font-family: 'Arial', sans-serif;
@@ -8,11 +8,12 @@
     margin-right: 15px;
     padding: 15px;
     border-radius: 5px;
+    font-weight: bold;
 }
 
 /* Headerul calendarului și zilele săptămânii */
 .rbc-header {
-    background-color: white;
+    background-color: #f9f9f9;
     border-bottom: 1px solid black;
     border-right: 1px solid black;
     color: black;
@@ -28,36 +29,44 @@
 
 /* Stil pentru zilele care nu sunt în luna curentă */
 .rbc-off-range-bg {
-    background-color: white; /* asigură că întregul fundal este alb */
+    background-color: #eaeaea; /* Menținând un alb spălăcit */
 }
 
 /* Stil pentru ziua curentă */
 .rbc-today {
-    background-color: #ffffff; /* fundal alb și pentru ziua curentă */
-    border: 1px solid black; /* chenar negru distinct */
+    background-color: #e0e0e0;
+    border: 1.3px solid black;
 }
 
 /* Evenimentele din calendar */
 .rbc-event {
-    background-color: white; /* fundal alb pentru evenimente */
-    border: 1px solid black; /* chenar negru */
-    color: black; /* textul în culoare neagră */
+    background-color: #1483da;
+    border: 1px solid black;
+    color: black;
+    font-weight: bold;
 }
 
 /* Butoanele de navigare */
 .rbc-btn {
-    color: black; /* butoane cu text negru */
+    color: black;
     background: none;
     border: none;
     outline: none;
 }
 
 .rbc-btn:hover {
-    background-color: #eeeeee; /* fundal ușor gri la hover pentru contrast */
+    background-color: #eeeeee;
     border-radius: 5px;
+}
+
+/* Linia de timp din vizualizarea de zi */
+.rbc-time-indicator {
+    height: 4px; /* Linie mai groasă */
+    background-color: red; /* Culoare mai vizibilă */
 }
 
 /* Modificări specifice pentru view-uri, cum ar fi luna, săptămâna, ziua */
 .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-    border: 1px solid black; /* chenar extern pentru fiecare vizualizare */
+    border: 1px solid black;
 }
+

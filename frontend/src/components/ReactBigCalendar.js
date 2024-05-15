@@ -10,16 +10,17 @@ const localizer = momentLocalizer(moment);
 
 const messages = {
     allDay: 'Toata ziua',
-    previous: 'Anterior',
-    next: 'Urmator',
+    previous: '<< Anterior',
+    next: 'Urmator >>',
     today: 'Azi',
-    month: 'Lună',
+    month: 'Luna',
     week: 'Saptamana',
     day: 'Zi',
     agenda: 'Agenda',
     date: 'Data',
     time: 'Ora',
-    event: 'Sala rezervata', // Or other custom labels...
+    event: 'Sala rezervata',
+    noEventsInRange: 'Nu exista sali rezervate in aceasta perioada.'
 };
 
 export default function ReactBigCalendar() {
@@ -94,11 +95,10 @@ export default function ReactBigCalendar() {
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
             <Calendar
-                views={["month", "day", "week", "agenda"]}
-                selectable
+                views={["month", "week", "day", "agenda"]}
                 localizer={localizer}
                 defaultDate={new Date()}
-                defaultView="day"
+                defaultView="week"
                 events={events}
                 style={{ height: "100vh" }}
                 messages={messages}
