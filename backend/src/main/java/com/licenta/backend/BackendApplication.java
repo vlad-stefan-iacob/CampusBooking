@@ -16,21 +16,21 @@ public class BackendApplication {
 		SpringApplication.run(BackendApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(
-			AuthService service
-	) {
-		return args -> {
-			var admin = RegisterRequest.builder()
-					.firstname("Admin")
-					.lastname("Admin")
-					.email("admin@admin.com")
-					.password("pass123")
-					.role(ADMIN)
-					.build();
-			System.out.println("Admin token: " + service.register(admin).getToken());
-
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(
+//			AuthService service
+//	) {
+//		return args -> {
+//			var admin = RegisterRequest.builder()
+//					.firstname("Admin")
+//					.lastname("Admin")
+//					.email("admin@admin.com")
+//					.password("pass123")
+//					.role(ADMIN)
+//					.build();
+//			System.out.println("Admin token: " + service.register(admin).getToken());
+//
+//		};
+//	}
 
 }
