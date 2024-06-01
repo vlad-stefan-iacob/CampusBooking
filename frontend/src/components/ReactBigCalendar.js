@@ -27,6 +27,8 @@ export default function ReactBigCalendar() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
 
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const { id, role } = storedUser || {};
@@ -98,6 +100,14 @@ export default function ReactBigCalendar() {
         fetchEvents();
     }, [id, role]);
 
+    const handleEventClick = (event) => {
+        setSelectedEvent(event);
+        setShowDetailsModal(true);
+    };
+
+    const closeModal = () => {
+        setShowDetailsModal(false);
+    };
 
     const minTime = new Date();
     minTime.setHours(8, 0, 0);
@@ -119,7 +129,32 @@ export default function ReactBigCalendar() {
                 messages={messages}
                 min={minTime}
                 max={maxTime}
+                onSelectEvent={handleEventClick}
             />
+            {showDetailsModal && selectedEvent && (
+                <div className={`modal show`} tabIndex="-1" role="dialog" style={{ display: 'block' }}>
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content" style={{ backgroundColor:"#1f99ff" }}>
+                            <div className="modal-header">
+                                <h5 className="modal-title">Detalii rezervare</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                                        onClick={closeModal}>
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <p><b>{selectedEvent.title}</b></p>
+                                <p><b>Data:</b> {selectedEvent.start.toLocaleDateString()}</p>
+                                <p><b>Ora de inceput:</b> {selectedEvent.start.toLocaleTimeString()}</p>
+                                <p><b>Ora de sfarsit:</b> {selectedEvent.end.toLocaleTimeString()}</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Inchide</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

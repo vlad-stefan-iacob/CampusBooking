@@ -40,9 +40,9 @@
 
 /* Evenimentele din calendar */
 .rbc-event {
-    background-color: #1483da;
-    border: 1px solid black;
-    color: black;
+    background-color: #0262ab;
+    border: 3px solid white;
+    color: white;
     font-weight: bold;
 }
 
