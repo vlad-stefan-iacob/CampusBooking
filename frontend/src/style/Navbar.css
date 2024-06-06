@@ -39,13 +39,15 @@ nav ul li div {
 }
 
 nav ul li a:not(.active):hover,
-nav ul li .profil-trigger.active:hover .dropdown-menu {
-    background-color: #172554;
+nav ul li div:hover {
+    background-color: #1d3f9d;
+    color: white;
 }
 
-nav ul li.profil-trigger.active a,
-nav ul li.profil-trigger.active div {
-    background-color: #172554;
+nav ul li a.active,
+nav ul li div.active {
+    background-color: #1d3f9d;
+    color: white;
 }
 
 nav .menu {
