@@ -24,8 +24,8 @@ function Home() {
             <Navbar/>
             <div className="background-home">
 
-                <div className="welcome-container">
-                    <div className="welcome-message">
+                <div className="welcome-container-home">
+                    <div className="welcome-message-home">
                         {firstName && lastName && role && (
                             <p>Bine ati venit, {firstName} {lastName}! Rolul dumneavoastra este de {role}.</p>
                         )}

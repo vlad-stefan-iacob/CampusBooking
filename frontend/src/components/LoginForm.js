@@ -3,7 +3,10 @@ import classNames from 'classnames';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { request, setAuthHeader } from '../helpers/axios_helper';
 import { useNavigate } from 'react-router-dom';
-import {useAuth} from "./AuthContext";
+import { useAuth } from "./AuthContext";
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Import carousel styles
+import '../style/LoginForm.css';
 
 function LoginForm() {
     const [email, setEmail] = useState("");
@@ -11,6 +14,11 @@ function LoginForm() {
     const [errors, setErrors] = useState({});
     const { login } = useAuth();
     const navigate = useNavigate();
+    const [showLoginForm, setShowLoginForm] = useState(false);
+
+    const handleLoginClick = () => {
+        setShowLoginForm(true);
+    };
 
     const onChangeHandler = (event) => {
         let name = event.target.name;
@@ -76,30 +84,54 @@ function LoginForm() {
     };
 
     return (
-        <div className="background-login">
-            <div className="container form-container">
-                <h2 className="login-header">Autentificare</h2>
-                <form onSubmit={onLogin} className="login-form">
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="loginName">Email *</label>
-                        <input type="email" id="loginName" name="email"
-                               className={classNames("form-control", { "is-invalid": errors.email })}
-                               value={email}
-                               onChange={onChangeHandler} />
-                        {errors.email && <span className="text-danger">{errors.email}</span>}
+        <div className="login-container">
+            <div className="carousel-container">
+                <Carousel autoPlay infiniteLoop showThumbs={false} showStatus={false} dynamicHeight={false}>
+                    <div>
+                        <img src="/campus1.webp" alt="First slide" />
                     </div>
-
-                    <div className="form-group">
-                        <label className="text-white" htmlFor="loginPassword">Parola *</label>
-                        <input type="password" id="loginPassword" name="password"
-                               className={classNames("form-control", { "is-invalid": errors.password })}
-                               value={password} onChange={onChangeHandler} />
-                        {errors.password && <span className="text-danger">{errors.password}</span>}
+                    <div>
+                        <img src="/campus2.webp" alt="Second slide" />
                     </div>
+                    <div>
+                        <img src="/campus3.webp" alt="Third slide" />
+                    </div>
+                </Carousel>
+            </div>
+            <div className={`right-container ${showLoginForm ? 'show-login' : ''}`}>
+                <div className={`welcome-container ${showLoginForm ? 'hide' : ''}`}>
+                    <h2 className="welcome-header">Bine ati venit in CampusBooking! <img src="/book.png" alt="book" /></h2>
+                    <button className="btn btn-primary login-button" onClick={handleLoginClick}>Autentificare</button>
+                </div>
+                <div className={`login-form-container ${showLoginForm ? 'show' : ''}`}>
+                    <div className="container form-container">
+                        <h2 className="login-header">Autentificare</h2>
+                        <form onSubmit={onLogin} className="login-form">
+                            <div className="form-group">
+                                <label className="text-white" htmlFor="loginName">Email *</label>
+                                <input type="email" id="loginName" name="email"
+                                       className={classNames("form-control", { "is-invalid": errors.email })}
+                                       value={email}
+                                       onChange={onChangeHandler} />
+                                {errors.email && <span className="text-danger">{errors.email}</span>}
+                            </div>
 
-                    {errors.general && <div className="alert alert-danger">{errors.general}</div>}
-                    <button type="submit" className="btn btn-success">Autentificare</button>
-                </form>
+                            <div className="form-group">
+                                <label className="text-white" htmlFor="loginPassword">Parola *</label>
+                                <input type="password" id="loginPassword" name="password"
+                                       className={classNames("form-control", { "is-invalid": errors.password })}
+                                       value={password} onChange={onChangeHandler} />
+                                {errors.password && <span className="text-danger">{errors.password}</span>}
+                            </div>
+
+                            {errors.general && <div className="alert alert-danger">{errors.general}</div>}
+                            <button type="submit" className="btn btn-success">Autentificare</button>
+                        </form>
+                    </div>
+                </div>
+                <footer className="footer">
+                    <p>Suport: contact@campusbooking.com | Toate drepturile rezervate <i className="bi bi-c-circle"></i> 2024</p>
+                </footer>
             </div>
         </div>
     );

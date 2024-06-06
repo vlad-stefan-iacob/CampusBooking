@@ -1,0 +1,128 @@
+.login-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Prevents horizontal scroll */
+}
+
+.carousel-container {
+    width: 50%;
+}
+
+.carousel-container .carousel .slide img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.right-container {
+    width: 50%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition: opacity 1s ease;
+    background: linear-gradient(to bottom right, #000000, #000FFF);
+}
+
+.welcome-container.hide {
+    opacity: 0;
+}
+
+.welcome-header {
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.welcome-message {
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+}
+
+.login-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+    margin-left: 0;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+.login-form-container {
+    position: absolute;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom right, #000FFF, #000000);
+    transition: right 1s ease;
+}
+
+.login-form-container.show {
+    right: 0;
+}
+
+.background-login {
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #000FFF, #000000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.login-header {
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-form {
+    width: 300px;
+    margin-top: 10px;
+}
+
+.text-danger {
+    color: red;
+    margin-top: 10px;
+}
+
+.alert {
+    margin-top: 10px;
+}
+
+.footer {
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px 0;
+    background-color: black;
+}

@@ -60,7 +60,7 @@
     align-content: center;
 }
 
-.welcome-container {
+.welcome-container-home {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -72,7 +72,7 @@
     justify-content: flex-start;
 }
 
-.welcome-message{
+.welcome-message-home{
     display: flex;
     text-align: left;
     padding: 10px;
