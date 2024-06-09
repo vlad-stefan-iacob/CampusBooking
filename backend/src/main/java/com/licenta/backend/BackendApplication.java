@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import static com.licenta.backend.entities.Role.ADMIN;
+import static com.licenta.backend.entities.Role.ASISTENT;
 
 @SpringBootApplication
 public class BackendApplication {
@@ -24,6 +25,7 @@ public class BackendApplication {
 //			var admin = RegisterRequest.builder()
 //					.firstname("Admin")
 //					.lastname("Admin")
+//					.faculty("ACS")
 //					.email("admin@admin.com")
 //					.password("pass123")
 //					.role(ADMIN)

@@ -2,7 +2,9 @@ package com.licenta.backend.services;
 
 import com.licenta.backend.converter.UserDTOConverter;
 import com.licenta.backend.dto.UserDTO;
+import com.licenta.backend.entities.Role;
 import com.licenta.backend.entities.User;
+import com.licenta.backend.entities.TemporaryPermission;
 import com.licenta.backend.exceptions.UserNotFoundException;
 import com.licenta.backend.repositories.TokenRepository;
 import com.licenta.backend.repositories.UserRepository;
@@ -52,11 +54,25 @@ public class UserService {
             User user = existingUser.get();
             user.setFirstname(userDTO.getFirstname());
             user.setLastname(userDTO.getLastname());
+            user.setFaculty(userDTO.getFaculty());
             user.setEmail(userDTO.getEmail());
             user.setRole(userDTO.getRole());
 
             if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
                 user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
+
+            // Update temporary permissions
+            user.getTemporaryPermissions().clear();
+            if (userDTO.getTemporaryPermissions() != null) {
+                List<TemporaryPermission> temporaryPermissions = userDTO.getTemporaryPermissions().stream()
+                        .map(tempPermDTO -> TemporaryPermission.builder()
+                                .temporaryRole(tempPermDTO.getTemporaryRole())
+                                .active(tempPermDTO.isActive())
+                                .user(user)
+                                .build())
+                        .toList();
+                user.getTemporaryPermissions().addAll(temporaryPermissions);
             }
 
             return userRepository.save(user);
@@ -91,6 +107,42 @@ public class UserService {
         } else {
             throw new UserNotFoundException("User with ID: " + userId + " not found!");
         }
+    }
+
+    public void addTemporaryPermission(Integer userId, Role temporaryRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + userId + " not found!"));
+
+        TemporaryPermission tempPermission = TemporaryPermission.builder()
+                .user(user)
+                .temporaryRole(temporaryRole)
+                .active(true)
+                .build();
+
+        user.getTemporaryPermissions().add(tempPermission);
+        userRepository.save(user);
+    }
+
+    public void removeTemporaryPermission(Integer userId, Role temporaryRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + userId + " not found!"));
+
+        user.getTemporaryPermissions().stream()
+                .filter(tempPerm -> tempPerm.getTemporaryRole() == temporaryRole && tempPerm.isActive())
+                .forEach(tempPerm -> tempPerm.setActive(false));
+
+        userRepository.save(user);
+    }
+
+    public List<String> getTemporaryPermissions(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + userId + " not found!"));
+
+        return user.getTemporaryPermissions().stream()
+                .filter(TemporaryPermission::isActive) // Filter only active permissions
+                .map(TemporaryPermission::getTemporaryRole)
+                .map(Enum::name)
+                .collect(Collectors.toList());
     }
 
 }

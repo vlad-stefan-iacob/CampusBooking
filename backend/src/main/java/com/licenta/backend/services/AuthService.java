@@ -28,6 +28,7 @@ public class AuthService {
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
+                .faculty(request.getFaculty())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
@@ -56,6 +57,7 @@ public class AuthService {
                 .token(jwtToken)
                 .firstName(user.getFirstname())
                 .lastName(user.getLastname())
+                .faculty(user.getFaculty())
                 .role(user.getRole())
                 .id(user.getId())
                 .build();

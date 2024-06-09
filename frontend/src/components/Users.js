@@ -1,14 +1,16 @@
-import {Navbar} from "./Navbar";
+import { Navbar } from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {getAuthToken} from "../helpers/axios_helper";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAuthToken } from "../helpers/axios_helper";
 
 function Users() {
     const [users, setUsers] = useState([]);
+    const [temporaryPermissionsMap, setTemporaryPermissionsMap] = useState({});
     const navigate = useNavigate();
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [updatedUser, setUpdatedUser] = useState({
         firstname: "",
@@ -27,13 +29,16 @@ function Users() {
     const [updatedUserValidations, setUpdatedUserValidations] = useState({
         firstname: true,
         lastname: true,
+        faculty: true,
         email: true,
         role: true,
         password: true,
     });
 
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    const {role} = storedUser || {};
+    const { role } = storedUser || {};
+
+    const permissionsOptions = ["STUDENT", "PROFESOR", "ASISTENT"];
 
     useEffect(() => {
         const token = getAuthToken();
@@ -45,7 +50,28 @@ function Users() {
             },
         })
             .then(response => response.json())
-            .then(data => setUsers(data))
+            .then(data => {
+                setUsers(data);
+                data.forEach(user => {
+                    if (user.role !== 'ADMIN') {
+                        fetch(`http://localhost:8080/api/v1/users/temporary-permissions/${user.id}`, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                            },
+                        })
+                            .then(response => response.json())
+                            .then(permissions => {
+                                setTemporaryPermissionsMap(prevState => ({
+                                    ...prevState,
+                                    [user.id]: permissions
+                                }));
+                            })
+                            .catch(error => console.error("Error fetching temporary permissions:", error));
+                    }
+                });
+            })
             .catch(error => console.error("Error fetching data:", error));
     }, []);
 
@@ -58,6 +84,7 @@ function Users() {
         setUpdatedUser({
             firstname: user.firstname,
             lastname: user.lastname,
+            faculty: user.faculty,
             email: user.email,
             role: user.role,
             password: ''
@@ -70,13 +97,19 @@ function Users() {
         setShowDeleteModal(true);
     };
 
+    const setPermissions = (user) => {
+        setSelectedUser(user);
+        setShowPermissionsModal(true);
+    };
+
     const closeModal = () => {
         setShowDeleteModal(false);
         setShowUpdateModal(false);
+        setShowPermissionsModal(false);
     };
 
     const handleInputChange = async (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
         const isEmpty = value.trim() === '';
         // Update the state based on the field
@@ -205,9 +238,40 @@ function Users() {
         }
     };
 
+    const handlePermissionChange = async (event) => {
+        const { value, checked } = event.target;
+        try {
+            const token = getAuthToken();
+            const url = `http://localhost:8080/api/v1/users/${checked ? 'add' : 'remove'}-temporary-permission/${selectedUser.id}?temporaryRole=${value}`;
+            await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                }
+            });
+            console.log(`Permisiunea temporară ${value} a fost ${checked ? 'adăugată' : 'eliminată'}.`);
+
+            // Actualizează starea permisiunilor temporare
+            if (checked) {
+                setTemporaryPermissionsMap(prevState => ({
+                    ...prevState,
+                    [selectedUser.id]: [...prevState[selectedUser.id], value]
+                }));
+            } else {
+                setTemporaryPermissionsMap(prevState => ({
+                    ...prevState,
+                    [selectedUser.id]: prevState[selectedUser.id].filter(permission => permission !== value)
+                }));
+            }
+        } catch (error) {
+            console.error(`Eroare la ${checked ? 'adăugarea' : 'eliminarea'} permisiunii temporare ${value}:`, error);
+        }
+    };
+
     return (
         <div className="Users">
-            <Navbar/>
+            <Navbar />
             <div className="background-home p-4">
                 <h2 className="text-white mb-4">
                     Informatii despre utilizatori
@@ -272,32 +336,49 @@ function Users() {
                 </ul>
                 <div className="table-responsive">
                     <table className="table table-bordered">
-                        <thead className="thead" style={{background: 'white'}}>
-                        <tr>
-                            <th scope="col">Nume</th>
-                            <th scope="col">Prenume</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Rol</th>
-                            <th scope="col">Actiuni</th>
-                        </tr>
+                        <thead className="thead" style={{ background: 'white' }}>
+                        {filteredUsersSelectedTab.map(user => (
+                            <tr>
+                                <th scope="col">Nume</th>
+                                <th scope="col">Prenume</th>
+                                <th scope="col">Facultate</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Rol</th>
+                                {user.role !== 'ADMIN' && (
+                                    <th scope="col">Permisiuni temporare</th>
+                                )}
+                                <th scope="col">Actiuni</th>
+                            </tr>
+                        ))}
                         </thead>
                         <tbody>
                         {filteredUsersSelectedTab.map(user => (
                             <tr key={user.id}>
                                 <td className="text-white">{user.lastname}</td>
                                 <td className="text-white">{user.firstname}</td>
+                                <td className="text-white">{user.faculty}</td>
                                 <td className="text-white">{user.email}</td>
                                 <td className="text-white">{user.role}</td>
+                                {user.role !== 'ADMIN' && (
+                                    <td className="text-white">
+                                        {temporaryPermissionsMap[user.id]?.join(', ') || ''}
+                                    </td>
+                                )}
                                 <td className="text-white">
                                     <button type="button" className="btn btn-danger"
                                             onClick={() => deleteUser(user)}>
                                         Stergere
                                     </button>
-
                                     <button type="button" className="btn btn-warning ml-lg-2"
                                             onClick={() => updateUser(user)}>
                                         Actualizare
                                     </button>
+                                    {user.role !== 'ADMIN' && (
+                                        <button type="button" className="btn btn-info ml-lg-2"
+                                                onClick={() => setPermissions(user)}>
+                                            Setare permisiuni
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
@@ -305,10 +386,10 @@ function Users() {
                     </table>
                 </div>
 
-                {/*Updated user Modal*/}
+                {/* Update user Modal */}
                 <div className={`modal ${showUpdateModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                     style={{display: showUpdateModal ? 'block' : 'none'}}>
-                    <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '60%'}}>
+                     style={{ display: showUpdateModal ? 'block' : 'none' }}>
+                    <div className="modal-dialog" role="document" style={{ maxWidth: 'none', width: '60%' }}>
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Actualizeaza utilizatorul</h5>
@@ -352,6 +433,23 @@ function Users() {
                                                 {!updatedUserValidations.firstname && (
                                                     <div className="invalid-feedback">
                                                         Prenumele este obligatoriu.
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="updateFaculty">Facultate *</label>
+                                                <input
+                                                    type="text"
+                                                    className={`form-control ${updatedUserValidations.faculty ? '' : 'is-invalid'}`}
+                                                    id="updateFaculty"
+                                                    name="faculty"
+                                                    value={updatedUser.faculty}
+                                                    onChange={(e) => handleInputChange(e, true)}
+                                                    required
+                                                />
+                                                {!updatedUserValidations.faculty && (
+                                                    <div className="invalid-feedback">
+                                                        Facultatea este obligatorie.
                                                     </div>
                                                 )}
                                             </div>
@@ -449,7 +547,7 @@ function Users() {
 
                 {/* Delete User Modal */}
                 <div className={`modal ${showDeleteModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                     style={{display: showDeleteModal ? 'block' : 'none'}}>
+                     style={{ display: showDeleteModal ? 'block' : 'none' }}>
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -466,6 +564,47 @@ function Users() {
                                 <button type="button" className="btn btn-danger" onClick={handleDelete}>Sterge</button>
                                 <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Set Permissions Modal */}
+                <div className={`modal ${showPermissionsModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
+                     style={{ display: showPermissionsModal ? 'block' : 'none' }}>
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Setare permisiuni temporare</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                                        onClick={closeModal}>
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <form>
+                                    <div className="form-group">
+                                        <label>Permisiuni temporare:</label>
+                                        {selectedUser && permissionsOptions.filter(permission => permission !== selectedUser.role).map((permission, index) => (
+                                            <div key={index} className="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    className="form-check-input"
+                                                    id={`perm_${index}`}
+                                                    value={permission}
+                                                    checked={temporaryPermissionsMap[selectedUser.id]?.includes(permission) || false}
+                                                    onChange={handlePermissionChange}
+                                                />
+                                                <label className="form-check-label" htmlFor={`perm_${index}`}>
+                                                    {permission}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </form>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Inchide</button>
                             </div>
                         </div>
                     </div>

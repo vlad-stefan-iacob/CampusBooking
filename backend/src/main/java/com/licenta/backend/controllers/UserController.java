@@ -1,6 +1,7 @@
 package com.licenta.backend.controllers;
 
 import com.licenta.backend.dto.UserDTO;
+import com.licenta.backend.entities.Role;
 import com.licenta.backend.entities.User;
 import com.licenta.backend.exceptions.UserNotFoundException;
 import com.licenta.backend.services.UserService;
@@ -68,6 +69,39 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Failed to verify password"));
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/add-temporary-permission/{userId}")
+    public ResponseEntity<String> addTemporaryPermission(@PathVariable Integer userId, @RequestParam Role temporaryRole) {
+        try {
+            userService.addTemporaryPermission(userId, temporaryRole);
+            return ResponseEntity.ok("Temporary permission added");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/remove-temporary-permission/{userId}")
+    public ResponseEntity<String> removeTemporaryPermission(@PathVariable Integer userId, @RequestParam Role temporaryRole) {
+        try {
+            userService.removeTemporaryPermission(userId, temporaryRole);
+            return ResponseEntity.ok("Temporary permission removed");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
+    @GetMapping("/temporary-permissions/{userId}")
+    public ResponseEntity<?> getTemporaryPermissions(@PathVariable Integer userId) {
+        try {
+            List<String> temporaryPermissions = userService.getTemporaryPermissions(userId);
+            return ResponseEntity.ok(temporaryPermissions);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
