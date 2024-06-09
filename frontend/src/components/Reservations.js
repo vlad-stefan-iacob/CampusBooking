@@ -24,6 +24,7 @@ function Reservation() {
 
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
+    const [temporaryPermissions, setTemporaryPermissions] = useState([]);
 
     const onAllUserReservations = () => {
         navigate('/my-reservations');
@@ -82,9 +83,20 @@ function Reservation() {
                 console.error('Error fetching rooms:', error);
             }
         };
+        const token = getAuthToken();
+        fetch(`http://localhost:8080/api/v1/users/temporary-permissions/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+        })
+            .then(response => response.json())
+            .then(data => setTemporaryPermissions(data))
+            .catch(error => console.error("Error fetching temporary permissions:", error));
 
         fetchRooms();
-    }, []);
+    }, [id]);
 
     useEffect(() => {
         const fetchAvailableRooms = async () => {
@@ -120,14 +132,20 @@ function Reservation() {
         if (role === 'ADMIN') {
             // Admin can see all types of rooms
             return true;
-        } else if (role === 'STUDENT') {
-            return room.type === 'SALA LECTURA';
-        } else if (role === 'PROFESOR') {
-            return room.type === 'AMFITEATRU';
-        } else if (role === 'ASISTENT')
-            return room.type === 'LABORATOR';
+        }
 
-        return false;
+        // Collect all roles and permissions
+        const userRolesAndPermissions = [role, ...temporaryPermissions];
+
+        // Determine room visibility based on roles and permissions
+        if (userRolesAndPermissions.includes('STUDENT') && room.type === 'SALA LECTURA') {
+            return true;
+        }
+        if (userRolesAndPermissions.includes('PROFESOR') && room.type === 'AMFITEATRU') {
+            return true;
+        }
+        return userRolesAndPermissions.includes('ASISTENT') && room.type === 'LABORATOR';
+
     });
 
     const handleInputChange = (e) => {

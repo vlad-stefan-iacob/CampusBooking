@@ -34,11 +34,12 @@ function Rooms() {
         details: true,
     });
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    const {role} = storedUser || {};
+    const {id, role} = storedUser || {};
 
     const [selectedDate, setSelectedDate] = useState(); // Stocăm data în format YYYY-MM-DD
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [temporaryPermissions, setTemporaryPermissions] = useState([]);
 
     useEffect(() => {
         // Fetch data from the backend
@@ -54,7 +55,19 @@ function Rooms() {
             .then(response => response.json())
             .then(data => setRooms(data))
             .catch(error => console.error("Error fetching data:", error));
-    }, []); // Empty dependency array ensures the effect runs only once on component mount
+
+        fetch(`http://localhost:8080/api/v1/users/temporary-permissions/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+        })
+            .then(response => response.json())
+            .then(data => setTemporaryPermissions(data))
+            .catch(error => console.error("Error fetching temporary permissions:", error));
+
+    }, [id]); // Empty dependency array ensures the effect runs only once on component mount
 
     const addRooms = () => {
         setShowAddModal(true);
@@ -285,14 +298,20 @@ function Rooms() {
         if (role === 'ADMIN') {
             // Admin can see all types of rooms
             return true;
-        } else if (role === 'STUDENT') {
-            return room.type === 'SALA LECTURA';
-        } else if (role === 'PROFESOR') {
-            return room.type === 'AMFITEATRU';
-        } else if (role === 'ASISTENT')
-            return room.type === 'LABORATOR';
+        }
 
-        return false;
+        // Collect all roles and permissions
+        const userRolesAndPermissions = [role, ...temporaryPermissions];
+
+        // Determine room visibility based on roles and permissions
+        if (userRolesAndPermissions.includes('STUDENT') && room.type === 'SALA LECTURA') {
+            return true;
+        }
+        if (userRolesAndPermissions.includes('PROFESOR') && room.type === 'AMFITEATRU') {
+            return true;
+        }
+        return userRolesAndPermissions.includes('ASISTENT') && room.type === 'LABORATOR';
+
     });
 
     const generateTimeOptions = () => {
