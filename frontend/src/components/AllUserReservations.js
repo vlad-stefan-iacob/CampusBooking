@@ -413,7 +413,7 @@ function AllUserReservations() {
             <div className="background-home p-4 justify-content-center align-items-center">
                 <div className="container">
                     <div className="card p-4">
-                        <h4 className="card-title text-center mb-4">Rezervarile mele</h4>
+                        <h4 className="card-title text-center mb-4">Rezervările mele</h4>
                         <ul className="nav nav-tabs">
                             <li className="nav-item">
                                 <button
@@ -425,7 +425,7 @@ function AllUserReservations() {
                                     }}
                                     onClick={() => setShowFuture(true)}
                                 >
-                                    Rezervari viitoare
+                                    Rezervări viitoare
                                 </button>
                             </li>
                             <li className="nav-item">
@@ -438,7 +438,7 @@ function AllUserReservations() {
                                     }}
                                     onClick={() => setShowFuture(false)}
                                 >
-                                    Rezervari trecute
+                                    Rezervări trecute
                                 </button>
                             </li>
                             {/* Add more tabs as needed */}
@@ -447,12 +447,12 @@ function AllUserReservations() {
                             <table className="table table-bordered">
                                 <thead>
                                 <tr style={{background: "#D0C6C3"}}>
-                                    <th>Data rezervarii</th>
+                                    <th>Data rezervării</th>
                                     <th>Sala</th>
-                                    <th>Ora inceput</th>
-                                    <th>Ora sfarsit</th>
-                                    <th>Rezervare creata la data de</th>
-                                    {showFuture && <th>Actiuni</th>}
+                                    <th>Oră început</th>
+                                    <th>Oră sfârșit</th>
+                                    <th>Rezervare creată la data de</th>
+                                    {showFuture && <th>Acțiuni</th>}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -467,7 +467,7 @@ function AllUserReservations() {
                                             <td>
                                                 <button type="button" className="btn btn-danger"
                                                         onClick={() => deleteReservation(reservation)}>
-                                                    Stergere
+                                                    Ștergere
                                                 </button>
                                                 <button type="button" className="btn btn-warning ml-lg-2"
                                                         onClick={() => updateReservation(reservation)}>
@@ -490,7 +490,7 @@ function AllUserReservations() {
                                 </tbody>
                             </table>
                         </div>
-                        <button onClick={onBack} className="btn btn-primary" style={{marginLeft: "90%"}}>Inapoi</button>
+                        <button onClick={onBack} className="btn btn-primary" style={{marginLeft: "90%"}}>Înapoi</button>
                     </div>
                 </div>
             </div>
@@ -501,18 +501,18 @@ function AllUserReservations() {
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Sterge rezervarea</h5>
+                            <h5 className="modal-title">Șterge rezervarea</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={closeModal}>
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p>Sunteti sigur ca doriti sa stergeti rezervarea?</p>
+                            <p>Sunteți sigur că doriți să ștergeți rezervarea?</p>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Sterge</button>
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Șterge</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează</button>
                         </div>
                     </div>
                 </div>
@@ -524,7 +524,7 @@ function AllUserReservations() {
                 <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Actualizeaza rezervarea</h5>
+                            <h5 className="modal-title">Actualizează rezervarea</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={closeModal}>
                                 <span aria-hidden="true">&times;</span>
@@ -580,7 +580,7 @@ function AllUserReservations() {
                                     {/* Second column */}
                                     <div className="col-md-6">
                                         <div className="form-group">
-                                            <label htmlFor="startTime">Ora de inceput</label>
+                                            <label htmlFor="startTime">Ora de început</label>
                                             <select
                                                 className="form-control"
                                                 id="startTime"
@@ -595,7 +595,7 @@ function AllUserReservations() {
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label htmlFor="endTime">Ora de sfarsit</label>
+                                            <label htmlFor="endTime">Ora de sfârșit</label>
                                             <select
                                                 className="form-control"
                                                 id="endTime"
@@ -642,11 +642,11 @@ function AllUserReservations() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-warning">Actualizeaza</button>
+                                <button type="submit" className="btn btn-warning">Actualizează</button>
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează</button>
                         </div>
                     </div>
                 </div>
@@ -659,7 +659,7 @@ function AllUserReservations() {
                      style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Selecteaza o sala</h5>
+                            <h5 className="modal-title">Selectează o sală</h5>
                             <button type="button" className="close" aria-label="Close"
                                     onClick={() => setShowRoomModal(false)}>
                                 <span aria-hidden="true">&times;</span>
@@ -672,11 +672,11 @@ function AllUserReservations() {
                                         <thead>
                                         <tr>
                                             <th>Nume</th>
-                                            <th>Locatie</th>
+                                            <th>Locație</th>
                                             <th>Capacitate</th>
                                             <th>Locuri disponibile</th>
                                             <th>Tip</th>
-                                            <th>Selecteaza</th>
+                                            <th>Selectează</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -694,7 +694,7 @@ function AllUserReservations() {
                                                             handleRoomSelection(room.id);
                                                             handleRoomSelect(room);}}
                                                     >
-                                                        Selecteaza
+                                                        Selectează
                                                     </button>
                                                 </td>
                                             </tr>
@@ -710,11 +710,11 @@ function AllUserReservations() {
                                         <thead>
                                         <tr>
                                             <th>Nume</th>
-                                            <th>Locatie</th>
+                                            <th>Locație</th>
                                             <th>Capacitate</th>
                                             <th>Locuri disponibile</th>
                                             <th>Tip</th>
-                                            <th>Selecteaza</th>
+                                            <th>Selectează</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -730,7 +730,7 @@ function AllUserReservations() {
                                                         className="btn btn-primary" style={{marginLeft: "0px"}}
                                                         onClick={() => handleRoomSelection(room.id)}
                                                     >
-                                                        Selecteaza
+                                                        Selectează
                                                     </button>
                                                 </td>
                                             </tr>

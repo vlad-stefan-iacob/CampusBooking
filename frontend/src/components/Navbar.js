@@ -38,7 +38,7 @@ export const Navbar = () => {
                         className={activeIndex === "/home" ? 'active' : ''}
                         onClick={() => handleNavClick("/home")}
                     >
-                        Acasa <i className="bi bi-house"></i>
+                        Acasă <i className="bi bi-house"></i>
                     </Link>
                 </li>
                 <li>
@@ -47,7 +47,7 @@ export const Navbar = () => {
                         className={activeIndex === "/rooms" ? 'active' : ''}
                         onClick={() => handleNavClick("/rooms")}
                     >
-                        Sali <i className="bi bi-building"></i>
+                        Săli <i className="bi bi-building"></i>
                     </Link>
                 </li>
                 <li>
@@ -56,7 +56,7 @@ export const Navbar = () => {
                         className={activeIndex === "/reservations" ? 'active' : ''}
                         onClick={() => handleNavClick("/reservations")}
                     >
-                        Rezervari <i className="bi bi-calendar-plus"></i>
+                        Rezervări <i className="bi bi-calendar-plus"></i>
                     </Link>
                 </li>
                 <li className={`profil-trigger ${menuOpen ? 'active' : ''}`} onClick={handleProfilClick}>

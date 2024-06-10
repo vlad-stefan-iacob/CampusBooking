@@ -369,18 +369,16 @@ function Rooms() {
             <Navbar/>
             <div className="background-home p-4">
                 <h2 className="text-white mb-4">
-                    Informatii despre sali
+                    Informații despre săli
                     {role === "ADMIN" && (
                         <button type="button" className="btn btn-secondary" onClick={addRooms}>
-                            Adauga sali
+                            Adaugă săli
                         </button>
                     )}
                 </h2>
-                <h6 className="text-white"><i className="bi bi-info-square"></i> Salile afisate sunt cele ce pot fi
-                    rezervate de utilizatori cu rolul de {role}.</h6>
                 {((role === "STUDENT") || (role === "PROFESOR") || (role === "ASISTENT")) &&(
                     <div>
-                        <h6 className="text-white" style={{ display: 'inline-block'}}><i className="bi bi-info-square"></i> Afla salile disponibile din data: </h6>
+                        <h6 className="text-white" style={{ display: 'inline-block'}}><i className="bi bi-info-square"></i> Află sălile disponibile din data: </h6>
                         <input
                             type="date"
                             value={selectedDate}
@@ -414,7 +412,7 @@ function Rooms() {
                             ))}
                         </select>
                         <button type="button" className="btn btn-secondary" disabled={(!selectedDate) || (!startTime) || (!endTime)} onClick={checkRoomAvailability}>
-                            Vezi sali
+                            Vezi săli
                         </button>
                     </div>
                 )}
@@ -431,7 +429,7 @@ function Rooms() {
                                     }}
                                     onClick={() => setSelectedTab('SALA LECTURA')}
                                 >
-                                    Sala Lectura
+                                    Sală Lectură
                                 </button>
                             </li>
                             <li className="nav-item">
@@ -465,10 +463,10 @@ function Rooms() {
                                 <thead className="thead" style={{ background: 'white' }}>
                                 <tr>
                                     <th scope="col">Nume</th>
-                                    <th scope="col">Locatie</th>
+                                    <th scope="col">Locație</th>
                                     <th scope="col">Capacitate</th>
                                     <th scope="col">Tip</th>
-                                    <th scope="col">Actiuni</th>
+                                    <th scope="col">Acțiuni</th>
                                     {/* Add more header columns as needed */}
                                 </tr>
                                 </thead>
@@ -482,7 +480,7 @@ function Rooms() {
                                         <td className="text-white">
                                             <button type="button" className="btn btn-danger"
                                                     onClick={() => deleteRoom(room)}>
-                                                Stergere
+                                                Ștergere
                                             </button>
 
                                             <button type="button" className="btn btn-warning ml-lg-2"
@@ -536,7 +534,7 @@ function Rooms() {
                                     <div className="card-body">
                                         <h5 className="card-title text-center">Sala {room.name}</h5>
                                         <p className="card-text">
-                                            <b>Locatie:</b> {room.location}
+                                            <b>Locație:</b> {room.location}
                                         </p>
                                         <p className="card-text">
                                             <b>Capacitate:</b> {room.capacity} persoane
@@ -560,7 +558,7 @@ function Rooms() {
                                                         </button>
                                                         {roomAvailabilityChecked && (
                                                             <button type="button" className="btn btn-primary ml-2" onClick={() => handleReserve(room)}>
-                                                                Rezerva
+                                                                Rezervă
                                                             </button>
                                                         )}
                                                     </div>
@@ -576,7 +574,7 @@ function Rooms() {
                                                     </button>
                                                     {roomAvailabilityChecked && (
                                                         <button type="button" className="btn btn-primary ml-2" onClick={() => handleReserve(room)}>
-                                                            Rezerva
+                                                            Rezervă
                                                         </button>
                                                     )}
                                                 </div>
@@ -595,7 +593,7 @@ function Rooms() {
                 <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Adauga sali</h5>
+                            <h5 className="modal-title">Adaugă săli</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={closeModal}>
                                 <span aria-hidden="true">&times;</span>
@@ -624,7 +622,7 @@ function Rooms() {
                                             )}
                                         </div>
                                         <div className="form-group">
-                                            <label htmlFor="location">Locatie *</label>
+                                            <label htmlFor="location">Locație *</label>
                                             <input
                                                 type="text"
                                                 className={`form-control ${newRoomValidations.location ? '' : 'is-invalid'}`}
@@ -653,7 +651,7 @@ function Rooms() {
                                             />
                                             {!newRoomValidations.capacity && (
                                                 <div className="invalid-feedback">
-                                                    Capacitatea trebuie să fie un numar intreg.
+                                                    Capacitatea trebuie să fie un număr întreg.
                                                 </div>
                                             )}
                                         </div>
@@ -706,13 +704,14 @@ function Rooms() {
                                     type="submit"
                                     className="btn btn-primary"
                                     disabled={!Object.values(newRoomValidations).every((isValid) => isValid)}
+                                    style={{marginLeft:"0px"}}
                                 >
-                                    Adauga
+                                    Adaugă
                                 </button>
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează</button>
                         </div>
                     </div>
                 </div>
@@ -724,19 +723,19 @@ function Rooms() {
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Sterge sala</h5>
+                            <h5 className="modal-title">Șterge sala</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={closeModal}>
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p>Sunteti sigur ca doriti sa stergeti sala?</p>
-                            <p><i className="bi bi-exclamation-triangle-fill"></i> Stergerea unei sali duce la stergerea rezervarilor atasate!</p>
+                            <p>Sunteți sigur că doriți să ștergeți sala?</p>
+                            <p><i className="bi bi-exclamation-triangle-fill"></i> Ștergerea unei săli duce la ștergerea rezervărilor atașate!</p>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Sterge</button>
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Șterge</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează</button>
                         </div>
                     </div>
                 </div>
@@ -748,7 +747,7 @@ function Rooms() {
                 <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Actualizeaza sala</h5>
+                            <h5 className="modal-title">Actualizează sala</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={closeModal}>
                                 <span aria-hidden="true">&times;</span>
@@ -776,7 +775,7 @@ function Rooms() {
                                             )}
                                         </div>
                                         <div className="form-group">
-                                            <label htmlFor="updateLocation">Locatie *</label>
+                                            <label htmlFor="updateLocation">Locație *</label>
                                             <input
                                                 type="text"
                                                 className={`form-control ${updatedRoomValidations.location ? '' : 'is-invalid'}`}
@@ -788,7 +787,7 @@ function Rooms() {
                                             />
                                             {!updatedRoomValidations.location && (
                                                 <div className="invalid-feedback">
-                                                    Locatia este obligatorie.
+                                                    Locația este obligatorie.
                                                 </div>
                                             )}
                                         </div>
@@ -853,11 +852,11 @@ function Rooms() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-warning">Actualizeaza</button>
+                                <button type="submit" className="btn btn-warning">Actualizează</button>
                             </form>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza</button>
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează</button>
                         </div>
                     </div>
                 </div>
@@ -871,7 +870,7 @@ function Rooms() {
                             <h5 className="modal-title">
                                 {selectedRoomDetails && (
                                     <div>
-                                        <p>Facilitatile salii <b>{selectedRoomDetails.name}</b></p>
+                                        <p>Facilitățile sălii <b>{selectedRoomDetails.name}</b></p>
                                         {/* Add more details as needed */}
                                     </div>
                                 )}
@@ -892,7 +891,7 @@ function Rooms() {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary"
-                                    onClick={() => setShowDetailsModal(false)}>Inchide
+                                    onClick={() => setShowDetailsModal(false)}>Închide
                             </button>
                         </div>
                     </div>

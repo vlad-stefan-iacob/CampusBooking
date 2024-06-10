@@ -119,7 +119,7 @@ function RegisterForm() {
                 <div className="container form-container">
                     <div className="card wide-card">
                         <div className="card-body">
-                            <h2 className="login-header" style={{ color: "black" }}> Inregistrare utilizatori</h2>
+                            <h2 className="login-header" style={{ color: "black" }}> Înregistrare utilizatori</h2>
                             <form onSubmit={onRegister} className="login-form" style={{ width: "600px" }}>
                                 <div className="row">
                                     <div className="col-md-6">
@@ -178,7 +178,7 @@ function RegisterForm() {
                                         </div>
 
                                         <div className="form-group">
-                                            <label className="text-black" htmlFor="password">Parola *</label>
+                                            <label className="text-black" htmlFor="password">Parolă *</label>
                                             <input
                                                 type="password"
                                                 id="password"
@@ -210,17 +210,17 @@ function RegisterForm() {
                                 </div>
 
                                 {registrationSuccess && (
-                                    <div className="alert alert-success">Inregistrare cu succes!</div>
+                                    <div className="alert alert-success">Înregistrare cu succes!</div>
                                 )}
 
                                 {errors.general && <div className="alert alert-danger">{errors.general}</div>}
 
                                 <div className="button-container">
                                     <button type="button" className="btn btn-primary" style={{ marginLeft: "0px" }} onClick={onBack}>
-                                        Inapoi
+                                        Înapoi
                                     </button>
                                     <button type="submit" className="btn btn-success" style={{ marginLeft: "420px" }}>
-                                        Inregistrare
+                                        Înregistrare
                                     </button>
                                 </div>
                             </form>

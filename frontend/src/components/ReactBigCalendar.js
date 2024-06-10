@@ -9,18 +9,18 @@ moment.locale("ro");
 const localizer = momentLocalizer(moment);
 
 const messages = {
-    allDay: 'Toata ziua',
+    allDay: 'Toată ziua',
     previous: '<< Anterior',
-    next: 'Urmator >>',
+    next: 'Următor >>',
     today: 'Azi',
-    month: 'Luna',
-    week: 'Saptamana',
+    month: 'Lună',
+    week: 'Săptămână',
     day: 'Zi',
-    agenda: 'Agenda',
+    agenda: 'Agendă',
     date: 'Data',
     time: 'Ora',
-    event: 'Sala rezervata',
-    noEventsInRange: 'Nu exista sali rezervate in aceasta perioada.'
+    event: 'Sala rezervată',
+    noEventsInRange: 'Nu există săli rezervate în această perioadă.'
 };
 
 export default function ReactBigCalendar() {
@@ -134,7 +134,7 @@ export default function ReactBigCalendar() {
             {showDetailsModal && selectedEvent && (
                 <div className={`modal show`} tabIndex="-1" role="dialog" style={{ display: 'block' }}>
                     <div className="modal-dialog" role="document">
-                        <div className="modal-content" style={{ backgroundColor:"#1f99ff" }}>
+                        <div className="modal-content" style={{ backgroundColor:"white" }}>
                             <div className="modal-header">
                                 <h5 className="modal-title">Detalii rezervare</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close"
@@ -145,11 +145,11 @@ export default function ReactBigCalendar() {
                             <div className="modal-body">
                                 <p><b>{selectedEvent.title}</b></p>
                                 <p><b>Data:</b> {selectedEvent.start.toLocaleDateString()}</p>
-                                <p><b>Ora de inceput:</b> {selectedEvent.start.toLocaleTimeString()}</p>
-                                <p><b>Ora de sfarsit:</b> {selectedEvent.end.toLocaleTimeString()}</p>
+                                <p><b>Ora de început:</b> {selectedEvent.start.toLocaleTimeString()}</p>
+                                <p><b>Ora de sfârșit:</b> {selectedEvent.end.toLocaleTimeString()}</p>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Inchide</button>
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Închide</button>
                             </div>
                         </div>
                     </div>

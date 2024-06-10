@@ -44,14 +44,14 @@ const Logout = () => {
             <div className="card">
                 <div className="card-body">
                     <label className="text-black" style={{fontWeight: "bold", fontSize:"25px"}} htmlFor="logout-message">
-                        Esti sigur ca vrei sa te deconectezi?
+                        Ești sigur că vrei să te deconectezi?
                     </label>
                     <div className="button-container">
-                        <button type="button" className="btn btn-primary" onClick={handleLogout}>
+                        <button type="button" className="btn btn-primary" style={{marginLeft:"100px"}} onClick={handleLogout}>
                             Da
                         </button>
-                        <button type="button" className="btn btn-danger" onClick={handleCancel}>
-                            Renunta
+                        <button type="button" className="btn btn-danger" style={{marginLeft:"80px"}} onClick={handleCancel}>
+                            Renunță
                         </button>
                     </div>
                 </div>

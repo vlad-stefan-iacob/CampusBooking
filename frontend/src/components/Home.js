@@ -27,14 +27,14 @@ function Home() {
                 <div className="welcome-container-home">
                     <div className="welcome-message-home">
                         {firstName && lastName && role && (
-                            <p>Bine ati venit, {firstName} {lastName}! Rolul dumneavoastra este de {role}.</p>
+                            <p>Bine ați venit, {firstName} {lastName}! Rolul dumneavoastră este de {role}.</p>
                         )}
                     </div>
                     <div className="button-group">
                         {role === "ADMIN" && (
                             <>
                                 <button type="button" className="btn btn-secondary" onClick={onRegister}>
-                                    Inregistrare utilizatori
+                                    Înregistrare utilizatori
                                 </button>
                                 <button type="button" className="btn btn-secondary" onClick={onUsers}>
                                     Vizualizare utilizatori
@@ -46,7 +46,7 @@ function Home() {
 
                 <div className="calendar-title">
                     <p style={{ textAlign: "center", color: "white", fontSize: "25px", marginBottom: "5px" }}>
-                        {role === "ADMIN" ? "Situatia tuturor rezervarilor" : "Rezervarile mele"}
+                        {role === "ADMIN" ? "Situația tuturor rezervărilor" : "Rezervările mele"}
                     </p>
                 </div>
                 <ReactBigCalendar />

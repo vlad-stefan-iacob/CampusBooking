@@ -98,14 +98,14 @@ function Profile() {
                     if (matches) {
                         setOldPasswordError('');
                     } else {
-                        setOldPasswordError('Parola veche nu este corecta.');
+                        setOldPasswordError('Parola veche nu este corectă.');
                     }
                 } else {
                     console.error("Failed to verify password:", response.statusText);
                 }
             } catch (error) {
                 console.error("Error verifying password:", error);
-                setOldPasswordError('A aparut o eroare. Va rugam sa incercati din nou mai tarziu.');
+                setOldPasswordError('A apărut o eroare. Vă rugăm să încercați din nou mai târziu.');
             }
         }
     };
@@ -152,7 +152,7 @@ function Profile() {
                     },
                 }).then(response => response.json());
                 setUser(updatedUserInfo[0]);
-                setSuccessMessage('Parola schimbata cu succes');
+                setSuccessMessage('Parolă schimbată cu succes');
                 document.getElementById('oldPassword').value = '';
             } else {
                 console.error("Failed to update user:", response.statusText);
@@ -191,7 +191,7 @@ function Profile() {
 
                                 <div className="col-md-6">
                                     <div className="form-group">
-                                        <label htmlFor="oldPassword">Vechea parola</label>
+                                        <label htmlFor="oldPassword">Vechea parolă</label>
                                         <input
                                             type="password"
                                             className={`form-control ${oldPasswordError ? 'is-invalid' : ''}`}
@@ -204,7 +204,7 @@ function Profile() {
                                         )}
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="password">Noua parola</label>
+                                        <label htmlFor="password">Noua parolă</label>
                                         <input
                                             type="password"
                                             className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
@@ -215,7 +215,7 @@ function Profile() {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="confirmPassword">Confirma noua parola</label>
+                                        <label htmlFor="confirmPassword">Confirmă noua parolă</label>
                                         <input
                                             type="password"
                                             className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
@@ -232,11 +232,11 @@ function Profile() {
                                         <div className="text-danger">Toate câmpurile trebuie completate.</div>
                                     )}
                                     {successMessage && <div className="alert alert-success">{successMessage}</div>}
-                                    <button type="submit" className="btn btn-warning" style={{ marginTop: "5%" }}>Actualizeaza</button>
+                                    <button type="submit" className="btn btn-warning" style={{ marginTop: "5%" }}>Actualizează</button>
                                 </div>
                                 <div className="col-md-6 d-flex justify-content-between">
                                     <button type="button" className="btn btn-primary" style={{ marginLeft: "0px" }} onClick={onBack}>
-                                        Inapoi
+                                        Înapoi
                                     </button>
                                 </div>
                             </div>

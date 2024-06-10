@@ -40,22 +40,22 @@ function Reservation() {
 
         if (!reservation.date) {
             formIsValid = false;
-            newErrors.date = "Selectați o data!";
+            newErrors.date = "Selectați o dată!";
         }
 
         if (!reservation.startTime) {
             formIsValid = false;
-            newErrors.startTime = "Selectati ora de inceput!";
+            newErrors.startTime = "Selectați ora de început!";
         }
 
         if (!reservation.endTime) {
             formIsValid = false;
-            newErrors.endTime = "Selectati ora de sfarsit!";
+            newErrors.endTime = "Selectați ora de sfârșit!";
         }
 
         if (!reservation.roomId) {
             formIsValid = false;
-            newErrors.roomId = "Selectati o sala!";
+            newErrors.roomId = "Selectați o sală!";
         }
 
         setErrors(newErrors);
@@ -197,7 +197,7 @@ function Reservation() {
             if (response.ok) {
                 // Rezervare adăugată cu succes
                 console.log("Reservation inserted successfully");
-                setSuccessMessage("Rezervare adaugata cu succes!");
+                setSuccessMessage("Rezervare adăugată cu succes!");
                 setReservation({
                     roomId: "",
                     date: "",
@@ -214,7 +214,7 @@ function Reservation() {
                 console.error("Failed to insert reservation:", response.statusText);
             }
             setShowRoomModal(false); // Închide modalul de săli
-            setSuccessMessage("Rezervare adaugata cu succes!");
+            setSuccessMessage("Rezervare adaugată cu succes!");
         } catch (error) {
             console.error("Error inserting reservation:", error);
         }
@@ -294,38 +294,21 @@ function Reservation() {
                             <button type="button" className="btn btn-secondary"
                                     style={{marginLeft: "2%", marginTop: "0px", marginBottom: "2%"}}
                                     onClick={onAllUserReservations}>
-                                Rezervarile mele
+                                Rezervările mele
                             </button>
                             {role === 'ADMIN' && (
                                 <button type="button" className="btn btn-secondary"
                                         style={{marginLeft: "0px", marginTop: "0px", marginBottom: "2%"}}
                                         onClick={onAllReservations}>
-                                    Toate rezervarile
+                                    Toate rezervările
                                 </button>)}
 
                         </div>
-                        <h4 className="card-title text-center mb-4"><b>Adauga o rezervare</b></h4>
-                        {role === 'ADMIN' && (
-                            <div>
-                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip AMFITEATRU si LABORATOR se rezerva doar integral.</p>
-                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip SALA LECTURA se rezerva pe baza numarului de locuri disponibile.</p>
-                            </div>
-                        )}
-                        {role === 'STUDENT' && (
-                            <div>
-                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip SALA LECTURA se rezerva pe baza numarului de locuri disponibile.</p>
-                            </div>
-                        )}
-                        {role === 'PROFESOR' && (
-                            <div>
-                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip AMFITEATRU se rezerva doar integral.</p>
-                            </div>
-                        )}
-                        {role === 'ASISTENT' && (
-                            <div>
-                                <p className="text-black"><i className="bi bi-info-square"></i> Salile de tip LABORATOR se rezerva doar integral.</p>
-                            </div>
-                        )}
+                        <h4 className="card-title text-center mb-4"><b>Adaugă o rezervare</b></h4>
+                        <div>
+                            <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip AMFITEATRU și LABORATOR se rezervă doar integral.</p>
+                            <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip SALA LECTURA se rezervă pe baza numărului de locuri disponibile.</p>
+                        </div>
                         <hr style={{ backgroundColor: 'black', height: '1px', marginTop: '0px', marginBottom:'5px'}} />
                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
                         <div className="row">
@@ -371,7 +354,7 @@ function Reservation() {
                             {/* Second column */}
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label htmlFor="startTime">Ora de inceput</label>
+                                    <label htmlFor="startTime">Ora de început</label>
                                     <select
                                         className={`form-control ${errors.startTime ? 'is-invalid' : ''}`}
                                         id="startTime"
@@ -388,7 +371,7 @@ function Reservation() {
                                     {errors.startTime && <div className="error-message">{errors.startTime}</div>}
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="endTime">Ora de sfarsit</label>
+                                    <label htmlFor="endTime">Ora de sfârșit</label>
                                     <select
                                         className={`form-control ${errors.endTime ? 'is-invalid' : ''}`}
                                         id="endTime"
@@ -431,7 +414,7 @@ function Reservation() {
                             </div>
                         </div>
                         <button onClick={handleInsertReservation} className="btn btn-primary"
-                                style={{marginLeft: "75%"}}>Adauga rezervare
+                                style={{marginLeft: "75%"}}>Adaugă rezervare
                         </button>
                     </div>
                 </div>
@@ -443,8 +426,8 @@ function Reservation() {
                      style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Selecteaza o sala
-                            <p className="text-black mb-4"><i className="bi bi-info-square"></i> Salile afisate sunt cele disponibile in data si intervalul orar selectate.</p></h5>
+                            <h5 className="modal-title">Selecteazaă o sală
+                            <p className="text-black mb-4"><i className="bi bi-info-square"></i> Sălile afișate sunt cele disponibile în data și intervalul orar selectate.</p></h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={() => setShowRoomModal(false)}>
                                 <span aria-hidden="true">&times;</span>
@@ -457,11 +440,11 @@ function Reservation() {
                                         <thead>
                                         <tr>
                                             <th>Nume</th>
-                                            <th>Locatie</th>
+                                            <th>Locație</th>
                                             <th>Capacitate</th>
                                             <th>Locuri disponibile</th>
                                             <th>Tip</th>
-                                            <th>Selecteaza</th>
+                                            <th>Selectează</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -477,7 +460,7 @@ function Reservation() {
                                                         className="btn btn-primary" style={{marginLeft: "0px"}}
                                                         onClick={() => handleSelectRoom(room.id)}
                                                     >
-                                                        Selecteaza
+                                                        Selectează
                                                     </button>
                                                 </td>
                                             </tr>
@@ -493,11 +476,11 @@ function Reservation() {
                                         <thead>
                                         <tr>
                                             <th>Nume</th>
-                                            <th>Locatie</th>
+                                            <th>Locație</th>
                                             <th>Capacitate</th>
                                             <th>Locuri disponibile</th>
                                             <th>Tip</th>
-                                            <th>Selecteaza</th>
+                                            <th>Selectează</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -513,7 +496,7 @@ function Reservation() {
                                                         className="btn btn-primary" style={{marginLeft: "0px"}}
                                                         onClick={() => handleSelectRoom(room.id)}
                                                     >
-                                                        Selecteaza
+                                                        Selectează
                                                     </button>
                                                 </td>
                                             </tr>

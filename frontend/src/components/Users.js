@@ -274,11 +274,11 @@ function Users() {
             <Navbar />
             <div className="background-home p-4">
                 <h2 className="text-white mb-4">
-                    Informatii despre utilizatori
+                    Informații despre utilizatori
 
                     {role === "ADMIN" && (
                         <button type="button" className="btn btn-secondary" onClick={onRegister}>
-                            Inregistrare utilizatori
+                            Înregistrare utilizatori
                         </button>
                     )}
                 </h2>
@@ -347,7 +347,7 @@ function Users() {
                                 {user.role !== 'ADMIN' && (
                                     <th scope="col">Permisiuni temporare</th>
                                 )}
-                                <th scope="col">Actiuni</th>
+                                <th scope="col">Acțiuni</th>
                             </tr>
                         ))}
                         </thead>
@@ -367,7 +367,7 @@ function Users() {
                                 <td className="text-white">
                                     <button type="button" className="btn btn-danger"
                                             onClick={() => deleteUser(user)}>
-                                        Stergere
+                                        Ștergere
                                     </button>
                                     <button type="button" className="btn btn-warning ml-lg-2"
                                             onClick={() => updateUser(user)}>
@@ -491,11 +491,11 @@ function Users() {
                                         </div>
                                         {/* Second Column */}
                                         <div className="col-md-6">
-                                            <p className="text mb-4"><i className="bi bi-info-square"></i> Daca nu
-                                                se doreste schimbarea parolei, campurile de mai jos vor fi lasate libere
+                                            <p className="text mb-4"><i className="bi bi-info-square"></i> Dacă nu
+                                                se dorește schimbarea parolei, câmpurile de mai jos vor fi lăsate libere
                                             </p>
                                             <div className="form-group">
-                                                <label htmlFor="oldPassword">Vechea parola</label>
+                                                <label htmlFor="oldPassword">Vechea parolă</label>
                                                 <input
                                                     type="password"
                                                     className={`form-control ${oldPasswordError ? 'is-invalid' : ''}`}
@@ -508,7 +508,7 @@ function Users() {
                                                 )}
                                             </div>
                                             <div className="form-group">
-                                                <label htmlFor="password">Noua parola</label>
+                                                <label htmlFor="password">Noua parolă</label>
                                                 <input
                                                     type="password"
                                                     className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
@@ -519,7 +519,7 @@ function Users() {
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label htmlFor="confirmPassword">Confirma noua parola</label>
+                                                <label htmlFor="confirmPassword">Confirmă noua parolă</label>
                                                 <input
                                                     type="password"
                                                     className={`form-control ${submitted && !passwordMatch ? 'is-invalid' : ''}`}
@@ -534,11 +534,11 @@ function Users() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="submit" className="btn btn-warning">Actualizeaza</button>
+                                    <button type="submit" className="btn btn-warning">Actualizează</button>
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează
                                 </button>
                             </div>
                         </div>
@@ -551,18 +551,18 @@ function Users() {
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">Sterge urilizator</h5>
+                                <h5 className="modal-title">Șterge utilizator</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                         onClick={closeModal}>
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div className="modal-body">
-                                <p>Sunteti sigur ca doriti sa stergeti utilizatorul?</p>
+                                <p>Sunteți sigur că doriți să ștergeți utilizatorul?</p>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-danger" onClick={handleDelete}>Sterge</button>
-                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Anuleaza
+                                <button type="button" className="btn btn-danger" onClick={handleDelete}>Șterge</button>
+                                <button type="button" className="btn btn-secondary" onClick={closeModal}>Anulează
                                 </button>
                             </div>
                         </div>

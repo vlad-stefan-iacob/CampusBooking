@@ -36,14 +36,14 @@ function LoginForm() {
         // Basic form validation
         let validationErrors = {};
         if (!email.trim()) {
-            validationErrors.email = 'Camp obligatoriu';
+            validationErrors.email = 'Câmp obligatoriu';
         } else if (!/\S+@\S+\.\S+/.test(email)) {
             validationErrors.email = 'Format invalid';
         }
         if (!password.trim()) {
-            validationErrors.password = 'Camp obligatoriu';
+            validationErrors.password = 'Câmp obligatoriu';
         } else if (password.length < 6) {
-            validationErrors.password = 'Parola trebuie sa fie de cel putin 6 caractere';
+            validationErrors.password = 'Parola trebuie să fie de cel puțin 6 caractere';
         }
 
         if (Object.keys(validationErrors).length === 0) {
@@ -63,7 +63,7 @@ function LoginForm() {
                     setAuthHeader(response.data.token);
                     setErrors({});
                     login(response.data.token);
-                    console.log("Autentificare reusita");
+                    console.log("Autentificare reușită");
                     localStorage.setItem('user', JSON.stringify({
                         firstName: response.data.firstName,
                         lastName: response.data.lastName,
@@ -74,8 +74,8 @@ function LoginForm() {
             } catch (error) {
                 // Handle other errors, e.g., network issues
                 setAuthHeader(null);
-                setErrors({ general: 'Email sau parola incorecta' });
-                console.log("Email sau parola incorecta");
+                setErrors({ general: 'Email sau parolă incorectă' });
+                console.log("Email sau parolă incorectă");
             }
         } else {
             // If there are validation errors, update the state to display the errors
@@ -100,7 +100,7 @@ function LoginForm() {
             </div>
             <div className={`right-container ${showLoginForm ? 'show-login' : ''}`}>
                 <div className={`welcome-container ${showLoginForm ? 'hide' : ''}`}>
-                    <h2 className="welcome-header">Bine ati venit in CampusBooking! <img src="/book.png" alt="book" /></h2>
+                    <h2 className="welcome-header">Bine ați venit în CampusBooking! <img src="/book.png" alt="book" /></h2>
                     <button className="btn btn-primary login-button" onClick={handleLoginClick}>Autentificare</button>
                 </div>
                 <div className={`login-form-container ${showLoginForm ? 'show' : ''}`}>
@@ -117,7 +117,7 @@ function LoginForm() {
                             </div>
 
                             <div className="form-group">
-                                <label className="text-white" htmlFor="loginPassword">Parola *</label>
+                                <label className="text-white" htmlFor="loginPassword">Parolă *</label>
                                 <input type="password" id="loginPassword" name="password"
                                        className={classNames("form-control", { "is-invalid": errors.password })}
                                        value={password} onChange={onChangeHandler} />
