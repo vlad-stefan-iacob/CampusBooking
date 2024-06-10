@@ -1,8 +1,8 @@
 import { Navbar } from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getAuthToken } from "../helpers/axios_helper";
+import {useNavigate} from "react-router-dom";
 
 function Users() {
     const [users, setUsers] = useState([]);
@@ -25,6 +25,8 @@ function Users() {
     const [passwordMatch, setPasswordMatch] = useState(true);
     const [oldPasswordError, setOldPasswordError] = useState('');
     const [selectedTab, setSelectedTab] = useState('ADMIN');
+    const [searchInput, setSearchInput] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
     const filteredUsersSelectedTab = users.filter((user) => user.role === selectedTab);
     const [updatedUserValidations, setUpdatedUserValidations] = useState({
         firstname: true,
@@ -269,18 +271,43 @@ function Users() {
         }
     };
 
+    const searchUser = () => {
+        const searchValue = searchInput.toLowerCase();
+        const user = users.find(user =>
+            user.firstname.toLowerCase().includes(searchValue) ||
+            user.lastname.toLowerCase().includes(searchValue)
+        );
+
+        if (user) {
+            setSelectedTab(user.role);
+            setSearchResults([user]);
+        } else {
+            alert('Utilizatorul nu a fost găsit.');
+        }
+    };
+
     return (
         <div className="Users">
             <Navbar />
             <div className="background-home p-4">
-                <h2 className="text-white mb-4">
+                <h2 className="text-white mb-4 d-flex align-items-center">
                     Informații despre utilizatori
 
                     {role === "ADMIN" && (
-                        <button type="button" className="btn btn-secondary" onClick={onRegister}>
+                        <button type="button" className="btn btn-secondary" onClick={onRegister} style={{marginRight:"570px"}}>
                             Înregistrare utilizatori
                         </button>
                     )}
+                    <div className="search-box d-flex align-items-center">
+                        <input
+                            type="text"
+                            placeholder="Căutați utilizatori..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            className="form-control mr-2"
+                        />
+                        <button onClick={searchUser} className="btn btn-primary" style={{marginLeft:"0px"}}><i className="bi bi-search"></i></button>
+                    </div>
                 </h2>
                 {/* Tabs for different user roles */}
                 <ul className="nav nav-tabs">
@@ -291,7 +318,10 @@ function Users() {
                                 color: selectedTab === 'ADMIN' ? 'black' : 'white',
                                 border: selectedTab === 'ADMIN' ? '1px solid white' : '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('ADMIN')}
+                            onClick={() => {
+                                setSelectedTab('ADMIN');
+                                setSearchResults([]);
+                            }}
                         >
                             Admin
                         </button>
@@ -303,7 +333,10 @@ function Users() {
                                 color: selectedTab === 'PROFESOR' ? 'black' : 'white',
                                 border: selectedTab === 'PROFESOR' ? '1px solid white' : '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('PROFESOR')}
+                            onClick={() => {
+                                setSelectedTab('PROFESOR');
+                                setSearchResults([]);
+                            }}
                         >
                             Profesor
                         </button>
@@ -315,7 +348,10 @@ function Users() {
                                 color: selectedTab === 'STUDENT' ? 'black' : 'white',
                                 border: selectedTab === 'STUDENT' ? '1px solid white' : '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('STUDENT')}
+                            onClick={() => {
+                                setSelectedTab('STUDENT');
+                                setSearchResults([]);
+                            }}
                         >
                             Student
                         </button>
@@ -327,7 +363,10 @@ function Users() {
                                 color: selectedTab === 'ASISTENT' ? 'black' : 'white',
                                 border: selectedTab === 'ASISTENT' ? '1px solid white' : '1px solid white',
                             }}
-                            onClick={() => setSelectedTab('ASISTENT')}
+                            onClick={() => {
+                                setSelectedTab('ASISTENT');
+                                setSearchResults([]);
+                            }}
                         >
                             Asistent
                         </button>
@@ -337,21 +376,21 @@ function Users() {
                 <div className="table-responsive">
                     <table className="table table-bordered">
                         <thead className="thead" style={{ background: 'white' }}>
-                            <tr>
-                                <th scope="col">Nume</th>
-                                <th scope="col">Prenume</th>
-                                <th scope="col">Facultate</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Rol</th>
-                                {selectedTab !== 'ADMIN' && (
-                                    <th scope="col">Permisiuni temporare</th>
-                                )}
-                                <th scope="col">Acțiuni</th>
-                            </tr>
+                        <tr>
+                            <th scope="col">Nume</th>
+                            <th scope="col">Prenume</th>
+                            <th scope="col">Facultate</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Rol</th>
+                            {selectedTab !== 'ADMIN' && (
+                                <th scope="col">Permisiuni temporare</th>
+                            )}
+                            <th scope="col">Acțiuni</th>
+                        </tr>
                         </thead>
                         <tbody>
-                        {filteredUsersSelectedTab.map(user => (
-                            <tr>
+                        {(searchResults.length > 0 ? searchResults : filteredUsersSelectedTab).map(user => (
+                            <tr key={user.id}>
                                 <td className="text-white">{user.lastname}</td>
                                 <td className="text-white">{user.firstname}</td>
                                 <td className="text-white">{user.faculty}</td>
