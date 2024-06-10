@@ -337,29 +337,27 @@ function Users() {
                 <div className="table-responsive">
                     <table className="table table-bordered">
                         <thead className="thead" style={{ background: 'white' }}>
-                        {filteredUsersSelectedTab.map(user => (
                             <tr>
                                 <th scope="col">Nume</th>
                                 <th scope="col">Prenume</th>
                                 <th scope="col">Facultate</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Rol</th>
-                                {user.role !== 'ADMIN' && (
+                                {selectedTab !== 'ADMIN' && (
                                     <th scope="col">Permisiuni temporare</th>
                                 )}
                                 <th scope="col">Acțiuni</th>
                             </tr>
-                        ))}
                         </thead>
                         <tbody>
                         {filteredUsersSelectedTab.map(user => (
-                            <tr key={user.id}>
+                            <tr>
                                 <td className="text-white">{user.lastname}</td>
                                 <td className="text-white">{user.firstname}</td>
                                 <td className="text-white">{user.faculty}</td>
                                 <td className="text-white">{user.email}</td>
                                 <td className="text-white">{user.role}</td>
-                                {user.role !== 'ADMIN' && (
+                                {selectedTab !== 'ADMIN' && (
                                     <td className="text-white">
                                         {temporaryPermissionsMap[user.id]?.join(', ') || ''}
                                     </td>
