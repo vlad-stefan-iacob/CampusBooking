@@ -130,7 +130,7 @@ function LoginForm() {
                     </div>
                 </div>
                 <footer className="footer">
-                    <p>Suport: contact@campusbooking.com | Toate drepturile rezervate <i className="bi bi-c-circle"></i> 2024</p>
+                    <p>Suport: contact@campusbooking.com</p>
                 </footer>
             </div>
         </div>

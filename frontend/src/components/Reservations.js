@@ -426,7 +426,7 @@ function Reservation() {
                      style={{maxWidth: 'none', width: '60%'}}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Selecteazaă o sală
+                            <h5 className="modal-title">Selectează o sală
                             <p className="text-black mb-4"><i className="bi bi-info-square"></i> Sălile afișate sunt cele disponibile în data și intervalul orar selectate.</p></h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                     onClick={() => setShowRoomModal(false)}>

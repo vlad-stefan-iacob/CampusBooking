@@ -145,7 +145,7 @@ function Users() {
                         setOldPasswordError('');
                     } else {
                         // Password does not match, set error message
-                        setOldPasswordError('Parola veche nu este corecta.');
+                        setOldPasswordError('Parola veche nu este corectă.');
                     }
                 } else {
                     // Handle other HTTP errors if necessary
@@ -429,7 +429,7 @@ function Users() {
                     <div className="modal-dialog" role="document" style={{ maxWidth: 'none', width: '60%' }}>
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">Actualizeaza utilizatorul</h5>
+                                <h5 className="modal-title">Actualizează utilizatorul</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close"
                                         onClick={closeModal}>
                                     <span aria-hidden="true">&times;</span>

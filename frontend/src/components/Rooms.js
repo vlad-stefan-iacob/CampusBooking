@@ -840,7 +840,7 @@ function Rooms() {
                                                 id="updatedDetails"
                                                 name="details"
                                                 value={updatedRoom.details}
-                                                onChange={(e) => handleInputChange(e)}
+                                                onChange={(e) => handleInputChange(e, true)}
                                                 required
                                                 rows="4"  // Set the number of rows as needed
                                             />
