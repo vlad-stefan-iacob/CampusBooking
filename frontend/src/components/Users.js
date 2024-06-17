@@ -294,11 +294,11 @@ function Users() {
                     Informații despre utilizatori
 
                     {role === "ADMIN" && (
-                        <button type="button" className="btn btn-secondary" onClick={onRegister} style={{marginRight:"570px"}}>
+                        <button type="button" className="btn btn-secondary" onClick={onRegister} style={{marginLeft:"20px"}}>
                             Înregistrare utilizatori
                         </button>
                     )}
-                    <div className="search-box d-flex align-items-center">
+                    <div className="search-box d-flex align-items-center" style={{marginLeft:"auto"}}>
                         <input
                             type="text"
                             placeholder="Căutați utilizatori..."
