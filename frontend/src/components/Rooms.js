@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from "react";
-import {Navbar} from "./Navbar";
+import React, { useState, useEffect } from "react";
+import { Navbar } from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {getAuthToken} from "../helpers/axios_helper";
+import { getAuthToken } from "../helpers/axios_helper";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Rooms() {
     const [rooms, setRooms] = useState([]);
@@ -13,11 +13,12 @@ function Rooms() {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedRoomDetails, setSelectedRoomDetails] = useState(null);
-    const [newRoom, setNewRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
+    const [newRoom, setNewRoom] = useState({ name: "", location: "", capacity: "", type: "", details: "" });
     const [selectedRoom, setSelectedRoom] = useState(null);
-    const [updatedRoom, setUpdatedRoom] = useState({name: "", location: "", capacity: "", type: "", details: ""});
+    const [updatedRoom, setUpdatedRoom] = useState({ name: "", location: "", capacity: "", type: "", details: "" });
     const [selectedTab, setSelectedTab] = useState('SALA LECTURA');
-    const filteredRoomsSelectedTab = rooms.filter((room) => room.type === selectedTab);
+    const [searchInput, setSearchInput] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
     const [expandedRooms, setExpandedRooms] = useState([]);
     const [newRoomValidations, setNewRoomValidations] = useState({
         name: true,
@@ -34,7 +35,7 @@ function Rooms() {
         details: true,
     });
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    const {id, role} = storedUser || {};
+    const { id, role } = storedUser || {};
 
     const [selectedDate, setSelectedDate] = useState(); // Stocăm data în format YYYY-MM-DD
     const [startTime, setStartTime] = useState('');
@@ -94,8 +95,8 @@ function Rooms() {
         setShowAddModal(false);
         setShowDeleteModal(false);
         setShowUpdateModal(false);
-        setNewRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
-        setUpdatedRoom({name: "", location: "", capacity: "", type: "", details: ""}); // Clear form fields on modal close
+        setNewRoom({ name: "", location: "", capacity: "", type: "", details: "" }); // Clear form fields on modal close
+        setUpdatedRoom({ name: "", location: "", capacity: "", type: "", details: "" }); // Clear form fields on modal close
         setNewRoomValidations({
             name: true,
             location: true,
@@ -126,7 +127,7 @@ function Rooms() {
             const result = await response.json(); // Parse the JSON response
 
             const isDuplicate = result.isDuplicate;
-            setNewRoomValidations((prev) => ({...prev, name: !isDuplicate}));
+            setNewRoomValidations((prev) => ({ ...prev, name: !isDuplicate }));
             return isDuplicate;
         } catch (error) {
             console.error("Error checking duplicate name:", error);
@@ -136,7 +137,7 @@ function Rooms() {
 
 
     const handleInputChange = (e, isUpdatedRoom = false) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
         // Basic validation for empty fields
         const isEmpty = value.trim() === "";
@@ -176,7 +177,7 @@ function Rooms() {
         try {
             const isDuplicateName = await handleDuplicateName(newRoom.name);
             if (isDuplicateName) {
-                setNewRoomValidations((prev) => ({...prev, name: false}));
+                setNewRoomValidations((prev) => ({ ...prev, name: false }));
                 return;
             }
             // Make a POST request to the backend endpoint
@@ -350,7 +351,7 @@ function Rooms() {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
-                    body: JSON.stringify({date: selectedDate, startTime, endTime})
+                    body: JSON.stringify({ date: selectedDate, startTime, endTime })
                 });
                 const availableRooms = await response.json();
                 if (response.ok) {
@@ -364,19 +365,55 @@ function Rooms() {
         }
     };
 
+    const searchRoom = () => {
+        const searchValue = searchInput.toLowerCase().trim();
+
+        if (searchValue === "") {
+            alert("Vă rugăm să introduceți un nume pentru a căuta o sală.");
+            return;
+        }
+
+        if (role === 'ADMIN') {
+            const room = rooms.find(room => room.name.toLowerCase().includes(searchValue));
+            if (room) {
+                setSelectedTab(room.type);
+                setSearchResults([room]);
+            } else {
+                alert('Sala nu a fost găsită.');
+            }
+        } else {
+            const filtered = rooms.filter(room => room.name.toLowerCase().includes(searchValue));
+            if (filtered.length > 0) {
+                setSearchResults(filtered);
+            } else {
+                alert('Sala nu a fost găsită.');
+            }
+        }
+    };
+
     return (
         <div className="Rooms">
-            <Navbar/>
+            <Navbar />
             <div className="background-home p-4">
-                <h2 className="text-white mb-4">
+                <h2 className="text-white mb-4 d-flex align-items-center">
                     Informații despre săli
                     {role === "ADMIN" && (
                         <button type="button" className="btn btn-secondary" onClick={addRooms}>
                             Adaugă săli
                         </button>
                     )}
+                    <div className="search-box d-flex align-items-center" style={{ marginLeft: "auto" }}>
+                        <input
+                            type="text"
+                            placeholder="Căutați săli..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            className="form-control mr-2"
+                        />
+                        <button onClick={searchRoom} className="btn btn-primary" style={{marginLeft:"0px"}}><i className="bi bi-search"></i></button>
+                    </div>
                 </h2>
-                {((role === "STUDENT") || (role === "PROFESOR") || (role === "ASISTENT")) &&(
+                {((role === "STUDENT") || (role === "PROFESOR") || (role === "ASISTENT")) && (
                     <div>
                         <h6 className="text-white" style={{ display: 'inline-block'}}><i className="bi bi-info-square"></i> Află sălile disponibile din data: </h6>
                         <input
@@ -427,7 +464,10 @@ function Rooms() {
                                         color: selectedTab === 'SALA LECTURA' ? 'black' : 'white',
                                         border: selectedTab === 'SALA LECTURA' ? '1px solid white' : '1px solid white',
                                     }}
-                                    onClick={() => setSelectedTab('SALA LECTURA')}
+                                    onClick={() => {
+                                        setSelectedTab('SALA LECTURA');
+                                        setSearchResults([]);
+                                    }}
                                 >
                                     Sală Lectură
                                 </button>
@@ -439,7 +479,10 @@ function Rooms() {
                                         color: selectedTab === 'AMFITEATRU' ? 'black' : 'white',
                                         border: selectedTab === 'AMFITEATRU' ? '1px solid white' : '1px solid white',
                                     }}
-                                    onClick={() => setSelectedTab('AMFITEATRU')}
+                                    onClick={() => {
+                                        setSelectedTab('AMFITEATRU');
+                                        setSearchResults([]);
+                                    }}
                                 >
                                     Amfiteatru
                                 </button>
@@ -451,7 +494,10 @@ function Rooms() {
                                         color: selectedTab === 'LABORATOR' ? 'black' : 'white',
                                         border: selectedTab === 'LABORATOR' ? '1px solid white' : '1px solid white',
                                     }}
-                                    onClick={() => setSelectedTab('LABORATOR')}
+                                    onClick={() => {
+                                        setSelectedTab('LABORATOR');
+                                        setSearchResults([]);
+                                    }}
                                 >
                                     Laborator
                                 </button>
@@ -471,7 +517,7 @@ function Rooms() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredRoomsSelectedTab.map(room => (
+                                {(searchResults.length > 0 ? searchResults : filteredRooms.filter(room => room.type === selectedTab)).map(room => (
                                     <tr key={room.id}>
                                         <td className="text-white">{room.name}</td>
                                         <td className="text-white">{room.location}</td>
@@ -508,7 +554,7 @@ function Rooms() {
                     </div>
                 ) : (
                     <div className="row mt-4">
-                        {filteredRooms.map((room) => (
+                        {(searchResults.length > 0 ? searchResults : filteredRooms).map((room) => (
                             <div key={room.id} className="col-md-3 mb-3">
                                 <div
                                     className="card"
@@ -589,8 +635,8 @@ function Rooms() {
             </div>
 
             <div className={`modal ${showAddModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                 style={{display: showAddModal ? 'block' : 'none'}}>
-                <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
+                 style={{ display: showAddModal ? 'block' : 'none' }}>
+                <div className="modal-dialog" role="document" style={{ maxWidth: 'none', width: '70%' }}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Adaugă săli</h5>
@@ -704,7 +750,7 @@ function Rooms() {
                                     type="submit"
                                     className="btn btn-primary"
                                     disabled={!Object.values(newRoomValidations).every((isValid) => isValid)}
-                                    style={{marginLeft:"0px"}}
+                                    style={{ marginLeft: "0px" }}
                                 >
                                     Adaugă
                                 </button>
@@ -719,7 +765,7 @@ function Rooms() {
 
             {/* Delete Room Modal */}
             <div className={`modal ${showDeleteModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                 style={{display: showDeleteModal ? 'block' : 'none'}}>
+                 style={{ display: showDeleteModal ? 'block' : 'none' }}>
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -743,8 +789,8 @@ function Rooms() {
 
             {/* Update Room Modal */}
             <div className={`modal ${showUpdateModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                 style={{display: showUpdateModal ? 'block' : 'none'}}>
-                <div className="modal-dialog" role="document" style={{maxWidth: 'none', width: '70%'}}>
+                 style={{ display: showUpdateModal ? 'block' : 'none' }}>
+                <div className="modal-dialog" role="document" style={{ maxWidth: 'none', width: '70%' }}>
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Actualizează sala</h5>
@@ -815,7 +861,7 @@ function Rooms() {
                                                 id="type"
                                                 name="type"
                                                 value={updatedRoom.type}
-                                                onChange={(e) => handleInputChange(e, setUpdatedRoom)}
+                                                onChange={(e) => handleInputChange(e, true)}
                                                 required
                                             >
                                                 <option value="" disabled>Selectează tipul</option>
@@ -863,7 +909,7 @@ function Rooms() {
             </div>
 
             <div className={`modal ${showDetailsModal ? 'show' : ''}`} tabIndex="-1" role="dialog"
-                 style={{display: showDetailsModal ? 'block' : 'none'}}>
+                 style={{ display: showDetailsModal ? 'block' : 'none' }}>
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">

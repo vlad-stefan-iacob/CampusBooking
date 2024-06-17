@@ -536,7 +536,7 @@ function AllReservations() {
                                                     className="form-control"
                                                     id="lastName"
                                                     name="lastName"
-                                                    value={selectedReservation?.userName.split(" ")[1] || ""}
+                                                    value={selectedReservation?.userName.split(" ")[0] || ""}
                                                     readOnly
                                                 />
                                             </div>
@@ -547,7 +547,7 @@ function AllReservations() {
                                                     className="form-control"
                                                     id="firstName"
                                                     name="firstName"
-                                                    value={selectedReservation?.userName.split(" ")[0] || ""}
+                                                    value={selectedReservation?.userName.split(" ")[1] || ""}
                                                     readOnly
                                                 />
                                                 <input
