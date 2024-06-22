@@ -42,13 +42,11 @@ public class UserController {
         return userService.updateUser(userId, updatedUser);
     }
 
-    //
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @PutMapping("/update-user-password/{userId}")
     public User updateUserPassword(@PathVariable Integer userId, @RequestBody UserDTO updatedUserPass) {
         return userService.updateUserPassword(userId, updatedUserPass);
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete-user/{userId}")
@@ -57,7 +55,6 @@ public class UserController {
         return "User deleted";
     }
 
-    //
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/verify-password/{userId}/{password}")
     public ResponseEntity<?> verifyPassword(@PathVariable Integer userId, @PathVariable String password) {

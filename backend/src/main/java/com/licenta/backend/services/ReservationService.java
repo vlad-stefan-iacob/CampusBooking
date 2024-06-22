@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ public class ReservationService {
     private UserRepository userRepository;
     @Autowired
     private RoomRepository roomRepository;
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private ReservationDTOConverter reservationDTOConverter;
@@ -49,7 +52,22 @@ public class ReservationService {
                 .map(ReservationDTOConverter::convertToDTO)
                 .collect(Collectors.toList());
     }
-    public Reservation insertReservation(ReservationDTO reservationDTO){
+
+    public static String formatDate(String dateString) {
+        try {
+            // Definește formatul inițial al datei
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+            Date date = inputFormat.parse(dateString);
+
+            // Definește formatul dorit al datei
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy");
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public Reservation insertReservation(ReservationDTO reservationDTO) {
         Reservation reservation = new Reservation();
         reservation.setDate(reservationDTO.getDate());
         reservation.setStartTime(reservationDTO.getStartTime());
@@ -68,7 +86,30 @@ public class ReservationService {
         reservation.setUser(user);
         reservation.setRoom(room);
 
-        return reservationRepository.save(reservation);
+        Reservation savedReservation = reservationRepository.save(reservation);
+
+        // Send email notification
+        try {
+            String to = user.getEmail();
+            String subject = "Confirmarea rezervării";
+            String formattedDate = formatDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS").format(reservation.getDate()));
+            String text = String.format("""
+                            Dragă %s %s,
+
+                            Rezervarea ta pentru sala %s din data de %s de la ora %s la ora %s este confirmată.
+                            Pentru modificarea sau anularea rezervării, accesează pagina Rezervări -> Rezervările mele.
+
+                            Toate cele bune,
+                            Echipa CampusBooking""",
+                    user.getFirstname(), user.getLastname(), room.getName(), formattedDate, reservation.getStartTime(), reservation.getEndTime());
+            emailService.sendSimpleEmail(to, subject, text);
+        } catch (Exception e) {
+            // Handle the exception, e.g., log it
+            System.err.println("Failed to send email: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return savedReservation;
     }
 
     public void deleteReservation(Integer reservationId) {
