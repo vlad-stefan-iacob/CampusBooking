@@ -26,7 +26,6 @@ public class RoomRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // curăță baza de date înainte de fiecare test dacă vrei
     }
 
     @Test

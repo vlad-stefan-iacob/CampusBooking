@@ -37,10 +37,10 @@ public class AuthControllerTest {
     @WithMockUser(roles = "ADMIN")
     void testRegister_shouldReturnToken() throws Exception {
         RegisterRequest request = RegisterRequest.builder()
-                .firstname("John")
-                .lastname("Doe")
+                .firstname("Vlad")
+                .lastname("Iacob")
                 .faculty("CS")
-                .email("john@example.com")
+                .email("vlad@iacob.com")
                 .password("pass123")
                 .role(Role.STUDENT)
                 .build();
