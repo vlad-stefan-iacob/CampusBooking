@@ -60,28 +60,36 @@ public class AuthControllerTest {
 
     @Test
     void testAuthenticate_shouldReturnTokenAndUserInfo() throws Exception {
+        // construim un obiect AuthenticationRequest cu email si parola
         AuthenticationRequest request = AuthenticationRequest.builder()
-                .email("john@example.com")
+                .email("vlad@iacob.com")
                 .password("pass123")
                 .build();
 
+        // definim un răspuns simulat (mocked) pe care serviciul de autentificare ar trebui sa il returneze
         AuthenticationResponse response = AuthenticationResponse.builder()
                 .token("valid-jwt-token")
-                .firstName("John")
-                .lastName("Doe")
+                .firstName("Vlad")
+                .lastName("Iacob")
                 .faculty("CS")
                 .role(Role.STUDENT)
                 .id(1)
                 .build();
 
+        // configurăm comportamentul simulat al serviciului: cand se apeleaza authenticate cu orice request, returneaza raspunsul de mai sus
         Mockito.when(authService.authenticate(any(AuthenticationRequest.class))).thenReturn(response);
 
+        // executam o cerere POST catre endpoint-ul de autentificare cu corpul JSON corespunzator
         mockMvc.perform(post("/api/v1/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                // verificam ca raspunsul HTTP este 200 OK
                 .andExpect(status().isOk())
+                // verificam ca raspunsul contine token-ul asteptat
                 .andExpect(jsonPath("$.token").value("valid-jwt-token"))
-                .andExpect(jsonPath("$.firstName").value("John"))
+                // verificam ca numele returnat este corect
+                .andExpect(jsonPath("$.firstName").value("Vlad"))
+                // verificam ca rolul returnat este corect
                 .andExpect(jsonPath("$.role").value("STUDENT"));
     }
 }

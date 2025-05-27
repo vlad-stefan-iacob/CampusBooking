@@ -51,16 +51,20 @@ public class RoomRepositoryTest {
 
     @Test
     void testFindAvailableCapacity_shouldReturnCorrectValue() throws Exception {
+        // parsam data pentru care vom verifica disponibilitatea salii
         Date date = sdf.parse("2025-04-01");
 
+        // cream o sala fictiva (mock) cu 20 locuri, de tip sala de lectura
         Room room = new Room();
         room.setName("Sala L2");
         room.setType("SALA LECTURA");
         room.setCapacity(20);
         room.setLocation("Etaj 2");
 
+        // salvam sala in baza de date de tip H2
         room = roomRepository.save(room);
 
+        // cream o rezervare in acea sala, in aceeasi zi si interval orar
         Reservation reservation = new Reservation();
         reservation.setRoom(room);
         reservation.setDate(date);
@@ -68,10 +72,13 @@ public class RoomRepositoryTest {
         reservation.setEndTime("12:00");
         reservation.setCapacityReserved(5);
 
+        // salvam rezervarea in baza de date
         reservationRepository.save(reservation);
 
+        // apelam metoda din repository care trebuie sa calculeze cate locuri mai sunt disponibile
         Integer availableCapacity = roomRepository.findAvailableCapacity(room.getId(), date, "10:00", "12:00");
 
-        assertEquals(15, availableCapacity); // 20 - 5
+        // verificam daca rezultatul este corect: 20 total - 5 rezervate = 15 disponibile
+        assertEquals(15, availableCapacity);
     }
 }
