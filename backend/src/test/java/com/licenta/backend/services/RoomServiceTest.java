@@ -61,26 +61,39 @@ public class RoomServiceTest {
 
     @Test
     void testFindAvailableRooms_forAmfiteatruOrLaborator_shouldSkipCapacityQuery() throws Exception {
+        // definim o data si un interval orar pentru care vrem sa gasim sali disponibile
         Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2025-04-01");
         String startTime = "10:00";
         String endTime = "12:00";
 
+        // cream un obiect Room care simuleaza o sala de tip "AMFITEATRU"
         Room room = new Room();
         room.setId(2);
-        room.setType("AMFITEATRU");
+        room.setType("AMFITEATRU"); // tipul este esențial pentru logica testată
 
+        // cream un DTO care va fi returnat de converter (nu conține capacitate disponibila)
         RoomDTO dto = new RoomDTO();
         dto.setName("Amfiteatru 1");
 
+        // simulam comportamentul repository-ului: returneaza sala de tip AMFITEATRU ca fiind disponibila
         when(roomRepository.findAvailableRooms(date, startTime, endTime)).thenReturn(List.of(room));
+
+        // simulam conversia entitatii Room in DTO
         when(roomDTOConverter.convertToDTO(room)).thenReturn(dto);
 
+        // apelam metoda testata: ar trebui sa returneze sala dar sa nu caute capacitatea disponibila
         List<RoomDTO> result = roomService.findAvailableRooms(date, startTime, endTime);
 
+        // verificăm ca rezultatul contine exact o sala
         assertEquals(1, result.size());
-        assertEquals("Amfiteatru 1", result.get(0).getName());
-        assertNull(result.get(0).getAvailableCapacity()); // capacitatea nu este setată
 
+        // verificam ca numele salii este cel asteptat
+        assertEquals("Amfiteatru 1", result.get(0).getName());
+
+        // verificam ca sala NU are setata capacitatea disponibila — este ignorata pentru acest tip de sala
+        assertNull(result.get(0).getAvailableCapacity());
+
+        // verificam ca metoda de calcul al capacitatii nu a fost apelata (deoarece tipul salii nu o necesita)
         verify(roomRepository, never()).findAvailableCapacity(any(), any(), any(), any());
     }
 }
