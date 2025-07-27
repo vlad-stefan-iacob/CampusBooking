@@ -38,7 +38,7 @@ public class RoomControllerTest {
     @WithMockUser(roles = "ADMIN")
     @Test
     void testCheckDuplicateName_shouldReturnFalse() throws Exception {
-        String roomName = "Sala Noua"; // asigură-te că acest nume NU există în baza de date reală de test
+        String roomName = "Sala Noua";
 
         mockMvc.perform(get("/api/v1/rooms/check-duplicate-name/{name}", roomName))
                 .andExpect(status().isOk())
@@ -60,7 +60,7 @@ public class RoomControllerTest {
 
         Mockito.when(roomService.findAvailableRooms(
                 dto.getDate(), dto.getStartTime(), dto.getEndTime()
-        )).thenReturn(List.of(roomDTO)); // ✅ NE-GOALĂ!
+        )).thenReturn(List.of(roomDTO));
 
         mockMvc.perform(post("/api/v1/rooms/check-availability")
                         .contentType(MediaType.APPLICATION_JSON)
