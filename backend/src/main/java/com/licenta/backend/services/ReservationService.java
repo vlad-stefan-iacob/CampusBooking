@@ -11,6 +11,10 @@ import com.licenta.backend.exceptions.UserNotFoundException;
 import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
 import com.licenta.backend.repositories.UserRepository;
+import com.licenta.backend.scheduling.FCFSScheduler;
+import com.licenta.backend.scheduling.PriorityScheduler;
+import com.licenta.backend.scheduling.RoundRobinScheduler;
+import com.licenta.backend.scheduling.SchedulingAlgorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 
 @Service
@@ -67,44 +72,100 @@ public class ReservationService {
             return null;
         }
     }
+
+    private final Map<String, SchedulingAlgorithm> algorithmMap = Map.of(
+            "SALA LECTURA", new FCFSScheduler(),
+            "LABORATOR", new RoundRobinScheduler(),
+            "AMFITEATRU", new PriorityScheduler()
+    );
+
     public Reservation insertReservation(ReservationDTO reservationDTO) {
+
+        // Construim rezervarea (fără a o salva încă)
         Reservation reservation = new Reservation();
         reservation.setDate(reservationDTO.getDate());
         reservation.setStartTime(reservationDTO.getStartTime());
         reservation.setEndTime(reservationDTO.getEndTime());
-        reservation.setReservationDateTime(new Date()); // Assuming current date/time for reservation creation
+        reservation.setReservationDateTime(new Date());
         reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
 
-        // Retrieve User entity
-        User user = userRepository.findById(reservationDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Retrieve Room entity
         Room room = roomRepository.findById(reservationDTO.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        if ("AMFITEATRU".equalsIgnoreCase(room.getType())) {
+
+            // stabilește prioritatea (exemplu simplu)
+            int priority;
+            switch (reservationDTO.getEventType()) { // adaptează dacă numele diferă
+                case "CURS" -> priority = 1;
+                case "EXAMEN" -> priority = 2;
+                case "EVENIMENT" -> priority = 3;
+                default -> priority = 4;
+            }
+
+            reservation.setPriority(priority);
+            reservation.setStatus("PENDING");
+
+            // NU aplicăm niciun algoritm aici
+            return reservationRepository.save(reservation);
+        }
+
+        // User
+        User user = userRepository.findById(reservationDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         reservation.setUser(user);
         reservation.setRoom(room);
 
+        // Obținem rezervările existente pentru aceeași sală și dată
+        List<Reservation> existingReservations =
+                reservationRepository.findByRoomIdAndDate(room.getId(), reservationDTO.getDate());
+
+        // Selectăm algoritmul în funcție de tipul sălii
+        SchedulingAlgorithm scheduler =
+                algorithmMap.get(room.getType().toUpperCase());
+
+        if (scheduler == null) {
+            throw new RuntimeException("Nu există algoritm asociat tipului de sală: " + room.getType());
+        }
+
+        // Aplicăm algoritmul
+        boolean allowed = scheduler.isReservationAllowed(existingReservations, reservation);
+
+        if (!allowed) {
+            throw new RuntimeException("Rezervarea nu poate fi efectuată din cauza unui conflict de programare.");
+        }
+
+        // Salvăm rezervarea DOAR dacă este permisă
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // Send email notification
+        // Trimitere email (rămâne neschimbată)
         try {
             String to = user.getEmail();
             String subject = "Confirmarea rezervării";
-            String formattedDate = formatDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS").format(reservation.getDate()));
+            String formattedDate = formatDate(
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS").format(reservation.getDate())
+            );
+
             String text = String.format("""
-                            Dragă %s %s,
+                        Dragă %s %s,
 
-                            Rezervarea ta pentru sala %s din data de %s de la ora %s la ora %s este confirmată.
-                            Pentru modificarea sau anularea rezervării, accesează pagina Rezervări -> Rezervările mele.
+                        Rezervarea ta pentru sala %s din data de %s de la ora %s la ora %s este confirmată.
+                        Pentru modificarea sau anularea rezervării, accesează pagina Rezervări -> Rezervările mele.
 
-                            Toate cele bune,
-                            Echipa CampusBooking""",
-                    user.getFirstname(), user.getLastname(), room.getName(), formattedDate, reservation.getStartTime(), reservation.getEndTime());
+                        Toate cele bune,
+                        Echipa CampusBooking""",
+                    user.getFirstname(),
+                    user.getLastname(),
+                    room.getName(),
+                    formattedDate,
+                    reservation.getStartTime(),
+                    reservation.getEndTime()
+            );
+
             emailService.sendSimpleEmail(to, subject, text);
+
         } catch (Exception e) {
-            // Handle the exception, e.g., log it
             System.err.println("Failed to send email: " + e.getMessage());
             e.printStackTrace();
         }

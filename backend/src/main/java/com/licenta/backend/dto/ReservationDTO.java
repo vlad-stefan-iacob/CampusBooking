@@ -20,4 +20,7 @@ public class ReservationDTO {
     private String endTime;
     private Date reservationDateTime;
     private Integer capacityReserved = 1;
+    private Integer priority;
+    private String status;
+    private String eventType;
 }
