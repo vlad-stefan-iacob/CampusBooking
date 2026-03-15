@@ -2,19 +2,29 @@ package com.licenta.backend.services;
 
 import com.licenta.backend.converter.RoomDTOConverter;
 import com.licenta.backend.dto.RoomDTO;
-import com.licenta.backend.dto.UserDTO;
+import com.licenta.backend.entities.Reservation;
 import com.licenta.backend.entities.Room;
-import com.licenta.backend.entities.User;
 import com.licenta.backend.exceptions.RoomNotFoundException;
+import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
+import com.licenta.backend.scheduling.FCFSScheduler;
+import com.licenta.backend.scheduling.PriorityScheduler;
+import com.licenta.backend.scheduling.RoundRobinScheduler;
+import com.licenta.backend.scheduling.SchedulingAlgorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,7 +37,16 @@ public class RoomService {
     private RoomRepository roomRepository;
 
     @Autowired
+    private ReservationRepository reservationRepository;
+
+    @Autowired
     private RoomDTOConverter roomDTOConverter;
+
+    private final Map<String, SchedulingAlgorithm> algorithmMap = Map.of(
+            "SALA LECTURA", new FCFSScheduler(),
+            "LABORATOR", new RoundRobinScheduler(),
+            "AMFITEATRU", new PriorityScheduler()
+    );
 
     public List<RoomDTO> getAllRooms(){
         List<Room> rooms = roomRepository.findAll();
@@ -67,15 +86,69 @@ public class RoomService {
     }
 
     public List<RoomDTO> findAvailableRooms(Date date, String startTime, String endTime) {
-        List<Room> rooms = roomRepository.findAvailableRooms(date, startTime, endTime);
-        return rooms.stream().map(room -> {
-            RoomDTO roomDTO = roomDTOConverter.convertToDTO(room);
-            if ("SALA LECTURA".equals(room.getType())) {
-                Integer availableCapacity = roomRepository.findAvailableCapacity(room.getId(), date, startTime, endTime);
-                roomDTO.setAvailableCapacity(availableCapacity);
+        Date normalizedDate = normalizeDate(date);
+        List<Room> rooms = roomRepository.findAll();
+        List<RoomDTO> available = new ArrayList<>();
+
+        for (Room room : rooms) {
+            List<Reservation> existing = reservationRepository.findByRoomIdAndDate(room.getId(), normalizedDate);
+
+            Reservation candidate = new Reservation();
+            candidate.setDate(normalizedDate);
+            candidate.setStartTime(startTime);
+            candidate.setEndTime(endTime);
+            candidate.setRoom(room);
+            if ("SALA LECTURA".equalsIgnoreCase(room.getType())) {
+                candidate.setCapacityReserved(1);
+            } else {
+                candidate.setCapacityReserved(room.getCapacity());
             }
-            return roomDTO;
-        }).collect(Collectors.toList());
+
+            SchedulingAlgorithm scheduler = algorithmMap.get(room.getType().toUpperCase());
+            boolean allowed = scheduler == null || scheduler.isReservationAllowed(existing, candidate);
+            if (!allowed) {
+                continue;
+            }
+
+            RoomDTO roomDTO = roomDTOConverter.convertToDTO(room);
+            if ("SALA LECTURA".equalsIgnoreCase(room.getType())) {
+                roomDTO.setAvailableCapacity(
+                        computeAvailableCapacity(room, existing, startTime, endTime)
+                );
+            }
+            available.add(roomDTO);
+        }
+
+        return available;
+    }
+
+    private int computeAvailableCapacity(Room room, List<Reservation> existing, String startTime, String endTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime requestedStart = LocalTime.parse(startTime, formatter);
+        LocalTime requestedEnd = LocalTime.parse(endTime, formatter);
+
+        int totalReserved = 0;
+        for (Reservation reservation : existing) {
+            LocalTime rStart = LocalTime.parse(reservation.getStartTime(), formatter);
+            LocalTime rEnd = LocalTime.parse(reservation.getEndTime(), formatter);
+            boolean overlap = rStart.isBefore(requestedEnd) && requestedStart.isBefore(rEnd);
+            if (overlap) {
+                totalReserved += reservation.getCapacityReserved();
+            }
+        }
+
+        int available = room.getCapacity() - totalReserved;
+        return Math.max(available, 0);
+    }
+
+    private Date normalizeDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+        LocalDate localDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
 }

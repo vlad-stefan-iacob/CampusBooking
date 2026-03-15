@@ -335,7 +335,7 @@ function Rooms() {
     const filteredEndTimeOptions = startTime ? timeOptions.filter(time => time > startTime) : [];
     const handleReserve = (room) => {
         // Navighează către pagina de rezervări cu datele necesare
-        navigate(`/reservations?date=${selectedDate}&startTime=${startTime}&endTime=${endTime}&roomId=${room.id}&name=${room.name}`);
+        navigate(`/reservations?date=${selectedDate}&startTime=${startTime}&endTime=${endTime}&roomId=${room.id}&name=${room.name}&roomType=${room.type}`);
     };
 
     const checkRoomAvailability = async () => {

@@ -30,8 +30,9 @@ public class ReservationController {
     RoomRepository roomRepository;
 
     @PostMapping("/add-reservation")
-    public Reservation createReservation(@RequestBody ReservationDTO reservationDTO){
-        return reservationService.insertReservation(reservationDTO);
+    public ReservationDTO createReservation(@RequestBody ReservationDTO reservationDTO){
+        Reservation saved = reservationService.insertReservation(reservationDTO);
+        return ReservationDTOConverter.convertToDTO(saved);
     }
     @GetMapping("/all-reservations")
     public List<ReservationDTO> getAllReservations(){

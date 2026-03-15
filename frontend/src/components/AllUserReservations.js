@@ -112,6 +112,7 @@ function AllUserReservations() {
                             const roomData = await roomResponse.json();
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
+                            reservation.roomType = roomData[0].type;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -297,6 +298,7 @@ function AllUserReservations() {
                             const roomData = await roomResponse.json();
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
+                            reservation.roomType = roomData[0].type;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -368,6 +370,7 @@ function AllUserReservations() {
                             const roomData = await roomResponse.json();
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
+                            reservation.roomType = roomData[0].type;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -451,6 +454,7 @@ function AllUserReservations() {
                                     <th>Sala</th>
                                     <th>Oră început</th>
                                     <th>Oră sfârșit</th>
+                                    <th>Status</th>
                                     <th>Rezervare creată la data de</th>
                                     {showFuture && <th>Acțiuni</th>}
                                 </tr>
@@ -463,6 +467,7 @@ function AllUserReservations() {
                                             <td>{reservation.roomName}</td>
                                             <td>{reservation.startTime}</td>
                                             <td>{reservation.endTime}</td>
+                                            <td>{reservation.roomType === "AMFITEATRU" ? (reservation.status || "-") : "-"}</td>
                                             <td>{reservation.reservationDateTime}</td>
                                             <td>
                                                 <button type="button" className="btn btn-danger"
@@ -483,6 +488,7 @@ function AllUserReservations() {
                                             <td>{reservation.roomName}</td>
                                             <td>{reservation.startTime}</td>
                                             <td>{reservation.endTime}</td>
+                                            <td>{reservation.roomType === "AMFITEATRU" ? (reservation.status || "-") : "-"}</td>
                                             <td>{reservation.reservationDateTime}</td>
                                         </tr>
                                     ))

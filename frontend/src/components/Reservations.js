@@ -15,6 +15,8 @@ function Reservation() {
         date: "",
         startTime: "",
         endTime: "",
+        capacityReserved: 1,
+        eventType: "CURS",
         // status: "",
         reservationDateTime: new Date().toISOString() // Set the current date and time
     });
@@ -25,6 +27,11 @@ function Reservation() {
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
     const [temporaryPermissions, setTemporaryPermissions] = useState([]);
+
+    const selectedRoom = reservation.roomId
+        ? rooms.find(room => room.id === Number(reservation.roomId))
+        : null;
+    const resolvedRoomType = reservation.roomType || selectedRoom?.type;
 
     const onAllUserReservations = () => {
         navigate('/my-reservations');
@@ -56,6 +63,34 @@ function Reservation() {
         if (!reservation.roomId) {
             formIsValid = false;
             newErrors.roomId = "Selectați o sală!";
+        }
+
+        if (resolvedRoomType === "SALA LECTURA") {
+            const maxCapacity = selectedRoom?.availableCapacity ?? selectedRoom?.capacity;
+            if (!reservation.capacityReserved || reservation.capacityReserved < 1) {
+                formIsValid = false;
+                newErrors.capacityReserved = "Introduceți numărul de locuri!";
+            } else if (maxCapacity != null && reservation.capacityReserved > maxCapacity) {
+                formIsValid = false;
+                newErrors.capacityReserved = `Maxim ${maxCapacity} locuri disponibile.`;
+            }
+        }
+
+        if (resolvedRoomType === "AMFITEATRU" && !reservation.eventType) {
+            formIsValid = false;
+            newErrors.eventType = "Selectați tipul evenimentului!";
+        }
+
+        if (resolvedRoomType === "LABORATOR" && reservation.startTime && reservation.endTime) {
+            const toMinutes = (time) => {
+                const [h, m] = time.split(":").map(Number);
+                return h * 60 + m;
+            };
+            const duration = toMinutes(reservation.endTime) - toMinutes(reservation.startTime);
+            if (duration < 120) {
+                formIsValid = false;
+                newErrors.endTime = "Intervalul minim pentru laborator este de 2 ore.";
+            }
         }
 
         setErrors(newErrors);
@@ -126,7 +161,7 @@ function Reservation() {
         };
 
         fetchAvailableRooms();
-    }, [reservation.date, reservation.startTime, reservation.endTime, reservation]); // React to changes in these fields
+    }, [reservation.date, reservation.startTime, reservation.endTime]); // React to changes in these fields
 
     const filteredRooms = rooms.filter((room) => {
         if (role === 'ADMIN') {
@@ -151,18 +186,21 @@ function Reservation() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setReservation(prevReservation => {
+            const parsedValue = name === "capacityReserved" ? Number(value) : value;
             // Check if the modified field is date, startTime, or endTime
             if (['date', 'startTime', 'endTime'].includes(name) && prevReservation.roomId) {
                 // If changing date/time, reset roomId
                 return {
                     ...prevReservation,
-                    [name]: value,
-                    roomId: ""
+                    [name]: parsedValue,
+                    roomId: "",
+                    roomType: "",
+                    capacityReserved: 1
                 };
             }
             return {
                 ...prevReservation,
-                [name]: value
+                [name]: parsedValue
             };
         });
 
@@ -181,10 +219,24 @@ function Reservation() {
         }
         try {
             const token = getAuthToken();
-            // Utilizează direct tipul sălii stocat în starea rezervării
-            let url = reservation.roomType === 'SALA LECTURA'
-                ? `http://localhost:8080/api/v1/reservations/reserve-reading-room/${reservation.roomId}`
-                : "http://localhost:8080/api/v1/reservations/add-reservation";
+            // Trimite mereu către endpoint-ul care aplică algoritmul aferent tipului de sală
+            const url = "http://localhost:8080/api/v1/reservations/add-reservation";
+
+            const capacityReserved =
+                resolvedRoomType === "SALA LECTURA"
+                    ? Number(reservation.capacityReserved || 1)
+                    : (selectedRoom?.capacity || reservation.capacityReserved || 1);
+
+            const payload = {
+                userId: reservation.userId,
+                roomId: reservation.roomId,
+                date: reservation.date,
+                startTime: reservation.startTime,
+                endTime: reservation.endTime,
+                reservationDateTime: reservation.reservationDateTime,
+                capacityReserved,
+                eventType: resolvedRoomType === "AMFITEATRU" ? reservation.eventType : null
+            };
 
             const response = await fetch(url, {
                 method: "POST",
@@ -192,17 +244,29 @@ function Reservation() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(reservation),
+                body: JSON.stringify(payload),
             });
             if (response.ok) {
+                const data = await response.json();
                 // Rezervare adăugată cu succes
                 console.log("Reservation inserted successfully");
-                setSuccessMessage("Rezervare adăugată cu succes!");
+                if (resolvedRoomType === "LABORATOR") {
+                    setSuccessMessage(
+                        `Rezervare adăugată. Interval alocat: ${data.startTime} - ${data.endTime}.`
+                    );
+                } else if (resolvedRoomType === "AMFITEATRU") {
+                    setSuccessMessage("Cererea a fost înregistrată cu status PENDING.");
+                } else {
+                    setSuccessMessage("Rezervare adăugată cu succes!");
+                }
                 setReservation({
+                    userId: id,
                     roomId: "",
                     date: "",
                     startTime: "",
                     endTime: "",
+                    capacityReserved: 1,
+                    eventType: "CURS",
                     reservationDateTime: new Date().toISOString()
                 });
                 setErrors({});
@@ -226,7 +290,8 @@ function Reservation() {
             setReservation(prev => ({
                 ...prev,
                 roomId: room.id,
-                roomType: room.type  // Stocăm și tipul sălii
+                roomType: room.type,  // Stocăm și tipul sălii
+                capacityReserved: room.type === "SALA LECTURA" ? prev.capacityReserved || 1 : room.capacity
             }));
             setErrors(prev => ({
                 ...prev,
@@ -271,6 +336,7 @@ function Reservation() {
         const endTime = searchParams.get('endTime');
         const roomId = searchParams.get('roomId');
         const name = searchParams.get('name');
+        const roomType = searchParams.get('roomType');
 
         if (date && startTime && endTime && roomId) {
             setReservation(prev => ({
@@ -278,11 +344,38 @@ function Reservation() {
                 date: date,
                 startTime: startTime,
                 endTime: endTime,
-                roomId: roomId,
-                name: name
+                roomId: Number(roomId),
+                name: name,
+                roomType: roomType || prev.roomType
             }));
         }
     }, [location]);
+
+    useEffect(() => {
+        if (!selectedRoom) {
+            return;
+        }
+        setReservation(prev => {
+            const next = { ...prev };
+            let changed = false;
+
+            if (prev.roomType !== selectedRoom.type) {
+                next.roomType = selectedRoom.type;
+                changed = true;
+            }
+            if (selectedRoom.type === "SALA LECTURA") {
+                if (!prev.capacityReserved || prev.capacityReserved < 1) {
+                    next.capacityReserved = 1;
+                    changed = true;
+                }
+            } else if (prev.capacityReserved !== selectedRoom.capacity) {
+                next.capacityReserved = selectedRoom.capacity;
+                changed = true;
+            }
+
+            return changed ? next : prev;
+        });
+    }, [selectedRoom]);
 
     return (
         <div className="Reservation">
@@ -308,6 +401,12 @@ function Reservation() {
                         <div>
                             <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip AMFITEATRU și LABORATOR se rezervă doar integral.</p>
                             <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip SALA LECTURA se rezervă pe baza numărului de locuri disponibile.</p>
+                            {resolvedRoomType === "LABORATOR" && (
+                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru LABORATOR, algoritmul Round Robin poate aloca primul slot liber de 2 ore din intervalul selectat.</p>
+                            )}
+                            {resolvedRoomType === "AMFITEATRU" && (
+                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru AMFITEATRU, cererea este înregistrată cu status PENDING și se procesează pe baza priorității evenimentului.</p>
+                            )}
                         </div>
                         <hr style={{ backgroundColor: 'black', height: '1px', marginTop: '0px', marginBottom:'5px'}} />
                         {successMessage && <div className="alert alert-success">{successMessage}</div>}
@@ -411,6 +510,41 @@ function Reservation() {
                                     </div>
                                     {errors.roomId && <div className="error-message">{errors.roomId}</div>}
                                 </div>
+                                {resolvedRoomType === "SALA LECTURA" && (
+                                    <div className="form-group">
+                                        <label htmlFor="capacityReserved">Locuri rezervate</label>
+                                        <input
+                                            type="number"
+                                            className={`form-control ${errors.capacityReserved ? 'is-invalid' : ''}`}
+                                            id="capacityReserved"
+                                            name="capacityReserved"
+                                            min="1"
+                                            max={selectedRoom?.availableCapacity || selectedRoom?.capacity || 1}
+                                            value={reservation.capacityReserved}
+                                            onChange={handleInputChange}
+                                        />
+                                        {errors.capacityReserved && <div className="error-message">{errors.capacityReserved}</div>}
+                                    </div>
+                                )}
+                                {resolvedRoomType === "AMFITEATRU" && (
+                                    <div className="form-group">
+                                        <label htmlFor="eventType">Tip eveniment</label>
+                                        <select
+                                            className={`form-control ${errors.eventType ? 'is-invalid' : ''}`}
+                                            id="eventType"
+                                            name="eventType"
+                                            value={reservation.eventType || ""}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="" disabled>selecteaza</option>
+                                            <option value="CURS">Curs</option>
+                                            <option value="EXAMEN">Examen</option>
+                                            <option value="EVENIMENT">Eveniment</option>
+                                            <option value="ALTELE">Altele</option>
+                                        </select>
+                                        {errors.eventType && <div className="error-message">{errors.eventType}</div>}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <button onClick={handleInsertReservation} className="btn btn-primary"

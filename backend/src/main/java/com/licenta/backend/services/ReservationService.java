@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -83,32 +85,17 @@ public class ReservationService {
 
         // Construim rezervarea (fără a o salva încă)
         Reservation reservation = new Reservation();
-        reservation.setDate(reservationDTO.getDate());
+        Date normalizedDate = normalizeDate(reservationDTO.getDate());
+        reservation.setDate(normalizedDate);
         reservation.setStartTime(reservationDTO.getStartTime());
         reservation.setEndTime(reservationDTO.getEndTime());
         reservation.setReservationDateTime(new Date());
-        reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
+        reservation.setCapacityReserved(
+                reservationDTO.getCapacityReserved() != null ? reservationDTO.getCapacityReserved() : 1
+        );
 
         Room room = roomRepository.findById(reservationDTO.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-
-        if ("AMFITEATRU".equalsIgnoreCase(room.getType())) {
-
-            // stabilește prioritatea (exemplu simplu)
-            int priority;
-            switch (reservationDTO.getEventType()) { // adaptează dacă numele diferă
-                case "CURS" -> priority = 1;
-                case "EXAMEN" -> priority = 2;
-                case "EVENIMENT" -> priority = 3;
-                default -> priority = 4;
-            }
-
-            reservation.setPriority(priority);
-            reservation.setStatus("PENDING");
-
-            // NU aplicăm niciun algoritm aici
-            return reservationRepository.save(reservation);
-        }
 
         // User
         User user = userRepository.findById(reservationDTO.getUserId())
@@ -117,9 +104,34 @@ public class ReservationService {
         reservation.setUser(user);
         reservation.setRoom(room);
 
+        if ("AMFITEATRU".equalsIgnoreCase(room.getType())) {
+
+            // stabilește prioritatea (exemplu simplu)
+            int priority;
+            String eventType = reservationDTO.getEventType();
+            switch (eventType != null ? eventType : "") { // adaptează dacă numele diferă
+                case "CURS" -> priority = 1;
+                case "EXAMEN" -> priority = 2;
+                case "EVENIMENT" -> priority = 3;
+                default -> priority = 4;
+            }
+
+            reservation.setEventType(eventType);
+            reservation.setPriority(priority);
+            reservation.setStatus("PENDING");
+            reservation.setCapacityReserved(room.getCapacity());
+
+            // NU aplicăm niciun algoritm aici
+            return reservationRepository.save(reservation);
+        }
+
+        if (!"SALA LECTURA".equalsIgnoreCase(room.getType())) {
+            reservation.setCapacityReserved(room.getCapacity());
+        }
+
         // Obținem rezervările existente pentru aceeași sală și dată
         List<Reservation> existingReservations =
-                reservationRepository.findByRoomIdAndDate(room.getId(), reservationDTO.getDate());
+                reservationRepository.findByRoomIdAndDate(room.getId(), normalizedDate);
 
         // Selectăm algoritmul în funcție de tipul sălii
         SchedulingAlgorithm scheduler =
@@ -134,6 +146,10 @@ public class ReservationService {
 
         if (!allowed) {
             throw new RuntimeException("Rezervarea nu poate fi efectuată din cauza unui conflict de programare.");
+        }
+
+        if (scheduler instanceof RoundRobinScheduler roundRobinScheduler) {
+            roundRobinScheduler.applyScheduling(existingReservations, reservation);
         }
 
         // Salvăm rezervarea DOAR dacă este permisă
@@ -196,7 +212,17 @@ public class ReservationService {
     }
 
     public Integer checkAvailableCapacity(Integer roomId, Date date, String startTime, String endTime) {
-        return roomRepository.findAvailableCapacity(roomId, date, startTime, endTime);
+        return roomRepository.findAvailableCapacity(roomId, normalizeDate(date), startTime, endTime);
+    }
+
+    private Date normalizeDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+        LocalDate localDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
 }

@@ -57,6 +57,8 @@ public class ReservationServiceTest {
         Room room = new Room();
         room.setId(1);
         room.setName("Sala L1");
+        room.setType("SALA LECTURA");
+        room.setCapacity(20);
 
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(roomRepository.findById(1)).thenReturn(Optional.of(room));

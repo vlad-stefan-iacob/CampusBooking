@@ -19,6 +19,9 @@ public class ReservationDTOConverter {
                 .endTime(reservation.getEndTime())
                 .reservationDateTime(reservation.getReservationDateTime())
                 .capacityReserved(reservation.getCapacityReserved())
+                .priority(reservation.getPriority())
+                .status(reservation.getStatus())
+                .eventType(reservation.getEventType())
                 .build();
     }
 
@@ -32,7 +35,9 @@ public class ReservationDTOConverter {
                 .endTime(dto.getEndTime())
                 .reservationDateTime(dto.getReservationDateTime())
                 .capacityReserved(dto.getCapacityReserved()) // Include reserved capacity
+                .priority(dto.getPriority())
+                .status(dto.getStatus())
+                .eventType(dto.getEventType())
                 .build();
     }
 }
-
