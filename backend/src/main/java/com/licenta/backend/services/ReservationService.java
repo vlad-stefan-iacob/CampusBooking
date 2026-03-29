@@ -86,9 +86,11 @@ public class ReservationService {
         // Construim rezervarea (fără a o salva încă)
         Reservation reservation = new Reservation();
         Date normalizedDate = normalizeDate(reservationDTO.getDate());
+        String requestedStartTime = reservationDTO.getStartTime();
+        String requestedEndTime = reservationDTO.getEndTime();
         reservation.setDate(normalizedDate);
-        reservation.setStartTime(reservationDTO.getStartTime());
-        reservation.setEndTime(reservationDTO.getEndTime());
+        reservation.setStartTime(requestedStartTime);
+        reservation.setEndTime(requestedEndTime);
         reservation.setReservationDateTime(new Date());
         reservation.setCapacityReserved(
                 reservationDTO.getCapacityReserved() != null ? reservationDTO.getCapacityReserved() : 1
@@ -118,7 +120,7 @@ public class ReservationService {
 
             reservation.setEventType(eventType);
             reservation.setPriority(priority);
-            reservation.setStatus("PENDING");
+            reservation.setStatus("ASTEPTARE");
             reservation.setCapacityReserved(room.getCapacity());
 
             // NU aplicăm niciun algoritm aici
@@ -150,6 +152,15 @@ public class ReservationService {
 
         if (scheduler instanceof RoundRobinScheduler roundRobinScheduler) {
             roundRobinScheduler.applyScheduling(existingReservations, reservation);
+        }
+
+        if ("LABORATOR".equalsIgnoreCase(room.getType())) {
+            boolean partial =
+                    !requestedStartTime.equals(reservation.getStartTime())
+                            || !requestedEndTime.equals(reservation.getEndTime());
+            reservation.setStatus(partial ? "APROBATA PARTIAL" : "APROBATA");
+        } else if ("SALA LECTURA".equalsIgnoreCase(room.getType())) {
+            reservation.setStatus("APROBATA");
         }
 
         // Salvăm rezervarea DOAR dacă este permisă

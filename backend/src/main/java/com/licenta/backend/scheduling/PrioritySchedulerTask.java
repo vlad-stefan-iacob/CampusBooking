@@ -22,15 +22,18 @@ public class PrioritySchedulerTask {
     private final PriorityScheduler scheduler = new PriorityScheduler();
     private static final Logger logger = LoggerFactory.getLogger(PrioritySchedulerTask.class);
 
-    @Scheduled(cron = "0 0 18 * * *", zone = "Europe/Bucharest") // ruleaza in fiecare zi la 18:00
+    @Scheduled(cron = "0 * * * * *", zone = "Europe/Bucharest") // ruleaza in fiecare minut
     public void runPriorityScheduling() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         ZoneId zoneId = ZoneId.systemDefault();
         Date startOfDay = Date.from(tomorrow.atStartOfDay(zoneId).toInstant());
         Date endOfDay = Date.from(tomorrow.plusDays(1).atStartOfDay(zoneId).toInstant());
 
-        List<Reservation> pending = reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "PENDING");
-        List<Reservation> accepted = reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "ACCEPTED");
+        List<Reservation> pending = reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "ASTEPTARE");
+        pending.addAll(reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "PENDING"));
+
+        List<Reservation> accepted = reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "APROBATA");
+        accepted.addAll(reservationRepository.findByDateRangeAndStatus(startOfDay, endOfDay, "ACCEPTED"));
 
         logger.info("PrioritySchedulerTask start: targetDate={}, pending={}, accepted={}",
                 startOfDay, pending.size(), accepted.size());
@@ -48,8 +51,8 @@ public class PrioritySchedulerTask {
         scheduler.applyScheduling(pending, accepted);
         reservationRepository.saveAll(pending);
 
-        long acceptedCount = pending.stream().filter(r -> "ACCEPTED".equals(r.getStatus())).count();
-        long rejectedCount = pending.stream().filter(r -> "REJECTED".equals(r.getStatus())).count();
+        long acceptedCount = pending.stream().filter(r -> "APROBATA".equals(r.getStatus())).count();
+        long rejectedCount = pending.stream().filter(r -> "RESPINSA".equals(r.getStatus())).count();
         logger.info("PrioritySchedulerTask end: accepted={}, rejected={}", acceptedCount, rejectedCount);
     }
 }

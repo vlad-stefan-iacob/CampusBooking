@@ -203,6 +203,14 @@ function AllUserReservations() {
         return false;
     });
 
+    const normalizeStatus = (status) => {
+        if (!status) return status;
+        if (status === "ACCEPTED") return "APROBATA";
+        if (status === "REJECTED") return "RESPINSA";
+        if (status === "PENDING") return "ASTEPTARE";
+        return status;
+    };
+
     // Function to format date (day-month-year)
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -306,6 +314,7 @@ function AllUserReservations() {
                         // Format date and time strings
                         reservation.date = formatDate(reservation.date);
                         reservation.reservationDateTime = formatDateAndTime(reservation.reservationDateTime);
+                        reservation.status = normalizeStatus(reservation.status);
                         return reservation;
                     }));
                     setReservations(formattedData);
@@ -415,7 +424,7 @@ function AllUserReservations() {
             <Navbar/>
             <div className="background-home p-4 justify-content-center align-items-center">
                 <div className="container">
-                    <div className="card p-4">
+                    <div className="card p-4" style={{maxWidth: 'none', width: '120%'}}>
                         <h4 className="card-title text-center mb-4">Rezervările mele</h4>
                         <ul className="nav nav-tabs">
                             <li className="nav-item">
@@ -447,15 +456,15 @@ function AllUserReservations() {
                             {/* Add more tabs as needed */}
                         </ul>
                         <div className="table-responsive"> {/* Make the table responsive */}
-                            <table className="table table-bordered">
+                            <table className="table table-bordered" style={{tableLayout: 'fixed'}}>
                                 <thead>
                                 <tr style={{background: "#D0C6C3"}}>
-                                    <th>Data rezervării</th>
-                                    <th>Sala</th>
-                                    <th>Oră început</th>
-                                    <th>Oră sfârșit</th>
-                                    <th>Status</th>
-                                    <th>Rezervare creată la data de</th>
+                                    <th style={{width: '14%'}}>Data rezervării</th>
+                                    <th style={{width: '8%'}}>Sala</th>
+                                    <th style={{width: '11%'}}>Oră început</th>
+                                    <th style={{width: '11%'}}>Oră sfârșit</th>
+                                    <th style={{width: '14%'}}>Status</th>
+                                    <th style={{width: '24%'}}>Rezervare creată la data de</th>
                                     {showFuture && <th>Acțiuni</th>}
                                 </tr>
                                 </thead>
@@ -463,12 +472,12 @@ function AllUserReservations() {
                                 {showFuture ? (
                                     futureReservations.map(reservation => (
                                         <tr key={reservation.id}>
-                                            <td>{reservation.date}</td>
-                                            <td>{reservation.roomName}</td>
-                                            <td>{reservation.startTime}</td>
-                                            <td>{reservation.endTime}</td>
-                                            <td>{reservation.roomType === "AMFITEATRU" ? (reservation.status || "-") : "-"}</td>
-                                            <td>{reservation.reservationDateTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.date}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.roomName}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.startTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.endTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.status || "-"}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
                                             <td>
                                                 <button type="button" className="btn btn-danger"
                                                         onClick={() => deleteReservation(reservation)}>
@@ -484,12 +493,12 @@ function AllUserReservations() {
                                 ) : (
                                     pastReservations.map(reservation => (
                                         <tr key={reservation.id}>
-                                            <td>{reservation.date}</td>
-                                            <td>{reservation.roomName}</td>
-                                            <td>{reservation.startTime}</td>
-                                            <td>{reservation.endTime}</td>
-                                            <td>{reservation.roomType === "AMFITEATRU" ? (reservation.status || "-") : "-"}</td>
-                                            <td>{reservation.reservationDateTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.date}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.roomName}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.startTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.endTime}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.status || "-"}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
                                         </tr>
                                     ))
                                 )}

@@ -107,6 +107,7 @@ function AllReservations() {
                         // Format date and time strings
                         reservation.date = formatDate(reservation.date);
                         reservation.reservationDateTime = formatDateAndTime(reservation.reservationDateTime);
+                        reservation.status = normalizeStatus(reservation.status);
                         return reservation;
                     }));
                     setReservations(formattedData);
@@ -189,6 +190,14 @@ function AllReservations() {
 
         return false;
     });
+
+    const normalizeStatus = (status) => {
+        if (!status) return status;
+        if (status === "ACCEPTED") return "APROBATA";
+        if (status === "REJECTED") return "RESPINSA";
+        if (status === "PENDING") return "ASTEPTARE";
+        return status;
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);

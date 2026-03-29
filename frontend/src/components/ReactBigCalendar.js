@@ -57,7 +57,11 @@ export default function ReactBigCalendar() {
                     throw new Error('Failed to fetch reservations');
                 }
                 const reservations = await response.json();
-                const eventsWithRoomNames = await Promise.all(reservations.map(async reservation => {
+                const approvedStatuses = new Set(["APROBATA", "APROBATA PARTIAL", "ACCEPTED"]);
+                const approvedReservations = reservations.filter(reservation =>
+                    approvedStatuses.has(reservation.status)
+                );
+                const eventsWithRoomNames = await Promise.all(approvedReservations.map(async reservation => {
                     try {
                         const roomResponse = await fetch(`http://localhost:8080/api/v1/rooms/room/${reservation.roomId}`, { headers });
                         if (!roomResponse.ok) {
@@ -71,7 +75,16 @@ export default function ReactBigCalendar() {
                         const roomDetails = await roomResponse.json();
                         const userDetails = await userResponse.json();
 
-                        const [year, month, day] = reservation.date.split('-').map(num => parseInt(num, 10));
+                        const reservationDate = new Date(reservation.date);
+                        let year = reservationDate.getFullYear();
+                        let month = reservationDate.getMonth();
+                        let day = reservationDate.getDate();
+                        if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+                            const [fallbackYear, fallbackMonth, fallbackDay] = reservation.date.split('-').map(num => parseInt(num, 10));
+                            year = fallbackYear;
+                            month = fallbackMonth - 1;
+                            day = fallbackDay;
+                        }
                         const [startHour, startMinute] = reservation.startTime.split(':').map(num => parseInt(num, 10));
                         const [endHour, endMinute] = reservation.endTime.split(':').map(num => parseInt(num, 10));
 
@@ -80,8 +93,8 @@ export default function ReactBigCalendar() {
                             `Sala: ${roomDetails[0].name}`;
                         return {
                             title,
-                            start: new Date(year, month - 1, day, startHour, startMinute),
-                            end: new Date(year, month - 1, day, endHour, endMinute)
+                            start: new Date(year, month, day, startHour, startMinute),
+                            end: new Date(year, month, day, endHour, endMinute)
                         };
                     } catch (error) {
                         console.error('Failed to fetch room details', error);
