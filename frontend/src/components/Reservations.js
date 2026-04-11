@@ -70,12 +70,9 @@ function Reservation() {
 
         if (resolvedRoomType === "SALA LECTURA") {
             const maxCapacity = availabilityByRoomId[selectedRoom?.id] ?? selectedRoom?.availableCapacity ?? selectedRoom?.capacity;
-            if (!reservation.capacityReserved || reservation.capacityReserved < 1) {
+            if (maxCapacity != null && maxCapacity < 1) {
                 formIsValid = false;
-                newErrors.capacityReserved = "Introduceți numărul de locuri!";
-            } else if (maxCapacity != null && reservation.capacityReserved > maxCapacity) {
-                formIsValid = false;
-                newErrors.capacityReserved = `Maxim ${maxCapacity} locuri disponibile.`;
+                newErrors.roomId = "Nu mai există locuri disponibile pentru intervalul selectat.";
             }
         }
 
@@ -145,10 +142,11 @@ function Reservation() {
         fetchRooms();
     }, [id]);
 
+    const { date, startTime, endTime } = reservation;
+
     useEffect(() => {
         const fetchAvailability = async () => {
             const token = getAuthToken();
-            const {date, startTime, endTime} = reservation;
             if (!date || !startTime || !endTime) {
                 setAvailabilityByRoomId({});
                 return;
@@ -184,7 +182,7 @@ function Reservation() {
         };
 
         fetchAvailability();
-    }, [reservation.date, reservation.startTime, reservation.endTime]); // React to changes in these fields
+    }, [date, startTime, endTime]);
 
     const filteredRooms = rooms.filter((room) => {
         if (role === 'ADMIN') {
@@ -249,7 +247,7 @@ function Reservation() {
 
             const capacityReserved =
                 resolvedRoomType === "SALA LECTURA"
-                    ? Number(reservation.capacityReserved || 1)
+                    ? 1
                     : (selectedRoom?.capacity || reservation.capacityReserved || 1);
 
             const payload = {
@@ -316,7 +314,7 @@ function Reservation() {
                 ...prev,
                 roomId: room.id,
                 roomType: room.type,  // Stocăm și tipul sălii
-                capacityReserved: room.type === "SALA LECTURA" ? prev.capacityReserved || 1 : room.capacity
+                capacityReserved: room.type === "SALA LECTURA" ? 1 : room.capacity
             }));
             setErrors(prev => ({
                 ...prev,
@@ -343,7 +341,7 @@ function Reservation() {
     };
 
     const generateTimeOptions = () => {
-        if (resolvedRoomType === "AMFITEATRU") {
+        if (resolvedRoomType === "AMFITEATRU" || resolvedRoomType === "SALA LECTURA") {
             const options = [];
             for (let hour = 8; hour <= 22; hour++) {
                 const timeString = `${hour.toString().padStart(2, '0')}:00`;
@@ -379,6 +377,15 @@ function Reservation() {
             endTimeOptions = timeOptions.filter(time => time > reservation.startTime);
         }
     }
+
+    useEffect(() => {
+        if (reservation.endTime && reservation.startTime && reservation.endTime <= reservation.startTime) {
+            setReservation(prev => ({
+                ...prev,
+                endTime: ""
+            }));
+        }
+    }, [reservation.startTime, reservation.endTime]);
 
     const location = useLocation();
 
@@ -453,7 +460,7 @@ function Reservation() {
                         <h4 className="card-title text-center mb-4"><b>Adaugă o rezervare</b></h4>
                         <div>
                             <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip AMFITEATRU și LABORATOR se rezervă doar integral.</p>
-                            <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip SALA LECTURA se rezervă pe baza numărului de locuri disponibile.</p>
+                            <p className="text-black"><i className="bi bi-info-square"></i> Pentru SALA LECTURA, fiecare student poate rezerva un singur loc per rezervare.</p>
                             {resolvedRoomType === "LABORATOR" && (
                                 <p className="text-black"><i className="bi bi-info-square"></i> Pentru LABORATOR, intervalul se rezervă în blocuri de 2 ore; dacă intervalul complet nu este disponibil, se poate aloca primul slot liber de 2 ore din intervalul selectat.</p>
                             )}
@@ -513,22 +520,6 @@ function Reservation() {
                                     </div>
                                     {errors.roomId && <div className="error-message">{errors.roomId}</div>}
                                 </div>
-                                {resolvedRoomType === "SALA LECTURA" && (
-                                    <div className="form-group">
-                                        <label htmlFor="capacityReserved">Locuri rezervate</label>
-                                        <input
-                                            type="number"
-                                            className={`form-control ${errors.capacityReserved ? 'is-invalid' : ''}`}
-                                            id="capacityReserved"
-                                            name="capacityReserved"
-                                            min="1"
-                                                max={availabilityByRoomId[selectedRoom?.id] ?? selectedRoom?.availableCapacity ?? selectedRoom?.capacity ?? 1}
-                                            value={reservation.capacityReserved}
-                                            onChange={handleInputChange}
-                                        />
-                                        {errors.capacityReserved && <div className="error-message">{errors.capacityReserved}</div>}
-                                    </div>
-                                )}
                                 {resolvedRoomType === "AMFITEATRU" && (
                                     <div className="form-group">
                                         <label htmlFor="eventType">Tip eveniment</label>

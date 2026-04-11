@@ -56,12 +56,13 @@ public class ReservationController {
     @PostMapping("/reserve-reading-room/{roomId}")
     public ResponseEntity<?> reserveReadingRoom(@PathVariable Integer roomId, @RequestBody ReservationDTO reservationDTO) {
         try {
+            reservationDTO.setCapacityReserved(1);
             Integer availableCapacity = reservationService.checkAvailableCapacity(roomId, reservationDTO.getDate(), reservationDTO.getStartTime(), reservationDTO.getEndTime());
             if (availableCapacity >= reservationDTO.getCapacityReserved()) {
                 Reservation reservation = ReservationDTOConverter.convertToEntity(reservationDTO, userRepository.findById(reservationDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found")), roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("Room not found")));
-                reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
+                reservation.setCapacityReserved(1);
                 reservationRepository.save(reservation);
-                return ResponseEntity.ok().body("Reservation successful with " + reservationDTO.getCapacityReserved() + " seats reserved.");
+                return ResponseEntity.ok().body("Reservation successful with 1 seat reserved.");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Insufficient available capacity. Only " + availableCapacity + " seats are available.");
             }

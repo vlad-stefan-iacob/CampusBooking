@@ -64,10 +64,10 @@ public class ReservationControllerTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(roomRepository.findById(1)).thenReturn(Optional.of(room));
 
-        mockMvc.perform(post("/api/v1/reservations/reserve-reading-room/1")
+                mockMvc.perform(post("/api/v1/reservations/reserve-reading-room/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Reservation successful with 2 seats reserved."));
+                .andExpect(content().string("Reservation successful with 1 seat reserved."));
     }
 }

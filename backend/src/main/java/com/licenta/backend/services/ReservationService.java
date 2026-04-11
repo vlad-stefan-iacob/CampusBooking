@@ -92,10 +92,6 @@ public class ReservationService {
         reservation.setStartTime(requestedStartTime);
         reservation.setEndTime(requestedEndTime);
         reservation.setReservationDateTime(new Date());
-        reservation.setCapacityReserved(
-                reservationDTO.getCapacityReserved() != null ? reservationDTO.getCapacityReserved() : 1
-        );
-
         Room room = roomRepository.findById(reservationDTO.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
@@ -105,6 +101,14 @@ public class ReservationService {
 
         reservation.setUser(user);
         reservation.setRoom(room);
+
+        if ("SALA LECTURA".equalsIgnoreCase(room.getType())) {
+            reservation.setCapacityReserved(1);
+        } else {
+            reservation.setCapacityReserved(
+                    reservationDTO.getCapacityReserved() != null ? reservationDTO.getCapacityReserved() : 1
+            );
+        }
 
         if ("AMFITEATRU".equalsIgnoreCase(room.getType())) {
 
@@ -208,13 +212,14 @@ public class ReservationService {
         Optional<Reservation> existingReservation = reservationRepository.findById(reservationId);
         if (existingReservation.isPresent()) {
             Reservation reservation = existingReservation.get();
+            Room room = roomRepository.findById(reservationDTO.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Room with ID: " + reservationDTO.getRoomId() + " not found!"));
             // Update the fields of the existing reservation entity
             reservation.setDate(reservationDTO.getDate());
             reservation.setStartTime(reservationDTO.getStartTime());
             reservation.setEndTime(reservationDTO.getEndTime());
-            reservation.setCapacityReserved(reservationDTO.getCapacityReserved());
+            reservation.setCapacityReserved("SALA LECTURA".equalsIgnoreCase(room.getType()) ? 1 : reservationDTO.getCapacityReserved());
             reservation.setUser(userRepository.findById(reservationDTO.getUserId()).orElseThrow(() -> new UserNotFoundException("User with ID: " + reservationDTO.getUserId() + " not found!")));
-            reservation.setRoom(roomRepository.findById(reservationDTO.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Room with ID: " + reservationDTO.getRoomId() + " not found!")));
+            reservation.setRoom(room);
             // Save and return the updated reservation entity
             return reservationRepository.save(reservation);
         } else {

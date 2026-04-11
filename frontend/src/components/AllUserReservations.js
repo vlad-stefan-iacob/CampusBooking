@@ -120,6 +120,7 @@ function AllUserReservations() {
                         // Format date and time strings
                         reservation.date = formatDate(reservation.date);
                         reservation.reservationDateTime = formatDateAndTime(reservation.reservationDateTime);
+                        reservation.status = normalizeStatus(reservation.status);
                         return reservation;
                     }));
                     setReservations(formattedData);
@@ -209,6 +210,41 @@ function AllUserReservations() {
         if (status === "REJECTED") return "RESPINSA";
         if (status === "PENDING") return "ASTEPTARE";
         return status;
+    };
+
+    const getStatusBadgeStyle = (status) => {
+        switch (normalizeStatus(status)) {
+            case "APROBATA":
+                return {
+                    backgroundColor: "#d1fae5",
+                    color: "#065f46",
+                    border: "1px solid #6ee7b7"
+                };
+            case "APROBATA PARTIAL":
+                return {
+                    backgroundColor: "#dbeafe",
+                    color: "#1d4ed8",
+                    border: "1px solid #93c5fd"
+                };
+            case "ASTEPTARE":
+                return {
+                    backgroundColor: "#fef3c7",
+                    color: "#92400e",
+                    border: "1px solid #fcd34d"
+                };
+            case "RESPINSA":
+                return {
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                    border: "1px solid #fca5a5"
+                };
+            default:
+                return {
+                    backgroundColor: "#e5e7eb",
+                    color: "#374151",
+                    border: "1px solid #d1d5db"
+                };
+        }
     };
 
     // Function to format date (day-month-year)
@@ -387,6 +423,7 @@ function AllUserReservations() {
                         // Format date and time strings
                         reservation.date = formatDate(reservation.date);
                         reservation.reservationDateTime = formatDateAndTime(reservation.reservationDateTime);
+                        reservation.status = normalizeStatus(reservation.status);
                         return reservation;
                     }));
                     setReservations(formattedData);
@@ -476,7 +513,20 @@ function AllUserReservations() {
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.roomName}</td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.startTime}</td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.endTime}</td>
-                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.status || "-"}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>
+                                                <span
+                                                    style={{
+                                                        ...getStatusBadgeStyle(reservation.status),
+                                                        display: 'inline-block',
+                                                        padding: '0.25rem 0.6rem',
+                                                        borderRadius: '999px',
+                                                        fontWeight: 600,
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    {reservation.status || "-"}
+                                                </span>
+                                            </td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
                                             <td>
                                                 <button type="button" className="btn btn-danger"
@@ -497,7 +547,20 @@ function AllUserReservations() {
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.roomName}</td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.startTime}</td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.endTime}</td>
-                                            <td style={{whiteSpace: 'nowrap'}}>{reservation.status || "-"}</td>
+                                            <td style={{whiteSpace: 'nowrap'}}>
+                                                <span
+                                                    style={{
+                                                        ...getStatusBadgeStyle(reservation.status),
+                                                        display: 'inline-block',
+                                                        padding: '0.25rem 0.6rem',
+                                                        borderRadius: '999px',
+                                                        fontWeight: 600,
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    {reservation.status || "-"}
+                                                </span>
+                                            </td>
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
                                         </tr>
                                     ))
