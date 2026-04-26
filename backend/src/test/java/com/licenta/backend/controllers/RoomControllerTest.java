@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.dto.RoomDTO;
 import com.licenta.backend.services.RoomService;
+import com.licenta.backend.services.RoomSchedulingPolicyService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class RoomControllerTest {
 
     @MockBean
     private RoomService roomService;
+
+    @MockBean
+    private RoomSchedulingPolicyService roomSchedulingPolicyService;
 
     @WithMockUser(roles = "ADMIN")
     @Test

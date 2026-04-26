@@ -1,0 +1,212 @@
+.admin-scheduling-page {
+    min-height: 93.4vh;
+    padding: 32px 18px 48px;
+}
+
+.admin-scheduling-shell {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.admin-scheduling-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 18px;
+    align-items: stretch;
+}
+
+.admin-scheduling-hero h1 {
+    color: #ffffff;
+    margin: 6px 0 8px;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.admin-scheduling-hero p {
+    color: rgba(255, 255, 255, 0.84);
+    margin: 0;
+    max-width: 740px;
+    font-size: 1rem;
+}
+
+.admin-scheduling-kicker {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #c7d2fe;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-scheduling-summary {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(29, 63, 157, 0.68));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 22px;
+    padding: 22px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    backdrop-filter: blur(8px);
+}
+
+.admin-scheduling-summary strong {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.admin-scheduling-summary span {
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.admin-scheduling-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.admin-scheduling-card {
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(226, 232, 240, 0.95));
+    border-radius: 24px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.admin-scheduling-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.admin-scheduling-card h2 {
+    margin: 4px 0 0;
+    color: #0f172a;
+    font-size: 1.35rem;
+}
+
+.admin-room-type {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.admin-room-badge {
+    border-radius: 999px;
+    background: #0f172a;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.admin-scheduling-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-scheduling-field label {
+    font-weight: 700;
+    color: #172554;
+}
+
+.admin-scheduling-field small {
+    color: #475569;
+    line-height: 1.45;
+}
+
+.admin-scheduling-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 12px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.admin-scheduling-foot span {
+    display: block;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+.admin-scheduling-foot strong {
+    color: #0f172a;
+}
+
+.priority-rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.priority-rule-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 43px 38px;
+    gap: 10px;
+    align-items: center;
+}
+
+.priority-rule-row .form-control {
+    min-width: 0;
+}
+
+.priority-number {
+    text-align: center;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.priority-remove-button {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-add-rule {
+    align-self: flex-start;
+    margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+    .admin-scheduling-hero {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-scheduling-card-top,
+    .admin-scheduling-foot,
+    .priority-rule-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-room-badge {
+        align-self: flex-start;
+    }
+
+    .priority-rule-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 52px 38px;
+    }
+}

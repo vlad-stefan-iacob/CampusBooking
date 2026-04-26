@@ -17,8 +17,16 @@ import java.util.Set;
 public class RoundRobinScheduler implements SchedulingAlgorithm {
 
     private static final Logger logger = LoggerFactory.getLogger(RoundRobinScheduler.class);
-    private static final int SLOT_DURATION_MINUTES = 120;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private final int slotDurationMinutes;
+
+    public RoundRobinScheduler() {
+        this(120);
+    }
+
+    public RoundRobinScheduler(Integer slotDurationMinutes) {
+        this.slotDurationMinutes = slotDurationMinutes != null && slotDurationMinutes > 0 ? slotDurationMinutes : 120;
+    }
 
     @Override
     public boolean isReservationAllowed(List<Reservation> existing, Reservation newOne) {
@@ -94,7 +102,7 @@ public class RoundRobinScheduler implements SchedulingAlgorithm {
 
         List<TimeSlot> slots = new ArrayList<>();
         while (start.isBefore(end)) {
-            LocalTime slotEnd = start.plusMinutes(SLOT_DURATION_MINUTES);
+            LocalTime slotEnd = start.plusMinutes(slotDurationMinutes);
             if (slotEnd.isAfter(end)) slotEnd = end;
             slots.add(new TimeSlot(start, slotEnd));
             start = slotEnd;

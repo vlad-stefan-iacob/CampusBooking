@@ -7,12 +7,12 @@
 }
 
 .background-home {
-    min-height: 93.4vh;
+    min-height: calc(100vh - 54px);
     background: linear-gradient(to bottom right, #000FFF, #000000);
 }
 
 .background {
-    min-height: 93.4vh;
+    min-height: calc(100vh - 54px);
     background: linear-gradient(to bottom right, #000FFF, #000000);
     display: flex;
     align-items: center;
@@ -86,7 +86,6 @@
     color: red;
     font-size: 1em;
 }
-
 
 
 

@@ -1,6 +1,7 @@
 package com.licenta.backend.scheduling;
 
 import com.licenta.backend.entities.Reservation;
+import com.licenta.backend.entities.Room;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
@@ -16,10 +17,13 @@ public class PrioritySchedulerTest {
 
     private Reservation create(String start, String end, int priority) throws Exception {
         Reservation r = new Reservation();
+        Room room = new Room();
+        room.setId(1);
         r.setDate(formatter.parse("2026-01-20"));
         r.setStartTime(start);
         r.setEndTime(end);
         r.setPriority(priority);
+        r.setRoom(room);
         return r;
     }
 
@@ -30,7 +34,7 @@ public class PrioritySchedulerTest {
 
         scheduler.applyScheduling(pending, confirmed);
 
-        assertEquals("ACCEPTED", pending.get(0).getStatus());
+        assertEquals("APROBATA", pending.get(0).getStatus());
     }
 
     @Test
@@ -43,8 +47,8 @@ public class PrioritySchedulerTest {
 
         scheduler.applyScheduling(pending, confirmed);
 
-        assertEquals("ACCEPTED", high.getStatus()); // cererea high este acceptata
-        assertEquals("REJECTED", low.getStatus()); // cererea low este respinsa
+        assertEquals("APROBATA", high.getStatus()); // cererea high este acceptata
+        assertEquals("RESPINSA", low.getStatus()); // cererea low este respinsa
     }
 
     @Test
@@ -58,15 +62,15 @@ public class PrioritySchedulerTest {
 
         scheduler.applyScheduling(pending, confirmed);
 
-        assertEquals("ACCEPTED", r1.getStatus());
-        assertEquals("ACCEPTED", r2.getStatus());
-        assertEquals("ACCEPTED", r3.getStatus());
+        assertEquals("APROBATA", r1.getStatus());
+        assertEquals("APROBATA", r2.getStatus());
+        assertEquals("APROBATA", r3.getStatus());
     }
 
     @Test
     public void testConflictWithExistingAccepted() throws Exception {
         Reservation confirmed = create("10:00", "12:00", 1);
-        confirmed.setStatus("ACCEPTED");
+        confirmed.setStatus("APROBATA");
 
         Reservation pending = create("11:00", "13:00", 2);
 
@@ -75,7 +79,6 @@ public class PrioritySchedulerTest {
 
         scheduler.applyScheduling(pendingList, accepted);
 
-        assertEquals("REJECTED", pending.getStatus());
+        assertEquals("RESPINSA", pending.getStatus());
     }
 }
-

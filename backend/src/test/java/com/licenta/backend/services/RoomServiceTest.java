@@ -6,6 +6,7 @@ import com.licenta.backend.entities.Reservation;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
+import com.licenta.backend.scheduling.FCFSScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,7 @@ public class RoomServiceTest {
     private RoomRepository roomRepository;
     private ReservationRepository reservationRepository;
     private RoomDTOConverter roomDTOConverter;
+    private RoomSchedulingPolicyService roomSchedulingPolicyService;
     private RoomService roomService;
 
     @BeforeEach
@@ -28,7 +30,12 @@ public class RoomServiceTest {
         roomRepository = mock(RoomRepository.class);
         reservationRepository = mock(ReservationRepository.class);
         roomDTOConverter = mock(RoomDTOConverter.class);
-        roomService = new RoomService(roomRepository, reservationRepository, roomDTOConverter);
+        roomSchedulingPolicyService = mock(RoomSchedulingPolicyService.class);
+        roomService = new RoomService();
+        roomService.setRoomRepository(roomRepository);
+        roomService.setReservationRepository(reservationRepository);
+        roomService.setRoomDTOConverter(roomDTOConverter);
+        roomService.setRoomSchedulingPolicyService(roomSchedulingPolicyService);
     }
 
     @Test
@@ -55,6 +62,7 @@ public class RoomServiceTest {
         when(roomRepository.findAll()).thenReturn(List.of(room));
         when(reservationRepository.findByRoomIdAndDate(1, date)).thenReturn(List.of(existing));
         when(roomDTOConverter.convertToDTO(room)).thenReturn(dto);
+        when(roomSchedulingPolicyService.buildScheduler(room)).thenReturn(new FCFSScheduler());
 
         // Act
         List<RoomDTO> result = roomService.findAvailableRooms(date, startTime, endTime);
@@ -93,9 +101,9 @@ public class RoomServiceTest {
         // simulam comportamentul repository-ului: returneaza toate salile
         when(roomRepository.findAll()).thenReturn(List.of(room));
         when(reservationRepository.findByRoomIdAndDate(2, date)).thenReturn(List.of(existing));
-
         // simulam conversia entitatii Room in DTO
         when(roomDTOConverter.convertToDTO(room)).thenReturn(dto);
+        when(roomSchedulingPolicyService.buildScheduler(room)).thenReturn(new FCFSScheduler());
 
         // apelam metoda testata: ar trebui sa returneze sala dar sa nu caute capacitatea disponibila
         List<RoomDTO> result = roomService.findAvailableRooms(date, startTime, endTime);
@@ -106,7 +114,7 @@ public class RoomServiceTest {
         // verificam ca numele salii este cel asteptat
         assertEquals("Amfiteatru 1", result.get(0).getName());
 
-        // verificam ca sala NU are setata capacitatea disponibila — este ignorata pentru acest tip de sala
+        // verificam ca sala NU are setata capacitatea disponibila
         assertNull(result.get(0).getAvailableCapacity());
 
         verify(roomRepository).findAll();

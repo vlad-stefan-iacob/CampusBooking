@@ -7,9 +7,6 @@ import com.licenta.backend.entities.Room;
 import com.licenta.backend.exceptions.RoomNotFoundException;
 import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
-import com.licenta.backend.scheduling.FCFSScheduler;
-import com.licenta.backend.scheduling.PriorityScheduler;
-import com.licenta.backend.scheduling.RoundRobinScheduler;
 import com.licenta.backend.scheduling.SchedulingAlgorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,11 +38,8 @@ public class RoomService {
     @Autowired
     private RoomDTOConverter roomDTOConverter;
 
-    private final Map<String, SchedulingAlgorithm> algorithmMap = Map.of(
-            "SALA LECTURA", new FCFSScheduler(),
-            "LABORATOR", new RoundRobinScheduler(),
-            "AMFITEATRU", new PriorityScheduler()
-    );
+    @Autowired
+    private RoomSchedulingPolicyService roomSchedulingPolicyService;
 
     public List<RoomDTO> getAllRooms(){
         List<Room> rooms = roomRepository.findAll();
@@ -64,6 +57,7 @@ public class RoomService {
 
     public Room insertRoom(RoomDTO roomDTO){
         Room room = roomDTOConverter.convertToEntity(roomDTO);
+        roomSchedulingPolicyService.validate(room);
         return roomRepository.save(room);
     }
 
@@ -76,6 +70,18 @@ public class RoomService {
             room.setType(roomDTO.getType());
             room.setCapacity(roomDTO.getCapacity());
             room.setDetails(roomDTO.getDetails());
+            room.setSchedulingAlgorithm(existingSchedulingValue(roomDTO.getSchedulingAlgorithm(), room.getSchedulingAlgorithm()));
+            room.setRoundRobinSlotMinutes(existingSchedulingValue(
+                    roomDTO.getRoundRobinSlotMinutes(),
+                    room.getRoundRobinSlotMinutes()
+            ));
+            roomSchedulingPolicyService.setEventPriorityRulesFromDTOs(
+                    room,
+                    roomDTO.getEventPriorityRules() != null
+                            ? roomDTO.getEventPriorityRules()
+                            : roomSchedulingPolicyService.getEventPriorityRuleDTOs(room)
+            );
+            roomSchedulingPolicyService.validate(room);
             return roomRepository.save(room);
         } else {
             throw new RoomNotFoundException("Room with ID: " + roomId + " not found!");
@@ -91,6 +97,7 @@ public class RoomService {
         List<RoomDTO> available = new ArrayList<>();
 
         for (Room room : rooms) {
+            roomSchedulingPolicyService.applyDefaults(room);
             List<Reservation> existing = reservationRepository.findByRoomIdAndDate(room.getId(), normalizedDate);
 
             Reservation candidate = new Reservation();
@@ -104,7 +111,7 @@ public class RoomService {
                 candidate.setCapacityReserved(room.getCapacity());
             }
 
-            SchedulingAlgorithm scheduler = algorithmMap.get(room.getType().toUpperCase());
+            SchedulingAlgorithm scheduler = roomSchedulingPolicyService.buildScheduler(room);
             boolean allowed = scheduler == null || scheduler.isReservationAllowed(existing, candidate);
             if (!allowed) {
                 continue;
@@ -149,6 +156,10 @@ public class RoomService {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private <T> T existingSchedulingValue(T incomingValue, T fallbackValue) {
+        return incomingValue != null ? incomingValue : fallbackValue;
     }
 
 }

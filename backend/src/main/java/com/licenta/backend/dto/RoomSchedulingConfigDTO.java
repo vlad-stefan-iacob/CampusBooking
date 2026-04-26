@@ -5,14 +5,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class RoomDTO {
-    private Integer id;
-    private String name;
-    private String location;
-    private Integer capacity;
-    private String type;
-    private String details;
-    private Integer availableCapacity;
+public class RoomSchedulingConfigDTO {
+    private Integer roomId;
+    private String roomName;
+    private String roomType;
     private String schedulingAlgorithm;
     private Integer roundRobinSlotMinutes;
     private List<EventPriorityRuleDTO> eventPriorityRules;

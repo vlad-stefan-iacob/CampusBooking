@@ -23,6 +23,7 @@ public class ReservationServiceTest {
     private UserRepository userRepository;
     private RoomRepository roomRepository;
     private EmailService emailService;
+    private RoomSchedulingPolicyService roomSchedulingPolicyService;
 
     @BeforeEach
     void setUp() {
@@ -30,12 +31,14 @@ public class ReservationServiceTest {
         userRepository = mock(UserRepository.class);
         roomRepository = mock(RoomRepository.class);
         emailService = mock(EmailService.class);
+        roomSchedulingPolicyService = mock(RoomSchedulingPolicyService.class);
 
         reservationService = new ReservationService();
         reservationService.setReservationRepository(reservationRepository);
         reservationService.setUserRepository(userRepository);
         reservationService.setRoomRepository(roomRepository);
         reservationService.setEmailService(emailService);
+        reservationService.setRoomSchedulingPolicyService(roomSchedulingPolicyService);
     }
 
     @Test
@@ -63,6 +66,8 @@ public class ReservationServiceTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(roomRepository.findById(1)).thenReturn(Optional.of(room));
         when(reservationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(roomSchedulingPolicyService.buildScheduler(room)).thenReturn(new com.licenta.backend.scheduling.FCFSScheduler());
+        when(roomSchedulingPolicyService.usesPriorityScheduling(room)).thenReturn(false);
 
         Reservation result = reservationService.insertReservation(dto);
 

@@ -16,7 +16,7 @@ function Reservation() {
         startTime: "",
         endTime: "",
         capacityReserved: 1,
-        eventType: "CURS",
+        eventType: "",
         // status: "",
         reservationDateTime: new Date().toISOString() // Set the current date and time
     });
@@ -34,6 +34,10 @@ function Reservation() {
         ? rooms.find(room => room.id === Number(reservation.roomId))
         : null;
     const resolvedRoomType = reservation.roomType || selectedRoom?.type;
+    const selectedSchedulingAlgorithm = selectedRoom?.schedulingAlgorithm || "FCFS";
+    const roundRobinSlotMinutes = selectedRoom?.roundRobinSlotMinutes || 120;
+    const eventPriorityRules = selectedRoom?.eventPriorityRules || [];
+    const eventTypeOptions = eventPriorityRules.map(rule => rule.eventType);
 
     const onAllUserReservations = () => {
         navigate('/my-reservations');
@@ -76,29 +80,34 @@ function Reservation() {
             }
         }
 
-        if (resolvedRoomType === "AMFITEATRU" && !reservation.eventType) {
+        if (selectedSchedulingAlgorithm === "PRIORITY" && !reservation.eventType) {
             formIsValid = false;
             newErrors.eventType = "Selectați tipul evenimentului!";
         }
 
-        if (resolvedRoomType === "AMFITEATRU" && reservation.date) {
+        if (selectedSchedulingAlgorithm === "PRIORITY" && reservation.eventType && !eventTypeOptions.includes(reservation.eventType)) {
+            formIsValid = false;
+            newErrors.eventType = "Tipul de eveniment nu este permis pentru sala selectată.";
+        }
+
+        if (selectedSchedulingAlgorithm === "PRIORITY" && reservation.date) {
             const [year, month, day] = reservation.date.split("-").map(Number);
             const cutoff = new Date(year, month - 1, day - 1, 18, 0, 0, 0);
             if (now > cutoff) {
                 formIsValid = false;
-                newErrors.date = "Pentru AMFITEATRU, rezervarea se poate face cel târziu în T-1 la ora 18:00.";
+                newErrors.date = "Pentru sălile cu Priority Scheduling, rezervarea se poate face cel târziu în T-1 la ora 18:00.";
             }
         }
 
-        if (resolvedRoomType === "LABORATOR" && reservation.startTime && reservation.endTime) {
+        if (selectedSchedulingAlgorithm === "ROUND_ROBIN" && reservation.startTime && reservation.endTime) {
             const toMinutes = (time) => {
                 const [h, m] = time.split(":").map(Number);
                 return h * 60 + m;
             };
             const duration = toMinutes(reservation.endTime) - toMinutes(reservation.startTime);
-            if (duration < 120) {
+            if (duration < roundRobinSlotMinutes) {
                 formIsValid = false;
-                newErrors.endTime = "Intervalul minim pentru laborator este de 2 ore.";
+                newErrors.endTime = `Intervalul minim pentru această sală este de ${roundRobinSlotMinutes} minute.`;
             }
         }
 
@@ -258,7 +267,7 @@ function Reservation() {
                 endTime: reservation.endTime,
                 reservationDateTime: reservation.reservationDateTime,
                 capacityReserved,
-                eventType: resolvedRoomType === "AMFITEATRU" ? reservation.eventType : null
+                eventType: selectedSchedulingAlgorithm === "PRIORITY" ? reservation.eventType : null
             };
 
             const response = await fetch(url, {
@@ -272,16 +281,16 @@ function Reservation() {
             if (response.ok) {
                 const data = await response.json();
                 const isPartialLab =
-                    resolvedRoomType === "LABORATOR" &&
+                    selectedSchedulingAlgorithm === "ROUND_ROBIN" &&
                     (data.startTime !== reservation.startTime || data.endTime !== reservation.endTime);
 
-                if (resolvedRoomType === "LABORATOR") {
+                if (selectedSchedulingAlgorithm === "ROUND_ROBIN") {
                     setSuccessMessage(
                         isPartialLab
                             ? `Rezervare aprobată parțial. Interval alocat: ${data.startTime} - ${data.endTime}.`
                             : `Rezervare aprobată. Interval: ${data.startTime} - ${data.endTime}.`
                     );
-                } else if (resolvedRoomType === "AMFITEATRU") {
+                } else if (selectedSchedulingAlgorithm === "PRIORITY") {
                     setSuccessMessage("Cererea a fost înregistrată și este în așteptare (ASTEPTARE).");
                 } else {
                     setSuccessMessage("Rezervare aprobată!");
@@ -293,7 +302,7 @@ function Reservation() {
                     startTime: "",
                     endTime: "",
                     capacityReserved: 1,
-                    eventType: "CURS",
+                    eventType: "",
                     reservationDateTime: new Date().toISOString()
                 });
                 setErrors({});
@@ -314,7 +323,10 @@ function Reservation() {
                 ...prev,
                 roomId: room.id,
                 roomType: room.type,  // Stocăm și tipul sălii
-                capacityReserved: room.type === "SALA LECTURA" ? 1 : room.capacity
+                capacityReserved: room.type === "SALA LECTURA" ? 1 : room.capacity,
+                eventType: room.schedulingAlgorithm === "PRIORITY"
+                    ? (room.eventPriorityRules?.[0]?.eventType || "")
+                    : ""
             }));
             setErrors(prev => ({
                 ...prev,
@@ -329,7 +341,6 @@ function Reservation() {
         setShowRoomModal(false);  // Închide modalul după alegere
     };
 
-    const SLOT_DURATION_MINUTES = 120;
     const toMinutes = (time) => {
         const [h, m] = time.split(":").map(Number);
         return h * 60 + m;
@@ -341,7 +352,7 @@ function Reservation() {
     };
 
     const generateTimeOptions = () => {
-        if (resolvedRoomType === "AMFITEATRU" || resolvedRoomType === "SALA LECTURA") {
+        if (selectedSchedulingAlgorithm !== "ROUND_ROBIN") {
             const options = [];
             for (let hour = 8; hour <= 22; hour++) {
                 const timeString = `${hour.toString().padStart(2, '0')}:00`;
@@ -353,7 +364,7 @@ function Reservation() {
         const options = [];
         const startMinutes = 8 * 60;
         const endMinutes = 22 * 60;
-        for (let t = startMinutes; t <= endMinutes; t += SLOT_DURATION_MINUTES) {
+        for (let t = startMinutes; t <= endMinutes; t += roundRobinSlotMinutes) {
             options.push(toTimeString(t));
         }
         return options;
@@ -365,11 +376,11 @@ function Reservation() {
     // Calculează opțiuni pentru ora de sfârșit bazate pe ora de început selectată
     let endTimeOptions = [];
     if (reservation.startTime) {
-        if (resolvedRoomType === "LABORATOR") {
+        if (selectedSchedulingAlgorithm === "ROUND_ROBIN") {
             const startMinutes = toMinutes(reservation.startTime);
             const maxMinutes = 22 * 60;
             const labOptions = [];
-            for (let t = startMinutes + SLOT_DURATION_MINUTES; t <= maxMinutes; t += SLOT_DURATION_MINUTES) {
+            for (let t = startMinutes + roundRobinSlotMinutes; t <= maxMinutes; t += roundRobinSlotMinutes) {
                 labOptions.push(toTimeString(t));
             }
             endTimeOptions = labOptions;
@@ -423,6 +434,16 @@ function Reservation() {
                 next.roomType = selectedRoom.type;
                 changed = true;
             }
+            if (selectedRoom.schedulingAlgorithm === "PRIORITY") {
+                const allowedEventTypes = selectedRoom.eventPriorityRules?.map(rule => rule.eventType) || [];
+                if (!allowedEventTypes.includes(prev.eventType)) {
+                    next.eventType = allowedEventTypes[0] || "";
+                    changed = true;
+                }
+            } else if (prev.eventType !== "") {
+                next.eventType = "";
+                changed = true;
+            }
             if (selectedRoom.type === "SALA LECTURA") {
                 if (!prev.capacityReserved || prev.capacityReserved < 1) {
                     next.capacityReserved = 1;
@@ -461,11 +482,14 @@ function Reservation() {
                         <div>
                             <p className="text-black"><i className="bi bi-info-square"></i> Sălile de tip AMFITEATRU și LABORATOR se rezervă doar integral.</p>
                             <p className="text-black"><i className="bi bi-info-square"></i> Pentru SALA LECTURA, fiecare student poate rezerva un singur loc per rezervare.</p>
-                            {resolvedRoomType === "LABORATOR" && (
-                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru LABORATOR, intervalul se rezervă în blocuri de 2 ore; dacă intervalul complet nu este disponibil, se poate aloca primul slot liber de 2 ore din intervalul selectat.</p>
+                            {selectedSchedulingAlgorithm === "ROUND_ROBIN" && (
+                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru această sală se aplică Round Robin cu sloturi de {roundRobinSlotMinutes} minute; dacă intervalul complet nu este disponibil, se poate aloca primul slot liber din intervalul selectat.</p>
                             )}
-                            {resolvedRoomType === "AMFITEATRU" && (
-                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru AMFITEATRU, cererea este înregistrată cu status ASTEPTARE și se procesează pe baza priorității evenimentului. Rezervările pentru data T se pot adăuga cel târziu în T-1 la ora 18:00.</p>
+                            {selectedSchedulingAlgorithm === "PRIORITY" && (
+                                <p className="text-black"><i className="bi bi-info-square"></i> Pentru această sală, cererea este înregistrată cu status ASTEPTARE și se procesează pe baza priorității evenimentului. Rezervările pentru data T se pot adăuga cel târziu în T-1 la ora 18:00.</p>
+                            )}
+                            {selectedSchedulingAlgorithm === "PRIORITY" && eventPriorityRules.length > 0 && (
+                                <p className="text-black"><i className="bi bi-info-square"></i> Priorități active: {eventPriorityRules.map(rule => `${rule.eventType} (${rule.priority})`).join(", ")}.</p>
                             )}
                         </div>
                         <hr style={{ backgroundColor: 'black', height: '1px', marginTop: '0px', marginBottom:'5px'}} />
@@ -520,7 +544,7 @@ function Reservation() {
                                     </div>
                                     {errors.roomId && <div className="error-message">{errors.roomId}</div>}
                                 </div>
-                                {resolvedRoomType === "AMFITEATRU" && (
+                                {selectedSchedulingAlgorithm === "PRIORITY" && (
                                     <div className="form-group">
                                         <label htmlFor="eventType">Tip eveniment</label>
                                         <select
@@ -531,10 +555,9 @@ function Reservation() {
                                             onChange={handleInputChange}
                                         >
                                             <option value="" disabled>selecteaza</option>
-                                            <option value="CURS">Curs</option>
-                                            <option value="EXAMEN">Examen</option>
-                                            <option value="EVENIMENT">Eveniment</option>
-                                            <option value="ALTELE">Altele</option>
+                                            {eventTypeOptions.map(eventType => (
+                                                <option key={eventType} value={eventType}>{eventType}</option>
+                                            ))}
                                         </select>
                                         {errors.eventType && <div className="error-message">{errors.eventType}</div>}
                                     </div>
@@ -551,7 +574,7 @@ function Reservation() {
                                         name="date"
                                         value={reservation.date}
                                         onChange={handleInputChange}
-                                        min={resolvedRoomType === "AMFITEATRU"
+                                        min={selectedSchedulingAlgorithm === "PRIORITY"
                                             ? getAmfMinDate()
                                             : new Date().toISOString().substring(0, 10)}
                                         style={{ cursor: 'pointer' }}

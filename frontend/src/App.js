@@ -11,6 +11,7 @@ import Users from "./components/Users";
 import Reservations from "./components/Reservations";
 import AllUserReservations from "./components/AllUserReservations";
 import AllReservations from "./components/AllReservations";
+import AdminScheduling from "./components/AdminScheduling";
 
 function App() {
     return (
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/reservations" element={<Reservations/>}/>
                 <Route path="/my-reservations" element={<AllUserReservations/>}/>
                 <Route path="/all-reservations" element={<AllReservations/>}/>
+                <Route path="/admin/scheduling" element={<AdminScheduling/>}/>
             </Routes>
         </AuthProvider>
 

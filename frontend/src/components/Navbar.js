@@ -19,7 +19,7 @@ export const Navbar = () => {
     };
 
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    const { firstName, lastName } = storedUser || {};
+    const { firstName, lastName, role } = storedUser || {};
 
     return (
         <nav>
@@ -59,6 +59,17 @@ export const Navbar = () => {
                         Rezervări <i className="bi bi-calendar-plus"></i>
                     </Link>
                 </li>
+                {role === "ADMIN" && (
+                    <li>
+                        <Link
+                            to="/admin/scheduling"
+                            className={activeIndex === "/admin/scheduling" ? 'active' : ''}
+                            onClick={() => handleNavClick("/admin/scheduling")}
+                        >
+                            Scheduling <i className="bi bi-sliders"></i>
+                        </Link>
+                    </li>
+                )}
                 <li className={`profil-trigger ${menuOpen ? 'active' : ''}`} onClick={handleProfilClick}>
                     <div>{firstName} {lastName} <i className="bi bi-person-fill"></i></div>
                     <div className="dropdown-menu">

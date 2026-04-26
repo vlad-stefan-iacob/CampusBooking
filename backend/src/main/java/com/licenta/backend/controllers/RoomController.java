@@ -2,9 +2,12 @@ package com.licenta.backend.controllers;
 
 import com.licenta.backend.dto.ReservationDTO;
 import com.licenta.backend.dto.RoomDTO;
+import com.licenta.backend.dto.RoomSchedulingConfigDTO;
+import com.licenta.backend.dto.RoomSchedulingUpdateRequest;
 import com.licenta.backend.entities.Room;
 import com.licenta.backend.repositories.RoomRepository;
 import com.licenta.backend.services.RoomService;
+import com.licenta.backend.services.RoomSchedulingPolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +25,9 @@ public class RoomController {
 
     @Autowired
     RoomRepository roomRepository; // Autowire the RoomRepository
+
+    @Autowired
+    RoomSchedulingPolicyService roomSchedulingPolicyService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'ASISTENT', 'PROFESOR')")
     @GetMapping("/all-rooms")
@@ -74,5 +80,24 @@ public class RoomController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(availableRooms);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/scheduling")
+    public List<RoomSchedulingConfigDTO> getSchedulingConfigurations() {
+        return roomSchedulingPolicyService.getAllSchedulingConfigurations();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/scheduling/{roomId}")
+    public ResponseEntity<?> updateSchedulingConfiguration(
+            @PathVariable Integer roomId,
+            @RequestBody RoomSchedulingUpdateRequest request
+    ) {
+        try {
+            return ResponseEntity.ok(roomSchedulingPolicyService.updateSchedulingConfiguration(roomId, request));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
+        }
     }
 }

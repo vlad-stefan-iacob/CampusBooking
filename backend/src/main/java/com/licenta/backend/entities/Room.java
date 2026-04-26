@@ -33,4 +33,11 @@ public class Room {
     private List<Reservation> reservations;  // Lista de rezervări atașate sălii
 
     private Integer availableCapacity;
+
+    private String schedulingAlgorithm;
+
+    private Integer roundRobinSlotMinutes;
+
+    @Column(length = 5000)
+    private String eventPriorityRulesConfig;
 }

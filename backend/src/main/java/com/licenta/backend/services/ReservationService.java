@@ -11,9 +11,6 @@ import com.licenta.backend.exceptions.UserNotFoundException;
 import com.licenta.backend.repositories.ReservationRepository;
 import com.licenta.backend.repositories.RoomRepository;
 import com.licenta.backend.repositories.UserRepository;
-import com.licenta.backend.scheduling.FCFSScheduler;
-import com.licenta.backend.scheduling.PriorityScheduler;
-import com.licenta.backend.scheduling.RoundRobinScheduler;
 import com.licenta.backend.scheduling.SchedulingAlgorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 
 @Service
@@ -47,6 +43,9 @@ public class ReservationService {
 
     @Autowired
     private ReservationDTOConverter reservationDTOConverter;
+
+    @Autowired
+    private RoomSchedulingPolicyService roomSchedulingPolicyService;
 
     public List<ReservationDTO> getAllReservations() {
         return reservationRepository.findAll().stream()
@@ -75,12 +74,6 @@ public class ReservationService {
         }
     }
 
-    private final Map<String, SchedulingAlgorithm> algorithmMap = Map.of(
-            "SALA LECTURA", new FCFSScheduler(),
-            "LABORATOR", new RoundRobinScheduler(),
-            "AMFITEATRU", new PriorityScheduler()
-    );
-
     public Reservation insertReservation(ReservationDTO reservationDTO) {
 
         // Construim rezervarea (fără a o salva încă)
@@ -94,6 +87,7 @@ public class ReservationService {
         reservation.setReservationDateTime(new Date());
         Room room = roomRepository.findById(reservationDTO.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
+        roomSchedulingPolicyService.applyDefaults(room);
 
         // User
         User user = userRepository.findById(reservationDTO.getUserId())
@@ -110,24 +104,13 @@ public class ReservationService {
             );
         }
 
-        if ("AMFITEATRU".equalsIgnoreCase(room.getType())) {
+        SchedulingAlgorithm scheduler = roomSchedulingPolicyService.buildScheduler(room);
 
-            // stabilește prioritatea (exemplu simplu)
-            int priority;
-            String eventType = reservationDTO.getEventType();
-            switch (eventType != null ? eventType : "") { // adaptează dacă numele diferă
-                case "CURS" -> priority = 1;
-                case "EXAMEN" -> priority = 2;
-                case "EVENIMENT" -> priority = 3;
-                default -> priority = 4;
-            }
-
-            reservation.setEventType(eventType);
-            reservation.setPriority(priority);
+        if (roomSchedulingPolicyService.usesPriorityScheduling(room)) {
+            reservation.setEventType(reservationDTO.getEventType());
+            reservation.setPriority(roomSchedulingPolicyService.resolvePriority(reservation, room));
             reservation.setStatus("ASTEPTARE");
             reservation.setCapacityReserved(room.getCapacity());
-
-            // NU aplicăm niciun algoritm aici
             return reservationRepository.save(reservation);
         }
 
@@ -140,13 +123,6 @@ public class ReservationService {
                 reservationRepository.findByRoomIdAndDate(room.getId(), normalizedDate);
 
         // Selectăm algoritmul în funcție de tipul sălii
-        SchedulingAlgorithm scheduler =
-                algorithmMap.get(room.getType().toUpperCase());
-
-        if (scheduler == null) {
-            throw new RuntimeException("Nu există algoritm asociat tipului de sală: " + room.getType());
-        }
-
         // Aplicăm algoritmul
         boolean allowed = scheduler.isReservationAllowed(existingReservations, reservation);
 
@@ -154,16 +130,16 @@ public class ReservationService {
             throw new RuntimeException("Rezervarea nu poate fi efectuată din cauza unui conflict de programare.");
         }
 
-        if (scheduler instanceof RoundRobinScheduler roundRobinScheduler) {
+        if (scheduler instanceof com.licenta.backend.scheduling.RoundRobinScheduler roundRobinScheduler) {
             roundRobinScheduler.applyScheduling(existingReservations, reservation);
         }
 
-        if ("LABORATOR".equalsIgnoreCase(room.getType())) {
+        if (scheduler instanceof com.licenta.backend.scheduling.RoundRobinScheduler) {
             boolean partial =
                     !requestedStartTime.equals(reservation.getStartTime())
                             || !requestedEndTime.equals(reservation.getEndTime());
             reservation.setStatus(partial ? "APROBATA PARTIAL" : "APROBATA");
-        } else if ("SALA LECTURA".equalsIgnoreCase(room.getType())) {
+        } else if ("SALA LECTURA".equalsIgnoreCase(room.getType()) || "LABORATOR".equalsIgnoreCase(room.getType()) || "AMFITEATRU".equalsIgnoreCase(room.getType())) {
             reservation.setStatus("APROBATA");
         }
 

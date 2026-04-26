@@ -14,7 +14,7 @@ public class PriorityScheduler implements SchedulingAlgorithm {
 
     @Override
     public boolean isReservationAllowed(List<Reservation> existingReservations, Reservation newReservation) {
-        return true; // Nu folosit în acest caz
+        return true;
     }
 
     public void applyScheduling(List<Reservation> pendingReservations, List<Reservation> existingConfirmed) {
