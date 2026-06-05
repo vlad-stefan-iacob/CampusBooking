@@ -52,4 +52,29 @@ public class RoundRobinSchedulerTest {
 
         assertFalse(scheduler.isReservationAllowed(List.of(existing), newOne));
     }
+
+    @Test
+    public void testHourlyExtensionAllowsThreeHourReservation() throws Exception {
+        Reservation newOne = create("09:00", "12:00");
+
+        assertTrue(scheduler.isReservationAllowed(List.of(), newOne));
+
+        scheduler.applyScheduling(List.of(), newOne);
+
+        assertEquals("09:00", newOne.getStartTime());
+        assertEquals("12:00", newOne.getEndTime());
+    }
+
+    @Test
+    public void testOverlapWithHourlyShiftFindsNextTwoHourWindow() throws Exception {
+        Reservation existing = create("09:00", "11:00");
+        Reservation newOne = create("08:00", "13:00");
+
+        assertTrue(scheduler.isReservationAllowed(List.of(existing), newOne));
+
+        scheduler.applyScheduling(List.of(existing), newOne);
+
+        assertEquals("11:00", newOne.getStartTime());
+        assertEquals("13:00", newOne.getEndTime());
+    }
 }

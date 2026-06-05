@@ -9,10 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 public class RoundRobinScheduler implements SchedulingAlgorithm {
 
@@ -36,7 +34,7 @@ public class RoundRobinScheduler implements SchedulingAlgorithm {
                 newOne.getStartTime(),
                 newOne.getEndTime(),
                 existing != null ? existing.size() : 0);
-        boolean allowed = !getAvailableSlots(existing, newOne).isEmpty();
+        boolean allowed = findAllocation(existing, newOne).isPresent();
         logger.info("RoundRobinScheduler end: allowed={}", allowed);
         return allowed;
     }
@@ -47,43 +45,50 @@ public class RoundRobinScheduler implements SchedulingAlgorithm {
                 newOne.getDate(),
                 newOne.getStartTime(),
                 newOne.getEndTime());
-        List<TimeSlot> availableSlots = getAvailableSlots(existing, newOne);
-
-        if (availableSlots.isEmpty()) {
+        Optional<TimeSlot> allocation = findAllocation(existing, newOne);
+        if (allocation.isEmpty()) {
             throw new IllegalStateException("No available slots");
         }
 
-        List<TimeSlot> requestedSlots = splitIntoSlots(newOne);
-        if (availableSlots.size() == requestedSlots.size()) {
+        TimeSlot slot = allocation.get();
+        if (slot.matches(newOne.getStartTime(), newOne.getEndTime())) {
             logger.info("RoundRobinScheduler apply end: full interval available");
             return;
         }
 
-        TimeSlot slot = availableSlots.get(0);
         newOne.setStartTime(slot.start.toString());
         newOne.setEndTime(slot.end.toString());
         logger.info("RoundRobinScheduler apply end: assignedStart={}, assignedEnd={}", newOne.getStartTime(), newOne.getEndTime());
     }
 
 
-    private List<TimeSlot> getAvailableSlots(List<Reservation> existing, Reservation newOne) {
-        Set<TimeSlot> occupied = new HashSet<>();
+    private Optional<TimeSlot> findAllocation(List<Reservation> existing, Reservation newOne) {
+        LocalTime requestedStart = LocalTime.parse(newOne.getStartTime(), FORMATTER);
+        LocalTime requestedEnd = LocalTime.parse(newOne.getEndTime(), FORMATTER);
+        int requestedDuration = (int) java.time.Duration.between(requestedStart, requestedEnd).toMinutes();
 
-        for (Reservation r : existing) {
-            if (!isSameDay(r.getDate(), newOne.getDate())) continue;
-            occupied.addAll(splitIntoSlots(r));
+        if (requestedDuration < slotDurationMinutes) {
+            return Optional.empty();
         }
 
-        List<TimeSlot> requested = splitIntoSlots(newOne);
-        List<TimeSlot> available = new ArrayList<>();
+        if (isWindowFree(existing, newOne, requestedStart, requestedEnd)) {
+            return Optional.of(new TimeSlot(requestedStart, requestedEnd));
+        }
 
-        for (TimeSlot slot : requested) {
-            if (!occupied.contains(slot)) {
-                available.add(slot);
+        LocalTime latestStart = requestedEnd.minusMinutes(slotDurationMinutes);
+        for (LocalTime candidateStart = requestedStart;
+             !candidateStart.isAfter(latestStart);
+             candidateStart = candidateStart.plusHours(1)) {
+            LocalTime candidateEnd = candidateStart.plusMinutes(slotDurationMinutes);
+            if (candidateEnd.isAfter(requestedEnd)) {
+                continue;
+            }
+            if (isWindowFree(existing, newOne, candidateStart, candidateEnd)) {
+                return Optional.of(new TimeSlot(candidateStart, candidateEnd));
             }
         }
 
-        return available;
+        return Optional.empty();
     }
 
     private boolean isSameDay(java.util.Date first, java.util.Date second) {
@@ -96,18 +101,22 @@ public class RoundRobinScheduler implements SchedulingAlgorithm {
         return firstDate.equals(secondDate);
     }
 
-    private List<TimeSlot> splitIntoSlots(Reservation r) {
-        LocalTime start = LocalTime.parse(r.getStartTime(), FORMATTER);
-        LocalTime end = LocalTime.parse(r.getEndTime(), FORMATTER);
-
-        List<TimeSlot> slots = new ArrayList<>();
-        while (start.isBefore(end)) {
-            LocalTime slotEnd = start.plusMinutes(slotDurationMinutes);
-            if (slotEnd.isAfter(end)) slotEnd = end;
-            slots.add(new TimeSlot(start, slotEnd));
-            start = slotEnd;
+    private boolean isWindowFree(List<Reservation> existing, Reservation request, LocalTime candidateStart, LocalTime candidateEnd) {
+        if (existing == null) {
+            return true;
         }
-        return slots;
+
+        for (Reservation reservation : existing) {
+            if (!isSameDay(reservation.getDate(), request.getDate())) {
+                continue;
+            }
+            LocalTime existingStart = LocalTime.parse(reservation.getStartTime(), FORMATTER);
+            LocalTime existingEnd = LocalTime.parse(reservation.getEndTime(), FORMATTER);
+            if (candidateStart.isBefore(existingEnd) && existingStart.isBefore(candidateEnd)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static class TimeSlot {
@@ -117,6 +126,10 @@ public class RoundRobinScheduler implements SchedulingAlgorithm {
         TimeSlot(LocalTime start, LocalTime end) {
             this.start = start;
             this.end = end;
+        }
+
+        boolean matches(String startTime, String endTime) {
+            return start.toString().equals(startTime) && end.toString().equals(endTime);
         }
 
         @Override

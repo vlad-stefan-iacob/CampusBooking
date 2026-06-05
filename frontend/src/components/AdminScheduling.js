@@ -239,7 +239,7 @@ function AdminScheduling() {
                         <div>
                             <span className="admin-scheduling-kicker">Control administrativ</span>
                             <h1>Meniu de configurare scheduling</h1>
-                            <p>Alege algoritmul potrivit pentru fiecare sală și, pentru amfiteatre, definește explicit regulile de prioritate ale evenimentelor.</p>
+                            <p>Alege algoritmul potrivit pentru fiecare sală și, pentru sălile care folosesc Priority Scheduling, definește explicit regulile de prioritate ale evenimentelor.</p>
                         </div>
                         <div className="admin-scheduling-summary">
                             <strong>{roomConfigs.length}</strong>
@@ -286,8 +286,8 @@ function AdminScheduling() {
                                             <label>Dimensiune slot Round Robin (minute)</label>
                                             <input
                                                 type="number"
-                                                min="30"
-                                                step="30"
+                                                min="60"
+                                                step="60"
                                                 className="form-control"
                                                 value={room.roundRobinSlotMinutes ?? ""}
                                                 onChange={(event) => updateRoomField(room.roomId, "roundRobinSlotMinutes", event.target.value)}

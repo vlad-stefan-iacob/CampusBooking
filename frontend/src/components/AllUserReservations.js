@@ -113,6 +113,7 @@ function AllUserReservations() {
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
                             reservation.roomType = roomData[0].type;
+                            reservation.schedulingAlgorithm = roomData[0].schedulingAlgorithm;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -343,6 +344,7 @@ function AllUserReservations() {
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
                             reservation.roomType = roomData[0].type;
+                            reservation.schedulingAlgorithm = roomData[0].schedulingAlgorithm;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -416,6 +418,7 @@ function AllUserReservations() {
                             const userData = await userResponse.json();
                             reservation.roomName = roomData[0].name;
                             reservation.roomType = roomData[0].type;
+                            reservation.schedulingAlgorithm = roomData[0].schedulingAlgorithm;
                             reservation.userName = `${userData[0].lastname} ${userData[0].firstname}`;
                         } else {
                             console.error("Failed to fetch room or user details for reservation:", roomResponse.statusText, userResponse.statusText);
@@ -455,6 +458,8 @@ function AllUserReservations() {
 
     // Calculează opțiuni pentru ora de sfârșit bazate pe ora de început selectată
     const endTimeOptions = updatedReservation.startTime ? timeOptions.filter(time => time > updatedReservation.startTime) : [];
+    const hasPriorityReservations = reservations.some(reservation => reservation.schedulingAlgorithm === "PRIORITY");
+    const tableMinWidth = hasPriorityReservations && showFuture ? "1260px" : hasPriorityReservations ? "1120px" : "1040px";
 
     return (
         <div className="AllUserReservations">
@@ -493,16 +498,17 @@ function AllUserReservations() {
                             {/* Add more tabs as needed */}
                         </ul>
                         <div className="table-responsive"> {/* Make the table responsive */}
-                            <table className="table table-bordered" style={{tableLayout: 'fixed'}}>
+                            <table className="table table-bordered" style={{tableLayout: 'auto', minWidth: tableMinWidth}}>
                                 <thead>
                                 <tr style={{background: "#D0C6C3"}}>
-                                    <th style={{width: '14%'}}>Data rezervării</th>
-                                    <th style={{width: '8%'}}>Sala</th>
-                                    <th style={{width: '11%'}}>Oră început</th>
-                                    <th style={{width: '11%'}}>Oră sfârșit</th>
-                                    <th style={{width: '14%'}}>Status</th>
-                                    <th style={{width: '24%'}}>Rezervare creată la data de</th>
-                                    {showFuture && <th>Acțiuni</th>}
+                                    <th style={{minWidth: '120px'}}>Data rezervării</th>
+                                    <th style={{minWidth: '90px'}}>Sala</th>
+                                    <th style={{minWidth: '120px'}}>Oră început</th>
+                                    <th style={{minWidth: '120px'}}>Oră sfârșit</th>
+                                    <th style={{minWidth: '140px'}}>Status</th>
+                                    {hasPriorityReservations && <th style={{minWidth: '150px'}}>Tip eveniment</th>}
+                                    <th style={{minWidth: '220px'}}>Rezervare creată la data de</th>
+                                    {showFuture && <th style={{minWidth: '150px', whiteSpace: 'nowrap'}}>Acțiuni</th>}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -527,13 +533,20 @@ function AllUserReservations() {
                                                     {reservation.status || "-"}
                                                 </span>
                                             </td>
+                                            {hasPriorityReservations && (
+                                                <td style={{whiteSpace: 'nowrap'}}>
+                                                    {reservation.schedulingAlgorithm === "PRIORITY" ? (reservation.eventType || "-") : "-"}
+                                                </td>
+                                            )}
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
-                                            <td>
+                                            <td style={{whiteSpace: 'nowrap'}}>
                                                 <button type="button" className="btn btn-danger"
+                                                        style={{display: 'block', width: '100%', marginLeft: 0, marginBottom: '8px'}}
                                                         onClick={() => deleteReservation(reservation)}>
                                                     Ștergere
                                                 </button>
                                                 <button type="button" className="btn btn-warning ml-lg-2"
+                                                        style={{display: 'block', width: '100%', marginLeft: 0}}
                                                         onClick={() => updateReservation(reservation)}>
                                                     Actualizare
                                                 </button>
@@ -561,6 +574,11 @@ function AllUserReservations() {
                                                     {reservation.status || "-"}
                                                 </span>
                                             </td>
+                                            {hasPriorityReservations && (
+                                                <td style={{whiteSpace: 'nowrap'}}>
+                                                    {reservation.schedulingAlgorithm === "PRIORITY" ? (reservation.eventType || "-") : "-"}
+                                                </td>
+                                            )}
                                             <td style={{whiteSpace: 'nowrap'}}>{reservation.reservationDateTime}</td>
                                         </tr>
                                     ))

@@ -35,7 +35,7 @@ public class RoomSchedulingPolicyService {
 
     private static final Map<String, List<String>> ALLOWED_ALGORITHMS_BY_ROOM_TYPE = Map.of(
             "SALA LECTURA", List.of(FCFS),
-            "LABORATOR", List.of(FCFS, ROUND_ROBIN),
+            "LABORATOR", List.of(FCFS, ROUND_ROBIN, PRIORITY),
             "AMFITEATRU", List.of(FCFS, PRIORITY)
     );
 

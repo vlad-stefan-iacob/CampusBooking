@@ -364,7 +364,8 @@ function Reservation() {
         const options = [];
         const startMinutes = 8 * 60;
         const endMinutes = 22 * 60;
-        for (let t = startMinutes; t <= endMinutes; t += roundRobinSlotMinutes) {
+        const latestStart = endMinutes - roundRobinSlotMinutes;
+        for (let t = startMinutes; t <= latestStart; t += 60) {
             options.push(toTimeString(t));
         }
         return options;
@@ -380,7 +381,7 @@ function Reservation() {
             const startMinutes = toMinutes(reservation.startTime);
             const maxMinutes = 22 * 60;
             const labOptions = [];
-            for (let t = startMinutes + roundRobinSlotMinutes; t <= maxMinutes; t += roundRobinSlotMinutes) {
+            for (let t = startMinutes + roundRobinSlotMinutes; t <= maxMinutes; t += 60) {
                 labOptions.push(toTimeString(t));
             }
             endTimeOptions = labOptions;

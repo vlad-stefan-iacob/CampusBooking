@@ -22,7 +22,7 @@ public class PrioritySchedulerTask {
     private final PriorityScheduler scheduler = new PriorityScheduler();
     private static final Logger logger = LoggerFactory.getLogger(PrioritySchedulerTask.class);
 
-    @Scheduled(cron = "0 * * * * *", zone = "Europe/Bucharest") // ruleaza in fiecare minut
+    @Scheduled(cron = "0 0 18 * * *", zone = "Europe/Bucharest") // ruleaza in fiecare minut
     public void runPriorityScheduling() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         ZoneId zoneId = ZoneId.systemDefault();
